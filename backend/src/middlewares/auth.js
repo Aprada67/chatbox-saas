@@ -12,7 +12,7 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 
   if (!token) {
-    throw new AppError('No autorizado — token requerido', 401)
+    throw new AppError('Not authorized - Token required', 401)
   }
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET)
