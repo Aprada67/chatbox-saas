@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { errorHandler } from './middlewares/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
+import chatbotRoutes from './routes/chatbotRoutes.js'
 
 const app = express()
 
@@ -29,6 +30,7 @@ app.get('/health', (req, res) => {
 
 // Rutas
 app.use('/api/auth', authRoutes)
+app.use('/api/chatbots', chatbotRoutes)
 
 // Manejador de errores (debe estar siempre al final)
 app.use(errorHandler)
