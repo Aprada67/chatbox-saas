@@ -5,6 +5,9 @@ import morgan from 'morgan';
 import { errorHandler } from './middlewares/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import chatbotRoutes from './routes/chatbotRoutes.js'
+import appointmentRoutes from './routes/appointmentRoutes.js'
+import availabilityRoutes from './routes/availabilityRoutes.js'
+import { globalLimiter, authLimiter, appointmentLimiter } from './middlewares/rateLimiter.js'
 
 const app = express()
 
@@ -22,6 +25,8 @@ app.use(morgan('dev'))
 app.use(express.json())
 // Para recibir datos de formularios (application/x-www-form-urlencoded)
 app.use(express.urlencoded({ extended: true }))
+// Limita todas las rutas a 100 peticiones por IP cada 15 minutos
+app.use(globalLimiter)
 
 // Verificación de salud del servidor
 app.get('/health', (req, res) => {
@@ -31,6 +36,12 @@ app.get('/health', (req, res) => {
 // Rutas
 app.use('/api/auth', authRoutes)
 app.use('/api/chatbots', chatbotRoutes)
+app.use('/api/appointments', appointmentRoutes)
+app.use('/api/availability', availabilityRoutes)
+app.use('/api/auth', authLimiter, authRoutes)
+app.use('/api/chatbots', chatbotRoutes)
+app.use('/api/appointments', appointmentLimiter, appointmentRoutes)
+app.use('/api/availability', availabilityRoutes)
 
 // Manejador de errores (debe estar siempre al final)
 app.use(errorHandler)
