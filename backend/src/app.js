@@ -8,6 +8,7 @@ import chatbotRoutes from './routes/chatbotRoutes.js'
 import appointmentRoutes from './routes/appointmentRoutes.js'
 import availabilityRoutes from './routes/availabilityRoutes.js'
 import { globalLimiter, authLimiter, appointmentLimiter } from './middlewares/rateLimiter.js'
+import adminRoutes from './routes/adminRoutes.js'
 
 const app = express()
 
@@ -42,6 +43,7 @@ app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/chatbots', chatbotRoutes)
 app.use('/api/appointments', appointmentLimiter, appointmentRoutes)
 app.use('/api/availability', availabilityRoutes)
+app.use('/api/admin', adminRoutes)
 
 // Manejador de errores (debe estar siempre al final)
 app.use(errorHandler)

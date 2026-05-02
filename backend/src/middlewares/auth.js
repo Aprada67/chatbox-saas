@@ -15,15 +15,20 @@ export const protect = asyncHandler(async (req, res, next) => {
     throw new AppError('Not authorized - Token required', 401)
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET)
+  let decoded
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET)
+  } catch (err) {
+    throw new AppError('Token inválido o expirado', 401)
+  }
 
   const [user] = await db
     .select({
-      id:       users.id,
-      name:     users.name,
-      email:    users.email,
-      role:     users.role,
-      plan:     users.plan,
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      plan: users.plan,
       isActive: users.isActive,
     })
     .from(users)

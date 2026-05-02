@@ -11,7 +11,7 @@ export const getMyChatbots = asyncHandler(async (req, res) => {
     .from(chatbots)
     .where(eq(chatbots.ownerId, req.user.id))
 
-  res.json(results)
+  res.json({ success: true, chatbots: results })
 })
 
 // GET /api/chatbots/:id — obtener un chatbot
@@ -80,12 +80,12 @@ export const createChatbot = asyncHandler(async (req, res) => {
   const [newChatbot] = await db
     .insert(chatbots)
     .values({
-      ownerId:        req.user.id,
-      name:           name.trim(),
+      ownerId: req.user.id,
+      name: name.trim(),
       welcomeMessage: welcomeMessage.trim(),
-      color:          color || '#3b82f6',
-      steps:          steps || [],
-      services:       services || [],
+      color: color || '#3b82f6',
+      steps: steps || [],
+      services: services || [],
       slug,
     })
     .returning()
@@ -142,7 +142,7 @@ export const deleteChatbot = asyncHandler(async (req, res) => {
     ))
 
   if (!existing) throw new AppError('Chatbot not found', 404)
-    
+
   await db.delete(chatbots).where(eq(chatbots.id, req.params.id))
 
   res.json({ success: true, message: 'Chatbot deleted successfully' })

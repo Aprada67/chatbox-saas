@@ -27,7 +27,7 @@ export const registerUser = asyncHandler(async (req, res) => {
     .where(eq(users.email, email.toLowerCase()))
 
   if (existing) {
-    throw new AppError('Email already in use', 400)
+    throw new AppError('Email already in use', 409)
   }
 
   // Hashear contraseña
@@ -52,15 +52,15 @@ export const registerUser = asyncHandler(async (req, res) => {
       plan: users.plan,
       trialEndsAt: users.trialEndsAt,
     })
-    
-    const token = generateToken(newUser.id)
 
-    res.status(201).json({
-      success: true,
-      message: 'User registered successfully',
-      token,
-      user: newUser,
-    })
+  const token = generateToken(newUser.id)
+
+  res.status(201).json({
+    success: true,
+    message: 'User registered successfully',
+    token,
+    user: newUser,
+  })
 })
 
 // POST /api/auth/login
@@ -80,8 +80,8 @@ export const login = asyncHandler(async (req, res) => {
 
   // Mismo mensaje para email y contraseña incorrectos
   // (no revelar si el email existe o no)
-  if (!user) {
-    throw new AppError('Invalid email or password', 401)
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    throw new AppError('Email o contraseña incorrectos', 401)
   }
 
   if (!user.isActive) {
