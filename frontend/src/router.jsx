@@ -10,6 +10,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminUsers from './pages/admin/AdminUsers';
 import AdminChatbots from './pages/admin/AdminChatbots';
 import ChatbotPage from './pages/chatbot/ChatbotPage';
+import MyAppointments from './pages/dashboard/MyAppointments';
 import Landing from './pages/Landing'
 
 // Spinner de carga global
@@ -74,6 +75,14 @@ const AppRouter = () => {
           element={
             <PrivateRoute>
               <CalendarPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard/appointments"
+          element={
+            <PrivateRoute>
+              <MyAppointments />
             </PrivateRoute>
           }
         />

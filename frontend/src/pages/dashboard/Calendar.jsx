@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
@@ -60,17 +60,20 @@ const CalendarPage = () => {
   })
 
   // Obtiene la disponibilidad configurada del chatbot
-  useQuery({
+  const { data: availabilityData } = useQuery({
     queryKey: ['availability', chatbotId],
     queryFn:  () => api.get(`/availability/${chatbotId}`).then(r => r.data),
     enabled:  !!chatbotId,
-    onSuccess: (data) => setAvailability(data.slots || []),
   })
+
+  useEffect(() => {
+    if (availabilityData) setAvailability(availabilityData.slots || [])
+  }, [availabilityData])
 
   const appointments = appointmentsData?.appointments || []
 
   // Convierte las citas al formato que FullCalendar entiende
-  const events = appointments.map(apt => ({
+  const events = appointments.filter(apt => apt.status !== 'cancelled').map(apt => ({
     id:              apt.id,
     title:           `${apt.guestName} — ${apt.service}`,
     start:           apt.date,

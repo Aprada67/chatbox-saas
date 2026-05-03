@@ -5,8 +5,9 @@ import { toast } from 'react-hot-toast';
 import { Calendar, Clock, X, ChevronDown } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
+import { getMyChatbotsApi } from '../../api/chatbot';
 import {
-  getMyAppointmentsApi,
+  getChatbotAppointmentsApi,
   cancelAppointmentApi,
 } from '../../api/appointments';
 
@@ -48,10 +49,17 @@ const MyAppointments = () => {
   const [expandedId, setExpandedId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
 
-  // Obtiene las citas del usuario autenticado
+  const { data: chatbotsData } = useQuery({
+    queryKey: ['chatbots'],
+    queryFn: () => getMyChatbotsApi().then((r) => r.data),
+  });
+
+  const chatbotId = chatbotsData?.chatbots?.[0]?.id;
+
   const { data, isLoading } = useQuery({
-    queryKey: ['my-appointments'],
-    queryFn: () => getMyAppointmentsApi().then((r) => r.data),
+    queryKey: ['appointments', chatbotId],
+    queryFn: () => getChatbotAppointmentsApi(chatbotId).then((r) => r.data),
+    enabled: !!chatbotId,
   });
 
   const appointments = data?.appointments || [];

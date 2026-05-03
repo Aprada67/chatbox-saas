@@ -8,7 +8,10 @@ const Input = ({ label, error, className = '', ...props }) => {
       )}
       <input
         className={`
-          ${error ? 'border-(--error)' : ''}
+          w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors
+          bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3)
+          focus:border-(--accent)
+          ${error ? 'border-(--error)' : 'border-(--border)'}
           ${className}
         `}
         {...props}

@@ -19,10 +19,18 @@ const COLORS = [
   '#0ea5e9','#A0522D','#64748b',
 ]
 
+const LANGUAGES = [
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+  { value: 'pt', label: 'Português' },
+  { value: 'fr', label: 'Français' },
+]
+
 // Schema de validación del formulario
 const schema = z.object({
   name:           z.string().min(3, 'Minimum 3 characters'),
   welcomeMessage: z.string().min(5, 'Minimum 5 characters'),
+  language:       z.string().default('en'),
 })
 
 // Genera un servicio vacío con ID único
@@ -47,6 +55,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     defaultValues: {
       name:           chatbot?.name           || '',
       welcomeMessage: chatbot?.welcomeMessage || '',
+      language:       chatbot?.language       || 'en',
     }
   })
 
@@ -111,6 +120,21 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
             error={errors.welcomeMessage?.message}
             {...register('welcomeMessage')}
           />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-medium uppercase tracking-wide"
+                   style={{ color: 'var(--text-3)' }}>
+              Chatbot language
+            </label>
+            <select
+              className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none"
+              style={{ background: 'var(--bg-tertiary)', borderColor: 'var(--border)', color: 'var(--text-1)' }}
+              {...register('language')}
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.value} value={l.value}>{l.label}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </Card>
 
@@ -310,18 +334,11 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
 
       <form onSubmit={handleSubmit(onSubmit)}>
 
-        {/* Layout desktop — 3 columnas */}
-        <div className="hidden lg:grid grid-cols-3 gap-6">
-          {infoPanel}
-          {servicesPanel}
-          {flowPanel}
-        </div>
-
-        {/* Layout móvil — tabs */}
-        <div className="lg:hidden">
-          {activeTab === 'info'     && infoPanel}
-          {activeTab === 'services' && servicesPanel}
-          {activeTab === 'flow'     && flowPanel}
+        {/* Layout unificado — grid en desktop, panel único en móvil */}
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+          <div className={activeTab !== 'info'     ? 'hidden lg:block' : ''}>{infoPanel}</div>
+          <div className={activeTab !== 'services' ? 'hidden lg:block' : ''}>{servicesPanel}</div>
+          <div className={activeTab !== 'flow'     ? 'hidden lg:block' : ''}>{flowPanel}</div>
         </div>
 
         {/* Botones */}

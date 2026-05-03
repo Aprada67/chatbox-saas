@@ -1,6 +1,6 @@
 import { db } from '../config/db.js'
 import { appointments, chatbots, availabilitySlots } from '../models/schema.js'
-import { eq, and, gte, lte } from 'drizzle-orm'
+import { eq, and, gte, lte, lt, sql } from 'drizzle-orm'
 import { AppError, asyncHandler } from '../middlewares/errorHandler.js'
 import {
   sendAppointmentConfirmation,
@@ -97,15 +97,26 @@ export const getAvailableSlots = asyncHandler(async (req, res) => {
       eq(appointments.status, 'confirmed')
     ))
 
-  // Filtrar slots ocupados
-  const bookedTimes = bookedAppointments.map(a => {
-    const d = new Date(a.date)
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-  })
+  const isSlotFree = (slotTime) => {
+    const [slotH, slotM] = slotTime.split(':').map(Number)
+    const slotStartMins = slotH * 60 + slotM
+    const slotEndMins   = slotStartMins + duration
+    return !bookedAppointments.some(a => {
+      const d = new Date(a.date)
+      const bookedStart = d.getHours() * 60 + d.getMinutes()
+      const bookedEnd   = bookedStart + a.durationMins
+      return bookedStart < slotEndMins && bookedEnd > slotStartMins
+    })
+  }
 
-  const available = allSlots.filter(slot => !bookedTimes.includes(slot))
+  const slots_with_status = allSlots.map(slot => ({
+    time:      slot,
+    available: isSlotFree(slot),
+  }))
 
-  res.json({ success: true, date, available })
+  const available = allSlots.filter(isSlotFree)
+
+  res.json({ success: true, date, available, slots: slots_with_status })
 })
 
 // POST /api/appointments — crear cita
@@ -150,15 +161,21 @@ export const createAppointment = asyncHandler(async (req, res) => {
   const slotEnd = new Date(date)
   slotEnd.setMinutes(slotEnd.getMinutes() + parseInt(durationMins))
 
-  const conflict = await db
-    .select({ id: appointments.id })
+  // Fetch all confirmed appointments that START before the new slot ends
+  const candidates = await db
+    .select({ id: appointments.id, date: appointments.date, durationMins: appointments.durationMins })
     .from(appointments)
     .where(and(
       eq(appointments.chatbotId, chatbotId),
       eq(appointments.status, 'confirmed'),
-      gte(appointments.date, slotStart),
-      lte(appointments.date, slotEnd)
+      lt(appointments.date, slotEnd)
     ))
+
+  // Then filter in JS: keep only those whose end time overlaps with slotStart
+  const conflict = candidates.filter(a => {
+    const existingEnd = new Date(a.date).getTime() + a.durationMins * 60 * 1000
+    return existingEnd > slotStart.getTime()
+  })
 
   if (conflict.length > 0) {
     throw new AppError('This time slot is no longer available. Please choose another.', 409)
@@ -231,6 +248,81 @@ export const getChatbotAppointments = asyncHandler(async (req, res) => {
     .where(eq(appointments.chatbotId, chatbotId))
 
   res.json({ success: true, appointments: results })
+})
+
+// GET /api/appointments/guest?chatbotId=X&email=Y — citas futuras de un guest (público)
+export const getGuestAppointments = asyncHandler(async (req, res) => {
+  const { chatbotId, email } = req.query
+
+  if (!chatbotId || !email) {
+    throw new AppError('chatbotId and email are required', 400)
+  }
+
+  const normalizedEmail = email.trim().toLowerCase()
+
+  const results = await db
+    .select({
+      id:          appointments.id,
+      service:     appointments.service,
+      price:       appointments.price,
+      durationMins: appointments.durationMins,
+      date:        appointments.date,
+      status:      appointments.status,
+      guestName:   appointments.guestName,
+    })
+    .from(appointments)
+    .where(and(
+      eq(appointments.chatbotId, chatbotId),
+      sql`lower(${appointments.guestEmail}) = ${normalizedEmail}`,
+      eq(appointments.status, 'confirmed'),
+      gte(appointments.date, new Date())
+    ))
+
+  res.json({ success: true, appointments: results })
+})
+
+// PATCH /api/appointments/:id/cancel-guest — cancelar cita como guest (verificado por email)
+export const cancelGuestAppointment = asyncHandler(async (req, res) => {
+  const { guestEmail } = req.body
+
+  if (!guestEmail) {
+    throw new AppError('guestEmail is required', 400)
+  }
+
+  const [appointment] = await db
+    .select()
+    .from(appointments)
+    .where(eq(appointments.id, req.params.id))
+
+  if (!appointment) throw new AppError('Appointment not found', 404)
+
+  const normalizedDb    = (appointment.guestEmail || '').trim().toLowerCase()
+  const normalizedInput = guestEmail.trim().toLowerCase()
+  if (normalizedDb !== normalizedInput) {
+    throw new AppError('Email does not match this appointment', 403)
+  }
+
+  if (appointment.status === 'cancelled') {
+    throw new AppError('This appointment is already cancelled', 400)
+  }
+
+  if (appointment.status === 'completed') {
+    throw new AppError('You cannot cancel a completed appointment', 400)
+  }
+
+  if (new Date(appointment.date) < new Date()) {
+    throw new AppError('You cannot cancel a past appointment', 400)
+  }
+
+  const [updated] = await db
+    .update(appointments)
+    .set({ status: 'cancelled', updatedAt: new Date() })
+    .where(eq(appointments.id, req.params.id))
+    .returning()
+
+  sendCancellationEmail(updated)
+
+  res.json({ success: true, message: 'Appointment cancelled successfully', appointment: updated })
 })
 
 // PATCH /api/appointments/:id/cancel — cancelar cita
