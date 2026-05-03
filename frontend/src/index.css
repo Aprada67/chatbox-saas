@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b27;
+    --bg-tertiary: #1e2436;
+    --border: #2a3147;
+    --border-2: #3d4f6e;
+    --text-1: #e8edf5;
+    --text-2: #94a3b8;
+    --text-3: #5a6a82;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --accent-bg: #1e2d4a;
+    --success: #1D9E75;
+    --success-bg: #0d1f1a;
+    --error: #e24b4b;
+    --error-bg: #1a0f0f;
+  }
+
+  .light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --border: #e2e8f0;
+    --border-2: #cbd5e1;
+    --text-1: #0f172a;
+    --text-2: #475569;
+    --text-3: #94a3b8;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-bg: #eff6ff;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --error: #ef4444;
+    --error-bg: #fef2f2;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: var(--bg-tertiary);
+    border: 0.5px solid var(--border);
+    color: var(--text-1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent);
+  }
+
+  input::placeholder {
+    color: var(--text-3);
+  }
+}

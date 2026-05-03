@@ -107,3 +107,37 @@ export const getMe = asyncHandler(async (req, res) => {
     user: req.user,
   })
 })
+
+// PATCH /api/auth/password — cambiar contraseña
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body
+
+  // Validaciones básicas
+  if (!currentPassword || !newPassword) {
+    throw new AppError('Both current and new password are required', 400)
+  }
+  if (newPassword.length < 8) {
+    throw new AppError('New password must be at least 8 characters', 400)
+  }
+
+  // Obtiene el usuario con su contraseña actual
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, req.user.id))
+
+  // Verifica que la contraseña actual sea correcta
+  const isValid = await bcrypt.compare(currentPassword, user.password)
+  if (!isValid) {
+    throw new AppError('Current password is incorrect', 401)
+  }
+
+  // Hashea y guarda la nueva contraseña
+  const hashed = await bcrypt.hash(newPassword, 12)
+  await db
+    .update(users)
+    .set({ password: hashed, updatedAt: new Date() })
+    .where(eq(users.id, req.user.id))
+
+  res.json({ success: true, message: 'Password updated successfully' })
+})
