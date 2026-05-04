@@ -12,10 +12,13 @@ export const users = pgTable('users', {
   password:    text('password').notNull(),
   role:        roleEnum('role').default('user').notNull(),
   plan:        planEnum('plan').default('trial'),
-  isActive:    boolean('is_active').default(true).notNull(),
-  trialEndsAt: timestamp('trial_ends_at'),
-  createdAt:   timestamp('created_at').defaultNow().notNull(),
-  updatedAt:   timestamp('updated_at').defaultNow().notNull(),
+  isActive:       boolean('is_active').default(true).notNull(),
+  trialEndsAt:    timestamp('trial_ends_at'),
+  emailNotifs:    boolean('email_notifs').default(true).notNull(),
+  reminderNotifs: boolean('reminder_notifs').default(true).notNull(),
+  timezone:       varchar('timezone', { length: 100 }).default('UTC').notNull(),
+  createdAt:      timestamp('created_at').defaultNow().notNull(),
+  updatedAt:      timestamp('updated_at').defaultNow().notNull(),
 })
 
 // Define la tabla de chatbots

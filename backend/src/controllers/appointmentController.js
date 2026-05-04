@@ -1,9 +1,10 @@
 import { db } from '../config/db.js'
-import { appointments, chatbots, availabilitySlots } from '../models/schema.js'
-import { eq, and, gte, lte, lt, sql } from 'drizzle-orm'
+import { appointments, chatbots, availabilitySlots, users } from '../models/schema.js'
+import { eq, and, gte, lte, lt, sql, inArray } from 'drizzle-orm'
 import { AppError, asyncHandler } from '../middlewares/errorHandler.js'
 import {
   sendAppointmentConfirmation,
+  sendOwnerNotification,
   sendCancellationEmail
 } from '../services/emailService.js'
 
@@ -198,8 +199,15 @@ export const createAppointment = asyncHandler(async (req, res) => {
     })
     .returning()
 
-  // Enviar email de confirmación (no bloquea la respuesta)
+  // Enviar email de confirmación al cliente
   sendAppointmentConfirmation(newAppointment)
+
+  // Enviar notificación al dueño si tiene emailNotifs activo
+  const [owner] = await db
+    .select({ email: users.email, emailNotifs: users.emailNotifs })
+    .from(users)
+    .where(eq(users.id, chatbot.ownerId))
+  if (owner?.emailNotifs) sendOwnerNotification(newAppointment, owner.email)
 
   res.status(201).json({
     success: true,

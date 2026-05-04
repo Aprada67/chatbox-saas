@@ -102,10 +102,31 @@ export const login = asyncHandler(async (req, res) => {
 
 // GET /api/auth/me
 export const getMe = asyncHandler(async (req, res) => {
-  res.json({
-    success: true,
-    user: req.user,
-  })
+  res.json({ success: true, user: req.user })
+})
+
+// PATCH /api/auth/preferences
+export const updatePreferences = asyncHandler(async (req, res) => {
+  const { emailNotifs, reminderNotifs, timezone } = req.body
+
+  const updates = {}
+  if (emailNotifs    !== undefined) updates.emailNotifs    = Boolean(emailNotifs)
+  if (reminderNotifs !== undefined) updates.reminderNotifs = Boolean(reminderNotifs)
+  if (timezone       !== undefined) updates.timezone       = timezone
+  updates.updatedAt = new Date()
+
+  const [updated] = await db
+    .update(users)
+    .set(updates)
+    .where(eq(users.id, req.user.id))
+    .returning({
+      id:             users.id,
+      emailNotifs:    users.emailNotifs,
+      reminderNotifs: users.reminderNotifs,
+      timezone:       users.timezone,
+    })
+
+  res.json({ success: true, user: updated })
 })
 
 // PATCH /api/auth/password — cambiar contraseña

@@ -9,8 +9,10 @@ import appointmentRoutes from './routes/appointmentRoutes.js'
 import availabilityRoutes from './routes/availabilityRoutes.js'
 import { globalLimiter, authLimiter, appointmentLimiter } from './middlewares/rateLimiter.js'
 import adminRoutes from './routes/adminRoutes.js'
+import { startScheduler } from './services/scheduler.js'
 
 const app = express()
+startScheduler()
 
 // Middleware de seguridad HTTPS (Proteje de ataques comunes, ej: Clickjacking, XSS, etc.)
 app.use(helmet())

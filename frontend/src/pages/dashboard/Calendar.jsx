@@ -1,157 +1,182 @@
-import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { motion, AnimatePresence } from 'framer-motion'
-import { toast } from 'react-hot-toast'
-import { Clock, X, Save } from 'lucide-react'
-import DashboardLayout from '../../components/layout/DashboardLayout'
-import Button          from '../../components/ui/Button'
-import Card            from '../../components/ui/Card'
-import { getMyChatbotsApi }            from '../../api/chatbot'
-import { getChatbotAppointmentsApi, cancelAppointmentApi } from '../../api/appointments'
-import api             from '../../api/axios'
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import { Clock, X, Save } from 'lucide-react';
+import DashboardLayout from '../../components/layout/DashboardLayout';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import { getMyChatbotsApi } from '../../api/chatbot';
+import {
+  getChatbotAppointmentsApi,
+  cancelAppointmentApi,
+} from '../../api/appointments';
+import { useSettings } from '../../context/SettingsContext';
+import api from '../../api/axios';
 
-// Días de la semana para el panel de disponibilidad
-const DAYS = [
-  { label: 'Sunday',    value: 0 },
-  { label: 'Monday',    value: 1 },
-  { label: 'Tuesday',   value: 2 },
-  { label: 'Wednesday', value: 3 },
-  { label: 'Thursday',  value: 4 },
-  { label: 'Friday',    value: 5 },
-  { label: 'Saturday',  value: 6 },
-]
+const LOCALE_MAP = { en: 'en-US', es: 'es-ES', pt: 'pt-BR', fr: 'fr-FR' };
 
 // Colores por estado de cita
 const STATUS_COLORS = {
   confirmed: '#3b82f6',
-  pending:   '#94a3b8',
+  pending: '#94a3b8',
   cancelled: '#e24b4b',
   completed: '#1D9E75',
-}
+};
 
 const CalendarPage = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
+  const { formatDateTime, t, language } = useSettings();
+
+  const locale = LOCALE_MAP[language] || 'en-US';
+
+  // Day names derived from locale — Jan 1 2017 was a Sunday (index 0)
+  const DAYS = [0, 1, 2, 3, 4, 5, 6].map((v) => ({
+    value: v,
+    label: new Date(2017, 0, 1 + v).toLocaleDateString(locale, {
+      weekday: 'long',
+    }),
+  }));
 
   // Estado del modal de detalle de cita
-  const [selectedApt, setSelectedApt] = useState(null)
+  const [selectedApt, setSelectedApt] = useState(null);
 
   // Estado del panel de disponibilidad
-  const [availability, setAvailability] = useState([])
-  const [showAvail,    setShowAvail]    = useState(false)
+  const [availability, setAvailability] = useState([]);
+  const [showAvail, setShowAvail] = useState(false);
 
   // Obtiene los chatbots del cliente
   const { data: chatbotsData } = useQuery({
     queryKey: ['chatbots'],
-    queryFn:  () => getMyChatbotsApi().then(r => r.data),
-  })
+    queryFn: () => getMyChatbotsApi().then((r) => r.data),
+  });
 
-  const chatbots  = chatbotsData?.chatbots || []
-  const chatbotId = chatbots[0]?.id
+  const chatbots = chatbotsData?.chatbots || [];
+  const chatbotId = chatbots[0]?.id;
 
   // Obtiene las citas del chatbot activo
   const { data: appointmentsData } = useQuery({
     queryKey: ['appointments', chatbotId],
-    queryFn:  () => getChatbotAppointmentsApi(chatbotId).then(r => r.data),
-    enabled:  !!chatbotId,
-  })
+    queryFn: () => getChatbotAppointmentsApi(chatbotId).then((r) => r.data),
+    enabled: !!chatbotId,
+  });
 
   // Obtiene la disponibilidad configurada del chatbot
   const { data: availabilityData } = useQuery({
     queryKey: ['availability', chatbotId],
-    queryFn:  () => api.get(`/availability/${chatbotId}`).then(r => r.data),
-    enabled:  !!chatbotId,
-  })
+    queryFn: () => api.get(`/availability/${chatbotId}`).then((r) => r.data),
+    enabled: !!chatbotId,
+  });
 
   useEffect(() => {
-    if (availabilityData) setAvailability(availabilityData.slots || [])
-  }, [availabilityData])
+    if (availabilityData) setAvailability(availabilityData.slots || []);
+  }, [availabilityData]);
 
-  const appointments = appointmentsData?.appointments || []
+  const appointments = appointmentsData?.appointments || [];
 
   // Convierte las citas al formato que FullCalendar entiende
-  const events = appointments.filter(apt => apt.status !== 'cancelled').map(apt => ({
-    id:              apt.id,
-    title:           `${apt.guestName} — ${apt.service}`,
-    start:           apt.date,
-    end:             new Date(new Date(apt.date).getTime() + apt.durationMins * 60000).toISOString(),
-    backgroundColor: STATUS_COLORS[apt.status] || STATUS_COLORS.pending,
-    borderColor:     STATUS_COLORS[apt.status] || STATUS_COLORS.pending,
-    extendedProps:   apt,
-  }))
+  const events = appointments
+    .filter((apt) => apt.status !== 'cancelled')
+    .map((apt) => ({
+      id: apt.id,
+      title: `${apt.guestName} — ${apt.service}`,
+      start: apt.date,
+      end: new Date(
+        new Date(apt.date).getTime() + apt.durationMins * 60000,
+      ).toISOString(),
+      backgroundColor: STATUS_COLORS[apt.status] || STATUS_COLORS.pending,
+      borderColor: STATUS_COLORS[apt.status] || STATUS_COLORS.pending,
+      extendedProps: apt,
+    }));
 
   // Cancela una cita y refresca la lista
   const cancelMutation = useMutation({
     mutationFn: cancelAppointmentApi,
-    onSuccess:  () => {
-      queryClient.invalidateQueries(['appointments', chatbotId])
-      toast.success('Appointment cancelled')
-      setSelectedApt(null)
+    onSuccess: () => {
+      queryClient.invalidateQueries(['appointments', chatbotId]);
+      toast.success(t('apptCancelled'));
+      setSelectedApt(null);
     },
     onError: (err) => toast.error(err.message),
-  })
+  });
 
   // Guarda los horarios de disponibilidad
   const availMutation = useMutation({
     mutationFn: (slots) => api.post(`/availability/${chatbotId}`, { slots }),
-    onSuccess:  () => {
-      queryClient.invalidateQueries(['availability', chatbotId])
-      toast.success('Availability saved')
-      setShowAvail(false)
+    onSuccess: () => {
+      queryClient.invalidateQueries(['availability', chatbotId]);
+      toast.success(t('availabilitySaved'));
+      setShowAvail(false);
     },
     onError: (err) => toast.error(err.message),
-  })
+  });
 
   // Activa o desactiva un día de la semana
   const toggleDay = (day) => {
-    const exists = availability.find(s => s.dayOfWeek === day)
+    const exists = availability.find((s) => s.dayOfWeek === day);
     if (exists) {
-      setAvailability(p => p.filter(s => s.dayOfWeek !== day))
+      setAvailability((p) => p.filter((s) => s.dayOfWeek !== day));
     } else {
-      setAvailability(p => [...p, { dayOfWeek: day, startTime: '09:00', endTime: '18:00' }])
+      setAvailability((p) => [
+        ...p,
+        { dayOfWeek: day, startTime: '09:00', endTime: '18:00' },
+      ]);
     }
-  }
+  };
 
   // Actualiza el horario de inicio o fin de un día
   const updateSlot = (day, field, value) =>
-    setAvailability(p =>
-      p.map(s => s.dayOfWeek === day ? { ...s, [field]: value } : s)
-    )
+    setAvailability((p) =>
+      p.map((s) => (s.dayOfWeek === day ? { ...s, [field]: value } : s)),
+    );
 
   // Si no hay chatbot creado muestra mensaje guía
-  if (!chatbotId) return (
-    <DashboardLayout title="Calendar">
-      <div className="flex flex-col items-center justify-center py-20">
-        <Clock size={36} className="mb-4" style={{ color: 'var(--text-3)' }} />
-        <p className="text-sm text-center px-4" style={{ color: 'var(--text-3)' }}>
-          Create a chatbot first to manage your calendar
-        </p>
-      </div>
-    </DashboardLayout>
-  )
-
-  return (
-    <DashboardLayout title="Calendar">
-
-      {/* Encabezado con contador y botón de disponibilidad */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h2 className="text-base md:text-lg font-semibold"
-              style={{ color: 'var(--text-1)' }}>
-            Appointments
-          </h2>
-          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
-            {appointments.filter(a => a.status === 'confirmed').length} confirmed
+  if (!chatbotId)
+    return (
+      <DashboardLayout title={t('calendar')}>
+        <div className="flex flex-col items-center justify-center py-20">
+          <Clock
+            size={36}
+            className="mb-4"
+            style={{ color: 'var(--text-3)' }}
+          />
+          <p
+            className="text-sm text-center px-4"
+            style={{ color: 'var(--text-3)' }}
+          >
+            {t('noChatbotCalendar')}
           </p>
         </div>
-        <Button variant="secondary" size="md" onClick={() => setShowAvail(true)}>
+      </DashboardLayout>
+    );
+
+  return (
+    <DashboardLayout title={t('calendar')}>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2
+            className="text-base md:text-lg font-semibold"
+            style={{ color: 'var(--text-1)' }}
+          >
+            {t('appointments')}
+          </h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+            {appointments.filter((a) => a.status === 'confirmed').length}{' '}
+            {t('confirmed').toLowerCase()}
+          </p>
+        </div>
+        <Button
+          variant="secondary"
+          size="md"
+          onClick={() => setShowAvail(true)}
+        >
           <Clock size={14} />
-          {/* Texto corto en móvil, completo en desktop */}
-          <span className="hidden sm:inline">Set availability</span>
-          <span className="sm:hidden">Hours</span>
+          <span className="hidden sm:inline">{t('setAvailability')}</span>
+          <span className="sm:hidden">{t('time')}</span>
         </Button>
       </div>
 
@@ -159,9 +184,12 @@ const CalendarPage = () => {
       <div className="flex flex-wrap items-center gap-3 mb-4">
         {Object.entries(STATUS_COLORS).map(([status, color]) => (
           <div key={status} className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: color }} />
-            <span className="text-xs capitalize" style={{ color: 'var(--text-3)' }}>
-              {status}
+            <div
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ background: color }}
+            />
+            <span className="text-xs" style={{ color: 'var(--text-3)' }}>
+              {t(status)}
             </span>
           </div>
         ))}
@@ -211,15 +239,16 @@ const CalendarPage = () => {
             flex-wrap: wrap;
             gap: 8px;
           }
-          .fc-toolbar-chunk { display: flex; gap: 4px; }
+          .fc-toolbar-chunk { display: flex; gap: 6px; }
+          .fc-button-group { display: flex; gap: 6px; }
         `}</style>
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           headerToolbar={{
-            left:   'prev,next',
+            left: 'prev,next',
             center: 'title',
-            right:  'dayGridMonth,timeGridWeek',
+            right: 'dayGridMonth,timeGridWeek',
           }}
           events={events}
           eventClick={(info) => setSelectedApt(info.event.extendedProps)}
@@ -237,33 +266,43 @@ const CalendarPage = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{    opacity: 0 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
             style={{ background: '#00000066' }}
             onClick={() => setSelectedApt(null)}
           >
             <motion.div
               initial={{ y: '100%', opacity: 0 }}
-              animate={{ y: 0,      opacity: 1 }}
-              exit={{    y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-6 border"
-              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+              style={{
+                background: 'var(--bg-secondary)',
+                borderColor: 'var(--border)',
+              }}
             >
               {/* Handle visible solo en móvil */}
               <div className="flex justify-center mb-4 sm:hidden">
-                <div className="w-10 h-1 rounded-full"
-                     style={{ background: 'var(--border-2)' }} />
+                <div
+                  className="w-10 h-1 rounded-full"
+                  style={{ background: 'var(--border-2)' }}
+                />
               </div>
 
               {/* Encabezado del modal */}
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
-                  Appointment details
+                <h3
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--text-1)' }}
+                >
+                  {t('apptDetails')}
                 </h3>
-                <button onClick={() => setSelectedApt(null)}
-                        style={{ color: 'var(--text-3)' }}>
+                <button
+                  onClick={() => setSelectedApt(null)}
+                  style={{ color: 'var(--text-3)' }}
+                >
                   <X size={16} />
                 </button>
               </div>
@@ -271,23 +310,40 @@ const CalendarPage = () => {
               {/* Filas de detalles de la cita */}
               <div className="flex flex-col gap-3">
                 {[
-                  { label: 'Client',   value: selectedApt.guestName },
-                  { label: 'Email',    value: selectedApt.guestEmail || '—' },
-                  { label: 'Phone',    value: selectedApt.guestPhone || '—' },
-                  { label: 'Service',  value: selectedApt.service },
-                  { label: 'Price',    value: `$${selectedApt.price}` },
-                  { label: 'Duration', value: `${selectedApt.durationMins} min` },
-                  { label: 'Date',     value: new Date(selectedApt.date).toLocaleString('en-US', {
-                      weekday: 'short', month: 'short', day: 'numeric',
-                      hour: '2-digit', minute: '2-digit'
-                    })
+                  { label: t('client'), value: selectedApt.guestName },
+                  { label: t('email'), value: selectedApt.guestEmail || '—' },
+                  { label: t('phone'), value: selectedApt.guestPhone || '—' },
+                  { label: t('service'), value: selectedApt.service },
+                  { label: t('price'), value: `€${selectedApt.price}` },
+                  {
+                    label: t('duration'),
+                    value: `${selectedApt.durationMins} min`,
+                  },
+                  {
+                    label: t('date'),
+                    value: formatDateTime(selectedApt.date, {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }),
                   },
                 ].map(({ label, value }) => (
-                  <div key={label} className="flex justify-between items-center">
-                    <span className="text-xs" style={{ color: 'var(--text-3)' }}>
+                  <div
+                    key={label}
+                    className="flex justify-between items-center"
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: 'var(--text-3)' }}
+                    >
                       {label}
                     </span>
-                    <span className="text-xs font-medium" style={{ color: 'var(--text-1)' }}>
+                    <span
+                      className="text-xs font-medium"
+                      style={{ color: 'var(--text-1)' }}
+                    >
                       {value}
                     </span>
                   </div>
@@ -295,13 +351,17 @@ const CalendarPage = () => {
 
                 {/* Badge de estado con color dinámico */}
                 <div className="flex justify-between items-center">
-                  <span className="text-xs" style={{ color: 'var(--text-3)' }}>Status</span>
-                  <span className="text-xs font-medium px-2.5 py-1 rounded-full capitalize"
-                        style={{
-                          background: STATUS_COLORS[selectedApt.status] + '22',
-                          color:      STATUS_COLORS[selectedApt.status],
-                        }}>
-                    {selectedApt.status}
+                  <span className="text-xs" style={{ color: 'var(--text-3)' }}>
+                    {t('status')}
+                  </span>
+                  <span
+                    className="text-xs font-medium px-2.5 py-1 rounded-full"
+                    style={{
+                      background: STATUS_COLORS[selectedApt.status] + '22',
+                      color: STATUS_COLORS[selectedApt.status],
+                    }}
+                  >
+                    {t(selectedApt.status)}
                   </span>
                 </div>
               </div>
@@ -309,12 +369,13 @@ const CalendarPage = () => {
               {/* Botón cancelar — solo visible si la cita está confirmada */}
               {selectedApt.status === 'confirmed' && (
                 <Button
-                  variant="danger" size="md"
+                  variant="danger"
+                  size="md"
                   className="w-full mt-5"
                   loading={cancelMutation.isPending}
                   onClick={() => cancelMutation.mutate(selectedApt.id)}
                 >
-                  Cancel appointment
+                  {t('cancelAppt')}
                 </Button>
               )}
             </motion.div>
@@ -323,13 +384,12 @@ const CalendarPage = () => {
       </AnimatePresence>
 
       {/* ── PANEL DE DISPONIBILIDAD ── */}
-      {/* Drawer desde abajo en móvil, desde la derecha en desktop */}
       <AnimatePresence>
         {showAvail && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{    opacity: 0 }}
+            exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-end sm:items-stretch sm:justify-end"
             style={{ background: '#00000066' }}
             onClick={() => setShowAvail(false)}
@@ -337,55 +397,79 @@ const CalendarPage = () => {
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
-              exit={{    y: '100%' }}
+              exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="w-full sm:w-80 max-h-[85vh] sm:max-h-full rounded-t-3xl sm:rounded-none border-t sm:border-l overflow-y-auto flex flex-col"
-              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+              style={{
+                background: 'var(--bg-secondary)',
+                borderColor: 'var(--border)',
+              }}
             >
               {/* Handle visible solo en móvil */}
               <div className="flex justify-center pt-3 pb-2 sm:hidden">
-                <div className="w-10 h-1 rounded-full"
-                     style={{ background: 'var(--border-2)' }} />
+                <div
+                  className="w-10 h-1 rounded-full"
+                  style={{ background: 'var(--border-2)' }}
+                />
               </div>
 
               {/* Encabezado del panel */}
-              <div className="flex items-center justify-between px-5 py-4 border-b"
-                   style={{ borderColor: 'var(--border)' }}>
-                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
-                  Set availability
+              <div
+                className="flex items-center justify-between px-5 py-4 border-b"
+                style={{ borderColor: 'var(--border)' }}
+              >
+                <h3
+                  className="text-sm font-semibold"
+                  style={{ color: 'var(--text-1)' }}
+                >
+                  {t('setAvailability')}
                 </h3>
-                <button onClick={() => setShowAvail(false)}
-                        style={{ color: 'var(--text-3)' }}>
+                <button
+                  onClick={() => setShowAvail(false)}
+                  style={{ color: 'var(--text-3)' }}
+                >
                   <X size={16} />
                 </button>
               </div>
 
               {/* Lista de días configurables */}
               <div className="flex-1 p-4 flex flex-col gap-3 overflow-y-auto">
-                {DAYS.map(day => {
-                  const slot   = availability.find(s => s.dayOfWeek === day.value)
-                  const active = !!slot
+                {DAYS.map((day) => {
+                  const slot = availability.find(
+                    (s) => s.dayOfWeek === day.value,
+                  );
+                  const active = !!slot;
                   return (
                     <div
                       key={day.value}
                       className="rounded-xl border p-3 transition-all"
                       style={{
                         borderColor: active ? 'var(--accent)' : 'var(--border)',
-                        background:  active ? 'var(--accent-bg)' : 'var(--bg-tertiary)',
+                        background: active
+                          ? 'var(--accent-bg)'
+                          : 'var(--bg-tertiary)',
                       }}
                     >
                       {/* Fila con nombre del día y toggle */}
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium"
-                              style={{ color: active ? 'var(--accent)' : 'var(--text-2)' }}>
+                        <span
+                          className="text-sm font-medium"
+                          style={{
+                            color: active ? 'var(--accent)' : 'var(--text-2)',
+                          }}
+                        >
                           {day.label}
                         </span>
                         <button
                           type="button"
                           onClick={() => toggleDay(day.value)}
                           className="w-10 h-6 rounded-full transition-all relative flex-shrink-0"
-                          style={{ background: active ? 'var(--accent)' : 'var(--border)' }}
+                          style={{
+                            background: active
+                              ? 'var(--accent)'
+                              : 'var(--border)',
+                          }}
                         >
                           <motion.div
                             animate={{ x: active ? 18 : 2 }}
@@ -400,35 +484,44 @@ const CalendarPage = () => {
                           <input
                             type="time"
                             value={slot.startTime}
-                            onChange={e => updateSlot(day.value, 'startTime', e.target.value)}
+                            onChange={(e) =>
+                              updateSlot(day.value, 'startTime', e.target.value)
+                            }
                             style={{ fontSize: '13px', padding: '5px 8px' }}
                           />
-                          <span className="text-xs flex-shrink-0"
-                                style={{ color: 'var(--text-3)' }}>
-                            to
+                          <span
+                            className="text-xs flex-shrink-0"
+                            style={{ color: 'var(--text-3)' }}
+                          >
+                            {t('to')}
                           </span>
                           <input
                             type="time"
                             value={slot.endTime}
-                            onChange={e => updateSlot(day.value, 'endTime', e.target.value)}
+                            onChange={(e) =>
+                              updateSlot(day.value, 'endTime', e.target.value)
+                            }
                             style={{ fontSize: '13px', padding: '5px 8px' }}
                           />
                         </div>
                       )}
                     </div>
-                  )
+                  );
                 })}
               </div>
 
               {/* Botón guardar disponibilidad */}
-              <div className="p-4 border-t" style={{ borderColor: 'var(--border)' }}>
+              <div
+                className="p-4 border-t"
+                style={{ borderColor: 'var(--border)' }}
+              >
                 <Button
                   className="w-full"
                   loading={availMutation.isPending}
                   onClick={() => availMutation.mutate(availability)}
                 >
                   <Save size={14} />
-                  Save availability
+                  {t('saveAvailability')}
                 </Button>
               </div>
             </motion.div>
@@ -436,7 +529,7 @@ const CalendarPage = () => {
         )}
       </AnimatePresence>
     </DashboardLayout>
-  )
-}
+  );
+};
 
-export default CalendarPage
+export default CalendarPage;

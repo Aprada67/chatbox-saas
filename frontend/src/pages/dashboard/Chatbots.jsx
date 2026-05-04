@@ -7,20 +7,21 @@ import DashboardLayout from '../../components/layout/DashboardLayout'
 import Button          from '../../components/ui/Button'
 import { getMyChatbotsApi, deleteChatbotApi } from '../../api/chatbot'
 import { useAuth }     from '../../context/AuthContext'
+import { useSettings } from '../../context/SettingsContext'
 
-// Badge del estado activo/inactivo del chatbot
-const StatusBadge = ({ isActive }) => (
+const StatusBadge = ({ isActive, t }) => (
   <span className="text-xs font-medium px-2.5 py-1 rounded-full"
         style={{
           background: isActive ? 'var(--success-bg)' : 'var(--bg-tertiary)',
           color:      isActive ? 'var(--success)'    : 'var(--text-3)',
         }}>
-    {isActive ? 'Active' : 'Inactive'}
+    {isActive ? t('activeStatus') : t('inactiveStatus')}
   </span>
 )
 
 const Chatbots = ({ onCreateClick, onEditClick }) => {
   const { user }    = useAuth()
+  const { t }       = useSettings()
   const queryClient = useQueryClient()
   const [deleting, setDeleting] = useState(null)
 
@@ -58,7 +59,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
   }
 
   if (isLoading) return (
-    <DashboardLayout title="Chatbots">
+    <DashboardLayout title={t('chatbots')}>
       <div className="flex items-center justify-center h-48">
         <span className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
               style={{ borderColor: 'var(--accent)', borderTopColor: 'transparent' }} />
@@ -67,13 +68,12 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
   )
 
   return (
-    <DashboardLayout title="Chatbots">
+    <DashboardLayout title={t('chatbots')}>
 
-      {/* Encabezado */}
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-base md:text-lg font-semibold" style={{ color: 'var(--text-1)' }}>
-            Your chatbots
+            {t('yourChatbots')}
           </h2>
           <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
             {chatbots.length} / {limit} — {user?.plan} plan
@@ -82,13 +82,12 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
         {canCreate && (
           <Button onClick={onCreateClick} size="md">
             <Plus size={15} />
-            <span className="hidden sm:inline">New chatbot</span>
-            <span className="sm:hidden">New</span>
+            <span className="hidden sm:inline">{t('newChatbot')}</span>
+            <span className="sm:hidden">{t('addService')}</span>
           </Button>
         )}
       </div>
 
-      {/* Estado vacío */}
       {chatbots.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -98,14 +97,14 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
         >
           <MessageSquare size={36} className="mb-4" style={{ color: 'var(--text-3)' }} />
           <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-1)' }}>
-            No chatbots yet
+            {t('noChatbots')}
           </p>
           <p className="text-xs mb-5 text-center px-6" style={{ color: 'var(--text-3)' }}>
-            Create your first chatbot to start receiving appointments
+            {t('noChatbotsHint')}
           </p>
           <Button onClick={onCreateClick} size="md">
             <Plus size={15} />
-            Create chatbot
+            {t('createChatbot')}
           </Button>
         </motion.div>
       ) : (
@@ -123,7 +122,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
               >
                 {/* Fila superior — info y badge */}
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                        style={{ background: bot.color + '22', border: `1.5px solid ${bot.color}` }}>
                     <MessageSquare size={16} style={{ color: bot.color }} />
                   </div>
@@ -132,10 +131,10 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
                       {bot.name}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
-                      {bot.services?.length || 0} services · {bot.steps?.length || 0} steps
+                      {bot.services?.length || 0} {t('services')} · {bot.steps?.length || 0} {t('steps')}
                     </p>
                   </div>
-                  <StatusBadge isActive={bot.isActive} />
+                  <StatusBadge isActive={bot.isActive} t={t} />
                 </div>
 
                 {/* Fila inferior — acciones */}
@@ -143,39 +142,28 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
                      style={{ borderColor: 'var(--border)' }}>
                   <Button variant="ghost" size="sm" onClick={() => copySlug(bot.slug)}>
                     <Copy size={14} />
-                    <span className="hidden sm:inline">Copy link</span>
+                    <span className="hidden sm:inline">{t('copyLink')}</span>
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => window.open(`/chat/${bot.slug}`, '_blank')}
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => window.open(`/chat/${bot.slug}`, '_blank')}>
                     <ExternalLink size={14} />
-                    <span className="hidden sm:inline">Preview</span>
+                    <span className="hidden sm:inline">{t('preview')}</span>
                   </Button>
                   <Button variant="secondary" size="sm" onClick={() => onEditClick(bot)}>
                     <Edit size={14} />
-                    Edit
+                    {t('edit')}
                   </Button>
-
-                  {/* Confirmación de eliminación inline */}
                   <div className="ml-auto">
                     {deleting === bot.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-xs hidden sm:inline"
-                              style={{ color: 'var(--text-3)' }}>
-                          Sure?
+                        <span className="text-xs hidden sm:inline" style={{ color: 'var(--text-3)' }}>
+                          {t('sure')}
                         </span>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          loading={deleteMutation.isPending}
-                          onClick={() => deleteMutation.mutate(bot.id)}
-                        >
-                          Delete
+                        <Button variant="danger" size="sm" loading={deleteMutation.isPending}
+                          onClick={() => deleteMutation.mutate(bot.id)}>
+                          {t('delete')}
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => setDeleting(null)}>
-                          Cancel
+                          {t('cancel')}
                         </Button>
                       </div>
                     ) : (
@@ -203,8 +191,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
             border:     '0.5px solid var(--border)'
           }}
         >
-          Chatbot limit reached for your {user?.plan} plan.
-          Upgrade to Premium for up to 3 chatbots.
+          {t('limitReached', user?.plan)} {t('upgradePremium')}
         </motion.div>
       )}
     </DashboardLayout>

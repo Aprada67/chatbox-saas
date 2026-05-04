@@ -15,6 +15,13 @@
       "when": 1777634673069,
       "tag": "0001_square_jigsaw",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777825857838,
+      "tag": "0002_goofy_living_tribunal",
+      "breakpoints": true
     }
   ]
 }

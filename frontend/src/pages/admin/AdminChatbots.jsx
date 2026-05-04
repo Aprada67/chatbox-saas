@@ -104,7 +104,7 @@ const AdminChatbots = () => {
               <div className="flex items-center gap-3 min-w-0">
                 {/* Ícono del chatbot con su color */}
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                   style={{
                     background: (bot.color || '#3b82f6') + '22',
                     border: `1.5px solid ${bot.color || '#3b82f6'}`,
@@ -132,7 +132,7 @@ const AdminChatbots = () => {
               </div>
 
               {/* Badge de estado y botón editar */}
-              <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 shrink-0">
                 <span
                   className="text-xs font-medium px-2 py-1 rounded-full hidden sm:inline"
                   style={{

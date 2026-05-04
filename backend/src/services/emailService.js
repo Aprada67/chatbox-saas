@@ -90,6 +90,40 @@ export const sendAppointmentReminder = async (appointment) => {
   })
 }
 
+// Notificación al dueño del negocio cuando se agenda una nueva cita
+export const sendOwnerNotification = async (appointment, ownerEmail) => {
+  if (!ownerEmail) return
+
+  const date = new Date(appointment.date)
+  const formattedDate = date.toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  })
+  const formattedTime = date.toLocaleTimeString('en-US', {
+    hour: '2-digit', minute: '2-digit'
+  })
+
+  await sendEmail({
+    to:      ownerEmail,
+    subject: `New appointment — ${appointment.service}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#1e293b">New Appointment Booked</h2>
+        <p>A new appointment has been scheduled.</p>
+        <div style="background:#f8fafc;border-radius:12px;padding:16px;margin:16px 0">
+          <p style="margin:6px 0"><strong>Client:</strong> ${appointment.guestName}</p>
+          ${appointment.guestEmail ? `<p style="margin:6px 0"><strong>Email:</strong> ${appointment.guestEmail}</p>` : ''}
+          ${appointment.guestPhone ? `<p style="margin:6px 0"><strong>Phone:</strong> ${appointment.guestPhone}</p>` : ''}
+          <p style="margin:6px 0"><strong>Service:</strong> ${appointment.service}</p>
+          <p style="margin:6px 0"><strong>Date:</strong> ${formattedDate}</p>
+          <p style="margin:6px 0"><strong>Time:</strong> ${formattedTime}</p>
+          <p style="margin:6px 0"><strong>Duration:</strong> ${appointment.durationMins} min</p>
+          <p style="margin:6px 0"><strong>Price:</strong> $${appointment.price}</p>
+        </div>
+      </div>
+    `
+  })
+}
+
 // En caso de cancelación por parte del cliente o del negocio
 export const sendCancellationEmail = async (appointment) => {
   if (!appointment.guestEmail) return

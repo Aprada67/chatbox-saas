@@ -6,45 +6,25 @@ import { Calendar, Clock, X, ChevronDown } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
 import { getMyChatbotsApi } from '../../api/chatbot';
+import { useSettings } from '../../context/SettingsContext';
 import {
   getChatbotAppointmentsApi,
   cancelAppointmentApi,
 } from '../../api/appointments';
 
-// Colores y etiquetas por estado de cita
-const STATUS = {
-  confirmed: {
-    color: 'var(--accent)',
-    bg: 'var(--accent-bg)',
-    label: 'Confirmed',
-  },
-  pending: {
-    color: 'var(--text-3)',
-    bg: 'var(--bg-tertiary)',
-    label: 'Pending',
-  },
-  cancelled: {
-    color: 'var(--error)',
-    bg: 'var(--error-bg)',
-    label: 'Cancelled',
-  },
-  completed: {
-    color: 'var(--success)',
-    bg: 'var(--success-bg)',
-    label: 'Completed',
-  },
+// Colores por estado de cita
+const STATUS_COLORS = {
+  confirmed: { color: 'var(--accent)', bg: 'var(--accent-bg)' },
+  pending: { color: 'var(--text-3)', bg: 'var(--bg-tertiary)' },
+  cancelled: { color: 'var(--error)', bg: 'var(--error-bg)' },
+  completed: { color: 'var(--success)', bg: 'var(--success-bg)' },
 };
 
-// Tabs de filtro de citas
-const TABS = [
-  { id: 'all', label: 'All' },
-  { id: 'confirmed', label: 'Confirmed' },
-  { id: 'completed', label: 'Completed' },
-  { id: 'cancelled', label: 'Cancelled' },
-];
+const TAB_IDS = ['all', 'confirmed', 'completed', 'cancelled'];
 
 const MyAppointments = () => {
   const queryClient = useQueryClient();
+  const { formatDate, formatTime, t } = useSettings();
   const [activeTab, setActiveTab] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
   const [confirmingId, setConfirmingId] = useState(null);
@@ -78,8 +58,8 @@ const MyAppointments = () => {
   const cancelMutation = useMutation({
     mutationFn: cancelAppointmentApi,
     onSuccess: () => {
-      queryClient.invalidateQueries(['my-appointments']);
-      toast.success('Appointment cancelled');
+      queryClient.invalidateQueries(['appointments', chatbotId]);
+      toast.success(t('apptCancelled'));
       setConfirmingId(null);
       setExpandedId(null);
     },
@@ -88,7 +68,7 @@ const MyAppointments = () => {
 
   if (isLoading)
     return (
-      <DashboardLayout title="My appointments">
+      <DashboardLayout title={t('appointments')}>
         <div className="flex items-center justify-center h-48">
           <span
             className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
@@ -102,14 +82,14 @@ const MyAppointments = () => {
     );
 
   return (
-    <DashboardLayout title="My appointments">
+    <DashboardLayout title={t('appointments')}>
       {/* Encabezado */}
       <div className="mb-5">
         <h2
           className="text-base md:text-lg font-semibold"
           style={{ color: 'var(--text-1)' }}
         >
-          Your appointments
+          {t('yourAppts')}
         </h2>
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
           {appointments.length} total
@@ -124,34 +104,32 @@ const MyAppointments = () => {
           border: '0.5px solid var(--border)',
         }}
       >
-        {TABS.map((tab) => {
-          // Cuenta las citas por cada tab
+        {TAB_IDS.map((id) => {
+          const label = id === 'all' ? t('allTab') : t(id);
           const count =
-            tab.id === 'all'
+            id === 'all'
               ? appointments.length
-              : appointments.filter((a) => a.status === tab.id).length;
+              : appointments.filter((a) => a.status === id).length;
           return (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              key={id}
+              onClick={() => setActiveTab(id)}
               className="flex-1 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap flex items-center justify-center gap-1.5"
               style={{
-                background:
-                  activeTab === tab.id ? 'var(--accent)' : 'transparent',
-                color: activeTab === tab.id ? '#fff' : 'var(--text-3)',
+                background: activeTab === id ? 'var(--accent)' : 'transparent',
+                color: activeTab === id ? '#fff' : 'var(--text-3)',
               }}
             >
-              {tab.label}
-              {/* Badge con el conteo */}
+              {label}
               {count > 0 && (
                 <span
                   className="px-1.5 py-0.5 rounded-full text-[10px]"
                   style={{
                     background:
-                      activeTab === tab.id
+                      activeTab === id
                         ? 'rgba(255,255,255,0.25)'
                         : 'var(--bg-tertiary)',
-                    color: activeTab === tab.id ? '#fff' : 'var(--text-3)',
+                    color: activeTab === id ? '#fff' : 'var(--text-3)',
                   }}
                 >
                   {count}
@@ -182,12 +160,12 @@ const MyAppointments = () => {
             className="text-sm font-medium mb-1"
             style={{ color: 'var(--text-1)' }}
           >
-            No appointments found
+            {t('noAppts')}
           </p>
           <p className="text-xs" style={{ color: 'var(--text-3)' }}>
             {activeTab === 'all'
-              ? 'You have no appointments yet'
-              : 'No ' + activeTab + ' appointments'}
+              ? t('noApptsFull')
+              : t('noApptsFiltered', activeTab)}
           </p>
         </motion.div>
       ) : (
@@ -196,7 +174,8 @@ const MyAppointments = () => {
           <AnimatePresence>
             {sorted.map((apt, i) => {
               const date = new Date(apt.date);
-              const status = STATUS[apt.status] || STATUS.pending;
+              const statusStyle =
+                STATUS_COLORS[apt.status] || STATUS_COLORS.pending;
               const isPast = date < new Date();
               const isExpanded = expandedId === apt.id;
 
@@ -220,20 +199,20 @@ const MyAppointments = () => {
                   >
                     {/* Fecha compacta */}
                     <div
-                      className="w-12 flex flex-col items-center flex-shrink-0 rounded-xl py-2"
+                      className="w-12 flex flex-col items-center shrink-0 rounded-xl py-2"
                       style={{ background: 'var(--bg-tertiary)' }}
                     >
                       <span
                         className="text-xs font-medium"
                         style={{ color: 'var(--text-3)' }}
                       >
-                        {date.toLocaleDateString('en-US', { month: 'short' })}
+                        {formatDate(date, { month: 'short' })}
                       </span>
                       <span
                         className="text-lg font-bold leading-tight"
                         style={{ color: 'var(--text-1)' }}
                       >
-                        {date.getDate()}
+                        {formatDate(date, { day: 'numeric' })}
                       </span>
                     </div>
 
@@ -251,7 +230,7 @@ const MyAppointments = () => {
                           className="text-xs"
                           style={{ color: 'var(--text-3)' }}
                         >
-                          {date.toLocaleTimeString('en-US', {
+                          {formatTime(date, {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
@@ -262,12 +241,15 @@ const MyAppointments = () => {
                     </div>
 
                     {/* Badge de estado y chevron */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       <span
                         className="text-xs font-medium px-2.5 py-1 rounded-full"
-                        style={{ background: status.bg, color: status.color }}
+                        style={{
+                          background: statusStyle.bg,
+                          color: statusStyle.color,
+                        }}
                       >
-                        {status.label}
+                        {t(apt.status)}
                       </span>
                       <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
                         <ChevronDown
@@ -294,15 +276,15 @@ const MyAppointments = () => {
                           {/* Detalles de la cita */}
                           <div className="pt-3 flex flex-col gap-2 mb-4">
                             {[
-                              { label: 'Service', value: apt.service },
-                              { label: 'Price', value: '$' + apt.price },
+                              { label: t('service'), value: apt.service },
+                              { label: t('price'), value: '€' + apt.price },
                               {
-                                label: 'Duration',
+                                label: t('duration'),
                                 value: apt.durationMins + ' min',
                               },
                               {
-                                label: 'Date',
-                                value: date.toLocaleDateString('en-US', {
+                                label: t('date'),
+                                value: formatDate(date, {
                                   weekday: 'long',
                                   year: 'numeric',
                                   month: 'long',
@@ -310,8 +292,8 @@ const MyAppointments = () => {
                                 }),
                               },
                               {
-                                label: 'Time',
-                                value: date.toLocaleTimeString('en-US', {
+                                label: t('time'),
+                                value: formatTime(date, {
                                   hour: '2-digit',
                                   minute: '2-digit',
                                 }),
@@ -341,13 +323,12 @@ const MyAppointments = () => {
                           {apt.status === 'confirmed' && !isPast && (
                             <div>
                               {confirmingId === apt.id ? (
-                                // Confirmación de cancelación
                                 <div className="flex items-center gap-2">
                                   <p
                                     className="text-xs flex-1"
                                     style={{ color: 'var(--text-3)' }}
                                   >
-                                    Cancel this appointment?
+                                    {t('cancelThisAppt')}
                                   </p>
                                   <Button
                                     variant="danger"
@@ -357,7 +338,7 @@ const MyAppointments = () => {
                                       cancelMutation.mutate(apt.id)
                                     }
                                   >
-                                    Yes, cancel
+                                    {t('yesCancel')}
                                   </Button>
                                   <Button
                                     variant="ghost"
@@ -374,7 +355,7 @@ const MyAppointments = () => {
                                   className="w-full"
                                   onClick={() => setConfirmingId(apt.id)}
                                 >
-                                  Cancel appointment
+                                  {t('cancelAppt')}
                                 </Button>
                               )}
                             </div>
@@ -386,7 +367,7 @@ const MyAppointments = () => {
                               className="text-xs text-center"
                               style={{ color: 'var(--text-3)' }}
                             >
-                              This appointment has already passed
+                              {t('pastAppt')}
                             </p>
                           )}
                         </div>
