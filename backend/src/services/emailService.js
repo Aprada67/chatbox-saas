@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer'
 
 const transporter = nodemailer.createTransport({
-  host:   process.env.EMAIL_HOST,
-  port:   parseInt(process.env.EMAIL_PORT),
+  host: process.env.EMAIL_HOST,
+  port: parseInt(process.env.EMAIL_PORT),
   secure: false,
   auth: {
     user: process.env.EMAIL_USER,
@@ -10,10 +10,10 @@ const transporter = nodemailer.createTransport({
   },
 })
 
-const sendEmail = async ({ to, subject, html }) => {
+export const sendEmail = async ({ to, subject, html }) => {
   try {
     await transporter.sendMail({
-      from:    process.env.EMAIL_FROM,
+      from: process.env.EMAIL_FROM,
       to,
       subject,
       html,
@@ -32,14 +32,14 @@ export const sendAppointmentConfirmation = async (appointment) => {
   const date = new Date(appointment.date)
   const formattedDate = date.toLocaleDateString('es-ES', {
     weekday: 'long', year: 'numeric',
-    month: 'long',   day: 'numeric'
+    month: 'long', day: 'numeric'
   })
   const formattedTime = date.toLocaleTimeString('es-ES', {
     hour: '2-digit', minute: '2-digit'
   })
 
   await sendEmail({
-    to:      appointment.guestEmail,
+    to: appointment.guestEmail,
     subject: 'Appointment Confirmation',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
@@ -65,14 +65,14 @@ export const sendAppointmentReminder = async (appointment) => {
   const date = new Date(appointment.date)
   const formattedDate = date.toLocaleDateString('es-ES', {
     weekday: 'long', year: 'numeric',
-    month: 'long',   day: 'numeric'
+    month: 'long', day: 'numeric'
   })
   const formattedTime = date.toLocaleTimeString('es-ES', {
     hour: '2-digit', minute: '2-digit'
   })
 
   await sendEmail({
-    to:      appointment.guestEmail,
+    to: appointment.guestEmail,
     subject: 'Appointment Reminder — Tomorrow',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
@@ -103,7 +103,7 @@ export const sendOwnerNotification = async (appointment, ownerEmail) => {
   })
 
   await sendEmail({
-    to:      ownerEmail,
+    to: ownerEmail,
     subject: `New appointment — ${appointment.service}`,
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
@@ -129,7 +129,7 @@ export const sendCancellationEmail = async (appointment) => {
   if (!appointment.guestEmail) return
 
   await sendEmail({
-    to:      appointment.guestEmail,
+    to: appointment.guestEmail,
     subject: 'Appointment Cancellation',
     html: `
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">

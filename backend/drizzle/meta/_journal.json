@@ -22,6 +22,20 @@
       "when": 1777825857838,
       "tag": "0002_goofy_living_tribunal",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777884335429,
+      "tag": "0003_first_ricochet",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777968744689,
+      "tag": "0004_lively_gambit",
+      "breakpoints": true
     }
   ]
 }

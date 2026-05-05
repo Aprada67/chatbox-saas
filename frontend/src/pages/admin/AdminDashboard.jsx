@@ -124,7 +124,7 @@ const AdminDashboard = () => {
                   />
                 </div>
               </motion.div>
-            )
+            );
           })}
         </div>
       </div>

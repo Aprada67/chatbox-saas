@@ -1,15 +1,19 @@
-import { Moon, Sun, Bell } from 'lucide-react'
-import { motion } from 'framer-motion'
-import { useTheme } from '../../context/ThemeContext'
+import { Moon, Sun, Bell } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useTheme } from '../../context/ThemeContext';
 
 const TopBar = ({ title }) => {
   // Obtiene el tema actual y la función para cambiarlo
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="h-14 flex items-center justify-between px-4 md:px-6 border-b flex-shrink-0"
-            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}>
-
+    <header
+      className="h-14 flex items-center justify-between px-4 md:px-6 border-b shrink-0"
+      style={{
+        background: 'var(--bg-secondary)',
+        borderColor: 'var(--border)',
+      }}
+    >
       {/* Título de la página actual */}
       <h1 className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
         {title}
@@ -17,7 +21,6 @@ const TopBar = ({ title }) => {
 
       {/* Controles de la barra superior */}
       <div className="flex items-center gap-2">
-
         {/* Toggle de tema oscuro/claro */}
         <motion.button
           whileTap={{ scale: 0.9 }}
@@ -38,7 +41,7 @@ const TopBar = ({ title }) => {
         </motion.button>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default TopBar
+export default TopBar;

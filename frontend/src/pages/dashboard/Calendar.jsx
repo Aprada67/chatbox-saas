@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -46,7 +46,8 @@ const CalendarPage = () => {
   const [selectedApt, setSelectedApt] = useState(null);
 
   // Estado del panel de disponibilidad
-  const [availability, setAvailability] = useState([]);
+  // localSlots = null significa "usa los datos del servidor"; cuando el usuario edita se setea
+  const [localSlots, setLocalSlots] = useState(null);
   const [showAvail, setShowAvail] = useState(false);
 
   // Obtiene los chatbots del cliente
@@ -72,9 +73,9 @@ const CalendarPage = () => {
     enabled: !!chatbotId,
   });
 
-  useEffect(() => {
-    if (availabilityData) setAvailability(availabilityData.slots || []);
-  }, [availabilityData]);
+  // Estado derivado: localSlots sobreescribe los datos del servidor mientras el usuario edita
+  const availability = localSlots ?? availabilityData?.slots ?? [];
+  const setAvailability = setLocalSlots;
 
   const appointments = appointmentsData?.appointments || [];
 
@@ -110,6 +111,7 @@ const CalendarPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(['availability', chatbotId]);
       toast.success(t('availabilitySaved'));
+      setLocalSlots(null); // reset para que vuelva a leer del servidor
       setShowAvail(false);
     },
     onError: (err) => toast.error(err.message),

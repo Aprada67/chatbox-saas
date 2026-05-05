@@ -23,19 +23,19 @@ createRoot(document.getElementById('root')).render(
       <ThemeProvider>
         <AuthProvider>
           <SettingsProvider>
-          <AppRouter />
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              style: {
-                background: 'var(--bg-secondary)',
-                color: 'var(--text-1)',
-                border: '0.5px solid var(--border)',
-                borderRadius: '12px',
-                fontSize: '13px',
-              },
-            }}
-          />
+            <AppRouter />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: 'var(--bg-secondary)',
+                  color: 'var(--text-1)',
+                  border: '0.5px solid var(--border)',
+                  borderRadius: '12px',
+                  fontSize: '13px',
+                },
+              }}
+            />
           </SettingsProvider>
         </AuthProvider>
       </ThemeProvider>

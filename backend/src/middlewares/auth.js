@@ -30,6 +30,9 @@ export const protect = asyncHandler(async (req, res, next) => {
       role: users.role,
       plan: users.plan,
       isActive: users.isActive,
+      trialEndsAt: users.trialEndsAt,
+      stripeCustomerId: users.stripeCustomerId,
+      stripeSubscriptionId: users.stripeSubscriptionId,
     })
     .from(users)
     .where(eq(users.id, decoded.id))

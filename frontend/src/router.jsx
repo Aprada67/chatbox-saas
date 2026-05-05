@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import ForgotPassword from './pages/auth/ForgotPassword';
+import ResetPassword from './pages/auth/ResetPassword';
 import Dashboard from './pages/dashboard/Dashboard';
 import ChatbotsPage from './pages/dashboard/ChatbotsPage';
 import CalendarPage from './pages/dashboard/Calendar';
@@ -11,7 +13,8 @@ import AdminUsers from './pages/admin/AdminUsers';
 import AdminChatbots from './pages/admin/AdminChatbots';
 import ChatbotPage from './pages/chatbot/ChatbotPage';
 import MyAppointments from './pages/dashboard/MyAppointments';
-import Landing from './pages/Landing'
+import Billing from './pages/dashboard/Billing';
+import Landing from './pages/Landing';
 
 // Spinner de carga global
 const Spinner = () => (
@@ -50,6 +53,14 @@ const AppRouter = () => {
         <Route
           path="/register"
           element={!user ? <Register /> : <Navigate to="/dashboard" />}
+        />
+        <Route
+          path="/forgot-password"
+          element={!user ? <ForgotPassword /> : <Navigate to="/dashboard" />}
+        />
+        <Route
+          path="/reset-password/:token"
+          element={!user ? <ResetPassword /> : <Navigate to="/dashboard" />}
         />
         <Route path="/chat/:slug" element={<ChatbotPage />} />
 
@@ -91,6 +102,14 @@ const AppRouter = () => {
           element={
             <PrivateRoute>
               <Settings />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/dashboard/billing"
+          element={
+            <PrivateRoute>
+              <Billing />
             </PrivateRoute>
           }
         />
