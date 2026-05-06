@@ -85,8 +85,8 @@ const Dashboard = () => {
           <Clock size={14} className="shrink-0" />
           <span>
             {trialDaysLeft > 0
-              ? `${trialDaysLeft} day(s) left in your free trial`
-              : 'Your free trial has expired — upgrade to continue'}
+              ? t('trialDaysLeft', trialDaysLeft)
+              : t('trialExpired')}
           </span>
         </motion.div>
       )}

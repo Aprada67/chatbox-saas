@@ -95,7 +95,7 @@ const ResetPassword = () => {
           </form>
 
           <p className="text-center text-sm text-(--text-3) mt-5">
-            <Link to="/login" className="text-(--accent) hover:underline">
+            <Link to="/login" className="text-(--accent) link-underline">
               Volver al login
             </Link>
           </p>

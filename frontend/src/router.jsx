@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import VerifyEmail from './pages/auth/VerifyEmail';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import Dashboard from './pages/dashboard/Dashboard';
@@ -14,6 +15,7 @@ import AdminChatbots from './pages/admin/AdminChatbots';
 import ChatbotPage from './pages/chatbot/ChatbotPage';
 import MyAppointments from './pages/dashboard/MyAppointments';
 import Billing from './pages/dashboard/Billing';
+import Analytics from './pages/dashboard/Analytics';
 import Landing from './pages/Landing';
 
 // Spinner de carga global
@@ -53,6 +55,10 @@ const AppRouter = () => {
         <Route
           path="/register"
           element={!user ? <Register /> : <Navigate to="/dashboard" />}
+        />
+        <Route
+          path="/verify-email"
+          element={!user ? <VerifyEmail /> : <Navigate to="/dashboard" />}
         />
         <Route
           path="/forgot-password"
@@ -113,6 +119,14 @@ const AppRouter = () => {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/dashboard/analytics"
+          element={
+            <PrivateRoute>
+              <Analytics />
+            </PrivateRoute>
+          }
+        />
 
         {/* Rutas del admin */}
         <Route
@@ -150,7 +164,7 @@ const AppRouter = () => {
 
         {/* Redirecciones */}
         <Route path="/" element={<Landing />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+        <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
       </Routes>
     </BrowserRouter>
   );

@@ -3,6 +3,7 @@ import { db } from '../config/db.js'
 import { appointments, chatbots, users } from '../models/schema.js'
 import { eq, and, gte, lte } from 'drizzle-orm'
 import { sendAppointmentReminder } from './emailService.js'
+import { sendWhatsAppReminder } from './whatsappService.js'
 
 // Runs every day at 9 AM — sends reminders for appointments in the next 24h
 export const startScheduler = () => {
@@ -27,12 +28,23 @@ export const startScheduler = () => {
 
       for (const { apt, ownerId } of upcoming) {
         const [owner] = await db
-          .select({ reminderNotifs: users.reminderNotifs })
+          .select({
+            reminderNotifs: users.reminderNotifs,
+            plan:           users.plan,
+          })
           .from(users)
           .where(eq(users.id, ownerId))
 
         if (owner?.reminderNotifs) {
           await sendAppointmentReminder(apt)
+        }
+
+        // WhatsApp reminder — solo planes pro/premium con teléfono del cliente
+        if (
+          (owner?.plan === 'pro' || owner?.plan === 'premium') &&
+          apt.guestPhone
+        ) {
+          await sendWhatsAppReminder(apt)
         }
       }
 

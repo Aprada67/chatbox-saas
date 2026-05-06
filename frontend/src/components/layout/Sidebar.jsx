@@ -9,6 +9,7 @@ import {
   Users,
   Menu,
   CreditCard,
+  BarChart2,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -48,6 +49,12 @@ const navItems = [
     roles: ['client'],
   },
   {
+    key: 'analytics',
+    icon: BarChart2,
+    path: '/dashboard/analytics',
+    roles: ['client'],
+  },
+  {
     key: 'settings',
     icon: Settings,
     path: '/dashboard/settings',
@@ -55,7 +62,7 @@ const navItems = [
   },
   { key: 'clients', icon: Users, path: '/admin/users', roles: ['admin'] },
   {
-    key: 'chatbots',
+    key: 'adminChatbots',
     icon: MessageSquare,
     path: '/admin/chatbots',
     roles: ['admin'],

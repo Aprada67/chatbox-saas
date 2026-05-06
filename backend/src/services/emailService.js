@@ -25,6 +25,44 @@ export const sendEmail = async ({ to, subject, html }) => {
   }
 }
 
+// Email de verificación de cuenta con código de 6 dígitos
+export const sendVerificationCode = async (user, code) => {
+  if (!user?.email || !code) return
+
+  await sendEmail({
+    to: user.email,
+    subject: 'Tu código de verificación',
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#1e293b">Verifica tu cuenta</h2>
+        <p>Hola <strong>${user.name}</strong>, usa el siguiente código para activar tu cuenta:</p>
+        <div style="text-align:center;margin:32px 0">
+          <div style="
+            display:inline-block;
+            padding:18px 28px;
+            background:#f1f5f9;
+            border:1px solid #e2e8f0;
+            border-radius:12px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size:36px;
+            font-weight:700;
+            color:#1e293b;
+            letter-spacing:12px;
+          ">
+            ${code}
+          </div>
+        </div>
+        <p style="color:#64748b;font-size:13px;text-align:center">
+          Este código expira en 15 minutos.
+        </p>
+        <p style="color:#94a3b8;font-size:12px;text-align:center;margin-top:16px">
+          Si no creaste esta cuenta, puedes ignorar este email.
+        </p>
+      </div>
+    `,
+  })
+}
+
 // Recordatorio de cita para el cliente (se envía 24 horas antes)
 export const sendAppointmentConfirmation = async (appointment) => {
   if (!appointment.guestEmail) return

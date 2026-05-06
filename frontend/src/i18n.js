@@ -3,6 +3,8 @@ const translations = {
     // Sidebar
     dashboard: 'Dashboard',
     chatbots: 'Chatbots',
+    adminChatbots: 'Chatbots',
+    clients: 'Clients',
     calendar: 'Calendar',
     appointments: 'Appointments',
     billing: 'Billing',
@@ -127,11 +129,23 @@ const translations = {
     availabilitySaved: 'Availability saved',
     noChatbotCalendar: 'Create a chatbot first to manage your calendar',
     flow: 'Flow',
+
+    // Analytics
+    analytics: 'Analytics',
+    revenue: 'Revenue',
+    cancellationRate: 'Cancellation rate',
+    topServices: 'Top services',
+    last30Days: 'Last 30 days',
+    upgradeForAnalytics: 'Advanced analytics available on the Premium plan',
+    trialDaysLeft: (n) => `${n} day(s) left in your free trial`,
+    trialExpired: 'Your free trial has expired — upgrade to continue',
   },
 
   es: {
     dashboard: 'Panel',
     chatbots: 'Chatbots',
+    adminChatbots: 'Chatbots',
+    clients: 'Clientes',
     calendar: 'Calendario',
     appointments: 'Citas',
     billing: 'Facturación',
@@ -250,11 +264,23 @@ const translations = {
     availabilitySaved: 'Horario guardado',
     noChatbotCalendar: 'Crea un chatbot primero para gestionar tu calendario',
     flow: 'Flujo',
+
+    // Analítica
+    analytics: 'Analíticas',
+    revenue: 'Ingresos',
+    cancellationRate: 'Tasa de cancelación',
+    topServices: 'Servicios destacados',
+    last30Days: 'Últimos 30 días',
+    upgradeForAnalytics: 'Analíticas avanzadas disponibles en el plan Premium',
+    trialDaysLeft: (n) => `${n} día(s) restantes en tu prueba`,
+    trialExpired: 'Tu prueba gratuita ha expirado — actualiza para continuar',
   },
 
   pt: {
     dashboard: 'Painel',
     chatbots: 'Chatbots',
+    adminChatbots: 'Chatbots',
+    clients: 'Clientes',
     calendar: 'Calendário',
     appointments: 'Consultas',
     billing: 'Faturação',
@@ -373,11 +399,23 @@ const translations = {
     availabilitySaved: 'Disponibilidade salva',
     noChatbotCalendar: 'Crie um chatbot primeiro para gerenciar seu calendário',
     flow: 'Fluxo',
+
+    // Analítica
+    analytics: 'Análises',
+    revenue: 'Receita',
+    cancellationRate: 'Taxa de cancelamento',
+    topServices: 'Principais serviços',
+    last30Days: 'Últimos 30 dias',
+    upgradeForAnalytics: 'Análises avançadas disponíveis no plano Premium',
+    trialDaysLeft: (n) => `${n} dia(s) restantes no seu período de teste`,
+    trialExpired: 'Seu período de teste expirou — atualize para continuar',
   },
 
   fr: {
     dashboard: 'Tableau de bord',
     chatbots: 'Chatbots',
+    adminChatbots: 'Chatbots',
+    clients: 'Clients',
     calendar: 'Calendrier',
     appointments: 'Rendez-vous',
     billing: 'Facturation',
@@ -496,6 +534,16 @@ const translations = {
     availabilitySaved: "Disponibilités enregistrées",
     noChatbotCalendar: "Créez d'abord un chatbot pour gérer votre calendrier",
     flow: 'Flux',
+
+    // Analytique
+    analytics: 'Analytique',
+    revenue: 'Revenus',
+    cancellationRate: "Taux d'annulation",
+    topServices: 'Meilleurs services',
+    last30Days: '30 derniers jours',
+    upgradeForAnalytics: "Analytique avancée disponible avec le plan Premium",
+    trialDaysLeft: (n) => `${n} jour(s) restant(s) dans votre essai gratuit`,
+    trialExpired: "Votre essai gratuit a expiré — passez à un forfait pour continuer",
   },
 }
 

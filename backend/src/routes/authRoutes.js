@@ -7,6 +7,8 @@ import {
   updatePreferences,
   forgotPassword,
   resetPassword,
+  verifyCode,
+  resendVerification,
 } from '../controllers/authController.js'
 import { protect } from '../middlewares/auth.js'
 
@@ -17,6 +19,8 @@ router.post('/register', registerUser)
 router.post('/login', login)
 router.post('/forgot-password', forgotPassword)
 router.post('/reset-password', resetPassword)
+router.post('/verify-code', verifyCode)
+router.post('/resend-verification', resendVerification)
 router.get('/me', protect, getMe)
 router.post('/change-password', protect, changePassword)
 router.patch('/preferences', protect, updatePreferences)

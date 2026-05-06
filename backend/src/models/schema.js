@@ -21,6 +21,9 @@ export const users = pgTable('users', {
   stripeSubscriptionId: varchar('stripe_subscription_id', { length: 100 }),
   resetPasswordToken: varchar('reset_password_token', { length: 255 }),
   resetPasswordExpires: timestamp('reset_password_expires'),
+  emailVerified: boolean('email_verified').default(false).notNull(),
+  emailVerificationCode: varchar('email_verification_code', { length: 6 }),
+  emailVerificationExpires: timestamp('email_verification_expires'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

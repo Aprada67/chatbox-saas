@@ -1,51 +1,146 @@
+import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { Check, ArrowLeft, Zap } from 'lucide-react';
 import { registerApi } from '../../api/auth';
-import { useAuth } from '../../context/AuthContext';
+import { preCheckoutApi } from '../../api/stripe';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 
-const schema = z
+const PLANS = [
+  {
+    id: 'trial',
+    name: 'Trial',
+    price: 'Gratis',
+    period: '7 días',
+    color: 'var(--text-3)',
+    cta: 'Empezar gratis',
+    note: 'Sin tarjeta',
+    features: [
+      '1 chatbot',
+      'Reservas online 24/7',
+      'Email de confirmación',
+      'Calendario básico',
+    ],
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    price: '34,99 €',
+    oldPrice: '39,99 €',
+    period: '/mes',
+    color: 'var(--accent)',
+    popular: true,
+    cta: 'Elegir Pro',
+    note: '7 días gratis · cancela cuando quieras',
+    features: [
+      '1 chatbot',
+      'Todo lo del Trial',
+      'Colores y marca propia',
+      'Recordatorios WhatsApp',
+      'Soporte prioritario',
+    ],
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    price: '79,99 €',
+    oldPrice: '110 €',
+    period: '/mes',
+    color: 'var(--success)',
+    cta: 'Elegir Premium',
+    note: '7 días gratis · cancela cuando quieras',
+    features: [
+      'Hasta 3 chatbots',
+      'Todo lo del Pro',
+      'Analíticas avanzadas',
+      'Integración CRM',
+      'Acceso API',
+      'Soporte dedicado',
+    ],
+  },
+];
+
+const formSchema = z
   .object({
-    name: z.string().min(3, 'Minimum 3 characters'),
-    email: z.string().email('Invalid email'),
-    password: z.string().min(8, 'Minimum 8 characters'),
+    name: z.string().min(3, 'Mínimo 3 caracteres'),
+    email: z.string().email('Email inválido'),
+    password: z.string().min(8, 'Mínimo 8 caracteres'),
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {
-    message: 'Passwords do not match',
+    message: 'Las contraseñas no coinciden',
     path: ['confirm'],
   });
 
 const Register = () => {
-  const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const sessionId = searchParams.get('session_id');
+  const planFromUrl = searchParams.get('plan');
+
+  // Si volvemos de Stripe (session_id presente), saltamos al paso 2
+  const initialStep = sessionId ? 2 : 1;
+  const [step, setStep] = useState(initialStep);
+  const [selectedPlan, setSelectedPlan] = useState(planFromUrl || 'trial');
+  const [loadingPlan, setLoadingPlan] = useState(null);
+
+  const planMeta = useMemo(
+    () => PLANS.find((p) => p.id === selectedPlan) || PLANS[0],
+    [selectedPlan],
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(formSchema),
   });
 
+  // Paso 1 — selección de plan
+  const handlePickPlan = async (planId) => {
+    if (planId === 'trial') {
+      setSelectedPlan('trial');
+      setStep(2);
+      return;
+    }
+
+    try {
+      setLoadingPlan(planId);
+      const { data } = await preCheckoutApi(planId);
+      if (data?.url) {
+        window.location.assign(data.url);
+        return;
+      }
+      toast.error('Respuesta inesperada del servidor');
+      setLoadingPlan(null);
+    } catch (err) {
+      toast.error(
+        err?.response?.data?.message || err?.message || 'Error iniciando el pago',
+      );
+      setLoadingPlan(null);
+    }
+  };
+
+  // Paso 2 — submit del formulario de registro
   const onSubmit = async (data) => {
     try {
-      const res = await registerApi({
+      await registerApi({
         name: data.name,
         email: data.email,
         password: data.password,
+        sessionId: sessionId || undefined,
       });
-      login(res.data.token, res.data.user);
-      toast.success('Account created. You have 7 days of free trial.');
-      navigate('/dashboard');
+      navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.message || 'Error creando la cuenta');
     }
   };
 
@@ -58,67 +153,223 @@ const Register = () => {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="w-full max-w-md"
+        className={`w-full ${step === 1 ? 'max-w-5xl' : 'max-w-md'}`}
       >
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-            Create Account
-          </h1>
-          <p className="text-sm text-(--text-3) mt-2">
-            7 days free trial. No credit card required.
-          </p>
-        </div>
+        {step === 1 && (
+          <>
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-semibold text-(--text-1) tracking-tight">
+                Elige tu plan
+              </h1>
+              <p className="text-sm text-(--text-3) mt-2">
+                Empieza gratis o prueba Pro/Premium 7 días sin coste
+              </p>
+            </div>
 
-        <Card>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-4"
-          >
-            <Input
-              label="Full name"
-              type="text"
-              placeholder="Your name"
-              error={errors.name?.message}
-              {...register('name')}
-            />
-            <Input
-              label="Email"
-              type="email"
-              placeholder="your@email.com"
-              error={errors.email?.message}
-              {...register('email')}
-            />
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              error={errors.password?.message}
-              {...register('password')}
-            />
-            <Input
-              label="Confirm password"
-              type="password"
-              placeholder="••••••••"
-              error={errors.confirm?.message}
-              {...register('confirm')}
-            />
-            <Button
-              type="submit"
-              size="lg"
-              loading={isSubmitting}
-              className="mt-2 w-full"
-            >
-              Create Account
-            </Button>
-          </form>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {PLANS.map((plan, i) => (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  className="rounded-2xl border p-5 relative flex flex-col"
+                  style={{
+                    background: 'var(--bg-secondary)',
+                    borderColor: plan.popular ? 'var(--accent)' : 'var(--border)',
+                    boxShadow: plan.popular ? '0 0 0 1px var(--accent)' : 'none',
+                  }}
+                >
+                  {plan.popular && (
+                    <div
+                      className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-semibold"
+                      style={{ background: 'var(--accent)', color: '#fff' }}
+                    >
+                      MÁS POPULAR
+                    </div>
+                  )}
 
-          <p className="text-center text-sm text-(--text-3) mt-5">
-            ¿Already have an account?{' '}
-            <Link to="/login" className="text-(--accent) hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </Card>
+                  <p
+                    className="text-xs font-bold uppercase tracking-widest mb-2"
+                    style={{ color: plan.color }}
+                  >
+                    {plan.name}
+                  </p>
+
+                  <div className="flex items-end gap-2 mb-1">
+                    <span
+                      className="text-3xl font-black"
+                      style={{ color: 'var(--text-1)' }}
+                    >
+                      {plan.price}
+                    </span>
+                    {plan.oldPrice && (
+                      <span
+                        className="text-sm line-through mb-1"
+                        style={{ color: 'var(--text-3)' }}
+                      >
+                        {plan.oldPrice}
+                      </span>
+                    )}
+                    <span
+                      className="text-xs mb-1.5"
+                      style={{ color: 'var(--text-3)' }}
+                    >
+                      {plan.period}
+                    </span>
+                  </div>
+                  <p
+                    className="text-xs mb-5"
+                    style={{ color: 'var(--text-3)' }}
+                  >
+                    {plan.note}
+                  </p>
+
+                  <div className="flex flex-col gap-2 mb-6 flex-1">
+                    {plan.features.map((f) => (
+                      <div key={f} className="flex items-start gap-2">
+                        <div
+                          className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                          style={{ background: 'var(--bg-tertiary)' }}
+                        >
+                          <Check size={10} style={{ color: plan.color }} />
+                        </div>
+                        <span
+                          className="text-xs leading-snug"
+                          style={{ color: 'var(--text-2)' }}
+                        >
+                          {f}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    size="md"
+                    variant={plan.popular ? 'primary' : 'secondary'}
+                    loading={loadingPlan === plan.id}
+                    onClick={() => handlePickPlan(plan.id)}
+                    className="w-full"
+                  >
+                    {plan.id !== 'trial' && <Zap size={13} />}
+                    {plan.cta}
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+
+            <p className="text-center text-sm text-(--text-3) mt-8">
+              ¿Ya tienes una cuenta?{' '}
+              <Link to="/login" className="text-(--accent) link-underline">
+                Inicia sesión
+              </Link>
+            </p>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
+                Crea tu cuenta
+              </h1>
+              <p className="text-sm text-(--text-3) mt-2">
+                Último paso para activar tu cuenta
+              </p>
+            </div>
+
+            <Card>
+              {/* Plan badge */}
+              <div
+                className="flex items-center justify-between gap-3 mb-5 px-3 py-2.5 rounded-xl border"
+                style={{
+                  background: 'var(--accent-bg)',
+                  borderColor: 'var(--accent)',
+                }}
+              >
+                <div className="flex flex-col">
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-widest"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    Plan seleccionado
+                  </span>
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: 'var(--text-1)' }}
+                  >
+                    {planMeta.name}
+                    {sessionId && planMeta.id !== 'trial'
+                      ? ' · 7 días gratis'
+                      : planMeta.id === 'trial'
+                        ? ' · 7 días gratis'
+                        : ''}
+                  </span>
+                </div>
+                {!sessionId && (
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="flex items-center gap-1 text-xs cursor-pointer bg-transparent border-0"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    <ArrowLeft size={12} />
+                    Cambiar
+                  </button>
+                )}
+              </div>
+
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col gap-4"
+              >
+                <Input
+                  label="Nombre completo"
+                  type="text"
+                  placeholder="Tu nombre"
+                  error={errors.name?.message}
+                  {...register('name')}
+                />
+                <Input
+                  label="Email"
+                  type="email"
+                  placeholder="tu@email.com"
+                  error={errors.email?.message}
+                  {...register('email')}
+                />
+                <Input
+                  label="Contraseña"
+                  type="password"
+                  placeholder="••••••••"
+                  error={errors.password?.message}
+                  {...register('password')}
+                />
+                <Input
+                  label="Confirmar contraseña"
+                  type="password"
+                  placeholder="••••••••"
+                  error={errors.confirm?.message}
+                  {...register('confirm')}
+                />
+                <Button
+                  type="submit"
+                  size="lg"
+                  loading={isSubmitting}
+                  className="mt-2 w-full"
+                >
+                  Crear cuenta
+                </Button>
+              </form>
+
+              <p className="text-center text-sm text-(--text-3) mt-5">
+                ¿Ya tienes una cuenta?{' '}
+                <Link to="/login" className="text-(--accent) link-underline">
+                  Inicia sesión
+                </Link>
+              </p>
+            </Card>
+          </>
+        )}
       </motion.div>
     </div>
   );

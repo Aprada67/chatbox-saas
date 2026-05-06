@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import { loginApi } from '../../api/auth';
+import { loginApi, resendVerificationApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -19,9 +20,14 @@ const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const [showResend, setShowResend] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resending, setResending] = useState(false);
+
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(schema),
@@ -36,6 +42,34 @@ const Login = () => {
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
       toast.error(err.message);
+      if (err.status === 403) {
+        // Email no verificado — redirige a la página de verificación con código
+        const email = getValues('email') || '';
+        if (email && /verifica/i.test(err.message || '')) {
+          navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+          return;
+        }
+        setResendEmail(email);
+        setShowResend(true);
+      }
+    }
+  };
+
+  const handleResend = async (e) => {
+    e.preventDefault();
+    if (!resendEmail) {
+      toast.error('Introduce tu email');
+      return;
+    }
+    setResending(true);
+    try {
+      await resendVerificationApi(resendEmail);
+      toast.success('Código reenviado. Revisa tu bandeja de entrada.');
+      navigate(`/verify-email?email=${encodeURIComponent(resendEmail)}`);
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setResending(false);
     }
   };
 
@@ -86,10 +120,56 @@ const Login = () => {
             </Button>
           </form>
 
+          {showResend && (
+            <div
+              className="mt-4 p-3 rounded-xl border"
+              style={{
+                borderColor: 'var(--border)',
+                background: 'var(--bg-tertiary)',
+              }}
+            >
+              <form onSubmit={handleResend} className="flex flex-col gap-3">
+                <p className="text-xs text-(--text-3)">
+                  Reenviar código de verificación a:
+                </p>
+                <Input
+                  type="email"
+                  placeholder="your@email.com"
+                  value={resendEmail}
+                  onChange={(e) => setResendEmail(e.target.value)}
+                />
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="sm"
+                  loading={resending}
+                  className="w-full"
+                >
+                  Reenviar código
+                </Button>
+              </form>
+            </div>
+          )}
+
+          {!showResend && (
+            <p className="text-center text-sm text-(--text-3) mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setResendEmail(getValues('email') || '');
+                  setShowResend(true);
+                }}
+                className="text-(--accent) link-underline cursor-pointer bg-transparent border-0 p-0"
+              >
+                Reenviar código de verificación
+              </button>
+            </p>
+          )}
+
           <p className="text-center text-sm text-(--text-3) mt-4">
             <Link
               to="/forgot-password"
-              className="text-(--accent) hover:underline"
+              className="text-(--accent) link-underline"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -97,7 +177,7 @@ const Login = () => {
 
           <p className="text-center text-sm text-(--text-3) mt-3">
             ¿Don&apos;t have an account?{' '}
-            <Link to="/register" className="text-(--accent) hover:underline">
+            <Link to="/register" className="text-(--accent) link-underline">
               Register
             </Link>
           </p>

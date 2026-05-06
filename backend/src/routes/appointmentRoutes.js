@@ -7,6 +7,7 @@ import {
   cancelAppointment,
   getGuestAppointments,
   cancelGuestAppointment,
+  getAppointmentStats,
 } from '../controllers/appointmentController.js'
 import { protect } from '../middlewares/auth.js'
 
@@ -22,6 +23,7 @@ router.patch('/:id/cancel-guest', cancelGuestAppointment)
 router.use(protect)
 router.get('/my', getMyAppointments)
 router.get('/chatbot/:chatbotId', getChatbotAppointments)
+router.get('/stats/:chatbotId', getAppointmentStats)
 router.patch('/:id/cancel', cancelAppointment)
 
 export default router

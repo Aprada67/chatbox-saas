@@ -1,5 +1,6 @@
 import request from 'supertest'
 import app from '../app.js'
+import { registerAndLogin } from './setup.js'
 
 const validUser = {
   name: 'Test Client',
@@ -22,10 +23,7 @@ const validChatbot = {
 let token
 
 beforeEach(async () => {
-  const res = await request(app)
-    .post('/api/auth/register')
-    .send(validUser)
-  token = res.body.token
+  token = await registerAndLogin(app, validUser)
 })
 
 describe('Chatbots — Create', () => {
@@ -145,13 +143,15 @@ describe('Chatbots — Edit and Delete', () => {
   })
 
   test('reject editing chatbot of another user', async () => {
-    const otherUser = await request(app)
-      .post('/api/auth/register')
-      .send({ name: 'Other', email: 'other@example.com', password: 'password123' })
+    const otherToken = await registerAndLogin(app, {
+      name: 'Other',
+      email: 'other@example.com',
+      password: 'password123',
+    })
 
     const res = await request(app)
       .patch(`/api/chatbots/${chatbotId}`)
-      .set('Authorization', `Bearer ${otherUser.body.token}`)
+      .set('Authorization', `Bearer ${otherToken}`)
       .send({ name: 'Hack' })
 
     expect(res.status).toBe(404)

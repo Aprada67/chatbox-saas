@@ -1,8 +1,11 @@
 import { Router } from 'express'
-import { createCheckout, createPortal, syncPlan } from '../controllers/stripeController.js'
+import { createCheckout, createPortal, syncPlan, preCheckout } from '../controllers/stripeController.js'
 import { protect } from '../middlewares/auth.js'
 
 const router = Router()
+
+// Endpoint público — usado en el flujo de registro antes de tener cuenta
+router.post('/pre-checkout', preCheckout)
 
 router.use(protect)
 router.post('/checkout', createCheckout)

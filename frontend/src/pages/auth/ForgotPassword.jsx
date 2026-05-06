@@ -66,7 +66,7 @@ const ForgotPassword = () => {
               </p>
               <Link
                 to="/login"
-                className="text-center text-sm text-(--accent) hover:underline"
+                className="text-center text-sm text-(--accent) link-underline"
               >
                 Volver al login
               </Link>
@@ -96,7 +96,7 @@ const ForgotPassword = () => {
 
               <p className="text-center text-sm text-(--text-3) mt-5">
                 ¿Recordaste tu contraseña?{' '}
-                <Link to="/login" className="text-(--accent) hover:underline">
+                <Link to="/login" className="text-(--accent) link-underline">
                   Iniciar sesión
                 </Link>
               </p>

@@ -1,14 +1,16 @@
 import request from 'supertest'
 import app from '../app.js'
+import { registerAndLogin } from './setup.js'
 
 let token
 let chatbotId
 
 beforeEach(async () => {
-  const user = await request(app)
-    .post('/api/auth/register')
-    .send({ name: 'Test', email: 'test@example.com', password: 'password123' })
-  token = user.body.token
+  token = await registerAndLogin(app, {
+    name: 'Test',
+    email: 'test@example.com',
+    password: 'password123',
+  })
 
   const chatbot = await request(app)
     .post('/api/chatbots')

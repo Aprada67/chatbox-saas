@@ -333,6 +333,108 @@ export const cancelGuestAppointment = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Appointment cancelled successfully', appointment: updated })
 })
 
+// GET /api/appointments/stats/:chatbotId — métricas avanzadas (Premium)
+export const getAppointmentStats = asyncHandler(async (req, res) => {
+  const { chatbotId } = req.params
+
+  // Verificar que el chatbot pertenece al usuario
+  const [chatbot] = await db
+    .select({ id: chatbots.id })
+    .from(chatbots)
+    .where(and(
+      eq(chatbots.id, chatbotId),
+      eq(chatbots.ownerId, req.user.id)
+    ))
+
+  if (!chatbot) throw new AppError('Chatbot not found', 404)
+
+  // 1) Resumen general — total, confirmed, cancelled, completed, revenue
+  const [summaryRow] = await db
+    .select({
+      total:     sql`COUNT(*)::int`,
+      confirmed: sql`COUNT(*) FILTER (WHERE ${appointments.status} = 'confirmed')::int`,
+      cancelled: sql`COUNT(*) FILTER (WHERE ${appointments.status} = 'cancelled')::int`,
+      completed: sql`COUNT(*) FILTER (WHERE ${appointments.status} = 'completed')::int`,
+      revenue:   sql`COALESCE(SUM(${appointments.price}) FILTER (WHERE ${appointments.status} IN ('confirmed','completed')), 0)::int`,
+    })
+    .from(appointments)
+    .where(eq(appointments.chatbotId, chatbotId))
+
+  const summary = {
+    total:     summaryRow?.total     || 0,
+    confirmed: summaryRow?.confirmed || 0,
+    cancelled: summaryRow?.cancelled || 0,
+    completed: summaryRow?.completed || 0,
+    revenue:   summaryRow?.revenue   || 0,
+  }
+
+  // 2) Citas por día — últimos 30 días, agrupadas por fecha
+  const since = new Date()
+  since.setHours(0, 0, 0, 0)
+  since.setDate(since.getDate() - 29) // 30 días incluyendo hoy
+
+  const grouped = await db
+    .select({
+      date:  sql`DATE(${appointments.date})`.as('date'),
+      count: sql`COUNT(*)::int`.as('count'),
+    })
+    .from(appointments)
+    .where(and(
+      eq(appointments.chatbotId, chatbotId),
+      gte(appointments.date, since)
+    ))
+    .groupBy(sql`DATE(${appointments.date})`)
+
+  // Indexar resultados por YYYY-MM-DD para rellenar huecos
+  const byDayMap = {}
+  for (const row of grouped) {
+    const d = row.date instanceof Date
+      ? row.date.toISOString().slice(0, 10)
+      : String(row.date).slice(0, 10)
+    byDayMap[d] = Number(row.count) || 0
+  }
+
+  const byDay = []
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(since)
+    d.setDate(since.getDate() + i)
+    const key = d.toISOString().slice(0, 10)
+    byDay.push({ date: key, count: byDayMap[key] || 0 })
+  }
+
+  // 3) Top 5 servicios por cantidad
+  const topRows = await db
+    .select({
+      service: appointments.service,
+      count:   sql`COUNT(*)::int`.as('count'),
+      revenue: sql`COALESCE(SUM(${appointments.price}) FILTER (WHERE ${appointments.status} IN ('confirmed','completed')), 0)::int`.as('revenue'),
+    })
+    .from(appointments)
+    .where(eq(appointments.chatbotId, chatbotId))
+    .groupBy(appointments.service)
+    .orderBy(sql`COUNT(*) DESC`)
+    .limit(5)
+
+  const topServices = topRows.map(r => ({
+    service: r.service,
+    count:   Number(r.count)   || 0,
+    revenue: Number(r.revenue) || 0,
+  }))
+
+  // 4) Tasa de cancelación (0–100, 1 decimal)
+  const cancellationRate = summary.total > 0
+    ? Math.round((summary.cancelled / summary.total) * 1000) / 10
+    : 0
+
+  res.json({
+    success: true,
+    summary,
+    byDay,
+    topServices,
+    cancellationRate,
+  })
+})
+
 // PATCH /api/appointments/:id/cancel — cancelar cita
 export const cancelAppointment = asyncHandler(async (req, res) => {
   const [appointment] = await db

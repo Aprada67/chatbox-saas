@@ -36,6 +36,20 @@
       "when": 1777968744689,
       "tag": "0004_lively_gambit",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778057082371,
+      "tag": "0005_last_skin",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1778143482000,
+      "tag": "0006_verification_code",
+      "breakpoints": true
     }
   ]
 }

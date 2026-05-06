@@ -69,6 +69,45 @@ const cancelOtherSubscriptions = async (customerId, keepId) => {
   }
 }
 
+// POST /api/stripe/pre-checkout — sesión de Stripe ANTES del registro
+// Endpoint público (sin auth). Se usa cuando un visitante elige Pro/Premium
+// en /register: lo enviamos a Stripe y, tras pagar, vuelve con session_id.
+export const preCheckout = asyncHandler(async (req, res) => {
+  const { plan } = req.body
+
+  if (!['pro', 'premium'].includes(plan)) {
+    return res.status(400).json({ success: false, message: 'Invalid plan' })
+  }
+
+  const priceId = plan === 'pro'
+    ? process.env.STRIPE_PRICE_PRO
+    : process.env.STRIPE_PRICE_PREMIUM
+
+  if (!priceId) {
+    return res.status(500).json({ success: false, message: 'Price ID not configured' })
+  }
+
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
+
+  // Sesión anónima — no fijamos customer porque el usuario aún no existe.
+  // Stripe creará un customer al completar el checkout.
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    payment_method_collection: 'always',
+    mode: 'subscription',
+    line_items: [{ price: priceId, quantity: 1 }],
+    success_url: `${clientUrl}/register?session_id={CHECKOUT_SESSION_ID}&plan=${plan}`,
+    cancel_url: `${clientUrl}/register`,
+    metadata: { plan },
+    subscription_data: {
+      trial_period_days: 7,
+      metadata: { plan },
+    },
+  })
+
+  res.json({ success: true, url: session.url })
+})
+
 // POST /api/stripe/checkout — crea sesión de pago en Stripe
 export const createCheckout = asyncHandler(async (req, res) => {
   const { plan } = req.body

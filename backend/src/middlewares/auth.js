@@ -30,6 +30,7 @@ export const protect = asyncHandler(async (req, res, next) => {
       role: users.role,
       plan: users.plan,
       isActive: users.isActive,
+      emailVerified: users.emailVerified,
       trialEndsAt: users.trialEndsAt,
       stripeCustomerId: users.stripeCustomerId,
       stripeSubscriptionId: users.stripeSubscriptionId,
