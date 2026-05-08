@@ -84,7 +84,7 @@ const Billing = () => {
           await refreshUser();
           toast.success('¡Plan actualizado correctamente!');
         } catch {
-          toast.success('¡Pago completado! Recarga si el plan no se actualiza.');
+          toast('¡Pago completado! Recarga la página si el plan no se actualiza.', { icon: 'ℹ️' });
         } finally {
           setSyncing(false);
         }

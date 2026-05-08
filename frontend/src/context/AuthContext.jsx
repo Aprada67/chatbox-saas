@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const refreshUser = () => getMeApi().then((res) => setUser(res.data.user));
+  const refreshUser = () => getMeApi().then((res) => setUser(res.data.user)).catch(() => {});
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>

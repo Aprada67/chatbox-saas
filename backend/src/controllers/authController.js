@@ -97,7 +97,9 @@ export const registerUser = asyncHandler(async (req, res) => {
       email: users.email,
     })
 
-  // Envía email con el código — si falla, no revelamos el error al cliente
+  // Siempre imprime el código en consola (útil si el email falla en desarrollo)
+  console.log(`\n🔑 CÓDIGO DE VERIFICACIÓN para ${newUser.email}: ${verificationCode}\n`)
+
   try {
     await sendVerificationCode(newUser, verificationCode)
   } catch (err) {
@@ -255,11 +257,13 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
   const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawToken}`
 
-  // Envía email — si falla, no revelamos el error al cliente
+  // Siempre imprime el link en consola (útil si el email falla en desarrollo)
+  console.log(`\n🔗 LINK DE RECUPERACIÓN para ${user.email}:\n${resetUrl}\n`)
+
   try {
     await sendEmail({
       to: user.email,
-      subject: 'Recupera tu contraseña — Chatbox SaaS',
+      subject: 'Recupera tu contraseña — ServeBot',
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
           <h2 style="color:#1e293b">Recupera tu contraseña</h2>

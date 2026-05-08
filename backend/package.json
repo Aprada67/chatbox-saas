@@ -48,6 +48,7 @@
     "morgan": "^1.10.1",
     "node-cron": "^4.2.1",
     "nodemailer": "^8.0.7",
+    "resend": "^6.12.3",
     "stripe": "^22.1.0",
     "twilio": "^6.0.0"
   },

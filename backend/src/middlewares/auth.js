@@ -50,6 +50,24 @@ export const protect = asyncHandler(async (req, res, next) => {
   next()
 })
 
+// Igual que protect pero no bloquea si no hay token — solo popula req.user si el token es válido
+export const optionalAuth = async (req, res, next) => {
+  const header = req.headers.authorization
+  if (!header?.startsWith('Bearer ')) return next()
+  const token = header.split(' ')[1]
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const [user] = await db
+      .select({ id: users.id, name: users.name, email: users.email, role: users.role, plan: users.plan, isActive: users.isActive })
+      .from(users)
+      .where(eq(users.id, decoded.id))
+    if (user?.isActive) req.user = user
+  } catch {
+    // token inválido — continuamos sin req.user
+  }
+  next()
+}
+
 export const restrictTo = (...roles) => (req, res, next) => {
   if (!roles.includes(req.user.role)) {
     throw new AppError('No tienes permiso para esta acción', 403)

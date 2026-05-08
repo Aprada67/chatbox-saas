@@ -1,27 +1,25 @@
 import nodemailer from 'nodemailer'
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-})
+const transporter = (process.env.EMAIL_FROM && process.env.EMAIL_PASS)
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_FROM,
+        pass: process.env.EMAIL_PASS,
+      },
+    })
+  : null
 
 export const sendEmail = async ({ to, subject, html }) => {
+  if (!transporter) {
+    console.log(`\n📧 EMAIL [${subject}] → ${to}\n`)
+    return
+  }
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM,
-      to,
-      subject,
-      html,
-    })
+    await transporter.sendMail({ from: `ServeBot <${process.env.EMAIL_FROM}>`, to, subject, html })
     console.log(`Email enviado a ${to}`)
   } catch (error) {
     console.error('Error enviando email:', error.message)
-    // No lanzamos el error — si el email falla, la cita igual se crea
   }
 }
 
