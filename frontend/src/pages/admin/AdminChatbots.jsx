@@ -13,7 +13,7 @@ const AdminChatbots = () => {
   const [editing, setEditing] = useState(null);
   const [editData, setEditData] = useState({});
 
-  // Obtiene todos los chatbots del sistema
+  // Fetches all chatbots in the system
   const { data, isLoading } = useQuery({
     queryKey: ['admin-chatbots'],
     queryFn: () => api.get('/admin/chatbots').then((r) => r.data),
@@ -21,14 +21,14 @@ const AdminChatbots = () => {
 
   const chatbots = data?.chatbots || [];
 
-  // Filtra chatbots por nombre o slug
+  // Filters chatbots by name or slug
   const filtered = chatbots.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.slug.toLowerCase().includes(search.toLowerCase()),
   );
 
-  // Abre el editor con los datos del chatbot seleccionado
+  // Opens the editor with the selected chatbot's data
   const handleEdit = (chatbot) => {
     setEditing(chatbot.id);
     setEditData({
@@ -38,12 +38,12 @@ const AdminChatbots = () => {
     });
   };
 
-  // Guarda los cambios del chatbot editado
+  // Saves changes to the edited chatbot
   const editMutation = useMutation({
     mutationFn: ({ id, data }) => api.patch(`/admin/chatbots/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-chatbots']);
-      toast.success('Chatbot updated');
+      toast.success('ServeBot updated');
       setEditing(null);
     },
     onError: (err) => toast.error(err.message),
@@ -51,7 +51,7 @@ const AdminChatbots = () => {
 
   if (isLoading)
     return (
-      <AdminLayout title="Chatbots">
+      <AdminLayout title="ServeBots">
         <div className="flex items-center justify-center h-48">
           <span
             className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
@@ -65,8 +65,8 @@ const AdminChatbots = () => {
     );
 
   return (
-    <AdminLayout title="Chatbots">
-      {/* Barra de búsqueda */}
+    <AdminLayout title="ServeBots">
+      {/* Search bar */}
       <div className="relative mb-5">
         <Search
           size={14}
@@ -82,10 +82,10 @@ const AdminChatbots = () => {
       </div>
 
       <p className="text-xs mb-4" style={{ color: 'var(--text-3)' }}>
-        {filtered.length} chatbot(s) found
+        {filtered.length} ServeBot(s) found
       </p>
 
-      {/* Lista de chatbots */}
+      {/* Chatbot list */}
       <div className="flex flex-col gap-3">
         {filtered.map((bot, i) => (
           <motion.div
@@ -99,10 +99,10 @@ const AdminChatbots = () => {
               borderColor: 'var(--border)',
             }}
           >
-            {/* Fila principal */}
+            {/* Main row */}
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                {/* Ícono del chatbot con su color */}
+                {/* Chatbot icon with its color */}
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                   style={{
@@ -131,7 +131,7 @@ const AdminChatbots = () => {
                 </div>
               </div>
 
-              {/* Badge de estado y botón editar */}
+              {/* Status badge and edit button */}
               <div className="flex items-center gap-2 shrink-0">
                 <span
                   className="text-xs font-medium px-2 py-1 rounded-full hidden sm:inline"
@@ -155,7 +155,7 @@ const AdminChatbots = () => {
               </div>
             </div>
 
-            {/* Panel de edición inline */}
+            {/* Inline edit panel */}
             <AnimatePresence>
               {editing === bot.id && (
                 <motion.div
@@ -168,7 +168,7 @@ const AdminChatbots = () => {
                     className="mt-4 pt-4 border-t flex flex-col gap-3"
                     style={{ borderColor: 'var(--border)' }}
                   >
-                    {/* Campo nombre */}
+                    {/* Name field */}
                     <div>
                       <label
                         className="text-xs font-medium uppercase tracking-wide mb-1.5 block"
@@ -185,7 +185,7 @@ const AdminChatbots = () => {
                       />
                     </div>
 
-                    {/* Campo mensaje de bienvenida */}
+                    {/* Welcome message field */}
                     <div>
                       <label
                         className="text-xs font-medium uppercase tracking-wide mb-1.5 block"
@@ -205,7 +205,7 @@ const AdminChatbots = () => {
                       />
                     </div>
 
-                    {/* Toggle de estado activo */}
+                    {/* Active status toggle */}
                     <div className="flex items-center justify-between">
                       <span
                         className="text-sm"
@@ -232,7 +232,7 @@ const AdminChatbots = () => {
                       </button>
                     </div>
 
-                    {/* Botones de acción */}
+                    {/* Action buttons */}
                     <div className="flex gap-2 justify-end mt-1">
                       <Button
                         variant="ghost"
@@ -260,7 +260,7 @@ const AdminChatbots = () => {
           </motion.div>
         ))}
 
-        {/* Estado vacío */}
+        {/* Empty state */}
         {filtered.length === 0 && (
           <div
             className="py-16 text-center rounded-2xl border"
@@ -270,7 +270,7 @@ const AdminChatbots = () => {
             }}
           >
             <p className="text-sm" style={{ color: 'var(--text-3)' }}>
-              No chatbots found
+              No ServeBots found
             </p>
           </div>
         )}

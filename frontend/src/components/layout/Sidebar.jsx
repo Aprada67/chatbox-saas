@@ -240,7 +240,7 @@ const Sidebar = () => {
               className="font-semibold text-sm tracking-tight"
               style={{ color: 'var(--text-1)' }}
             >
-              Chatbox
+              ServeBot
             </span>
           </div>
         </div>

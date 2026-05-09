@@ -47,10 +47,10 @@ const ForgotPassword = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-            Recuperar contraseña
+            Recover password
           </h1>
           <p className="text-sm text-(--text-3) mt-2">
-            Te enviaremos un enlace para restablecerla
+            We'll send you a link to reset it
           </p>
         </div>
 
@@ -61,14 +61,14 @@ const ForgotPassword = () => {
                 className="text-sm text-center"
                 style={{ color: 'var(--text-2)' }}
               >
-                Si existe una cuenta con ese email, recibirás un enlace de
-                recuperación.
+                If an account exists for that email, you'll receive a recovery
+                link.
               </p>
               <Link
                 to="/login"
                 className="text-center text-sm text-(--accent) link-underline"
               >
-                Volver al login
+                Back to login
               </Link>
             </div>
           ) : (
@@ -90,14 +90,14 @@ const ForgotPassword = () => {
                   loading={isSubmitting}
                   className="mt-2 w-full"
                 >
-                  Enviar enlace
+                  Send link
                 </Button>
               </form>
 
               <p className="text-center text-sm text-(--text-3) mt-5">
-                ¿Recordaste tu contraseña?{' '}
+                Remembered your password?{' '}
                 <Link to="/login" className="text-(--accent) link-underline">
-                  Iniciar sesión
+                  Log in
                 </Link>
               </p>
             </>

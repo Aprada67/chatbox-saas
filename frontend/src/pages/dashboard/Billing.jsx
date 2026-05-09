@@ -16,49 +16,49 @@ const PLANS = [
   {
     id: 'trial',
     name: 'Trial',
-    price: 'Gratis',
+    price: 'Free',
     oldPrice: null,
-    period: '7 días',
+    period: '7 days',
     color: 'var(--text-3)',
     features: [
-      '1 chatbot',
-      'Reservas online 24/7',
-      'Email de confirmación',
-      'Calendario básico',
+      '1 ServeBot',
+      'Online bookings 24/7',
+      'Email confirmation',
+      'Basic calendar',
     ],
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: '34,99 €',
-    oldPrice: '39,99 €',
-    period: '/mes',
+    price: '€34.99',
+    oldPrice: '€39.99',
+    period: '/month',
     color: 'var(--accent)',
     popular: true,
-    savings: 'Ahorras 5 €/mes',
+    savings: 'Save €5/month',
     features: [
-      '1 chatbot',
-      'Todo lo del Trial',
-      'Colores y marca propia',
-      'Recordatorios WhatsApp',
-      'Soporte prioritario',
+      '1 ServeBot',
+      'Everything in Trial',
+      'Custom colors & branding',
+      'WhatsApp reminders',
+      'Priority support',
     ],
   },
   {
     id: 'premium',
     name: 'Premium',
-    price: '79,99 €',
-    oldPrice: '110 €',
-    period: '/mes',
+    price: '€79.99',
+    oldPrice: '€110',
+    period: '/month',
     color: 'var(--success)',
-    savings: 'Ahorras 30 €/mes',
+    savings: 'Save €30/month',
     features: [
-      'Hasta 3 chatbots',
-      'Todo lo del Pro',
-      'Analíticas avanzadas',
-      'Integración CRM',
-      'Acceso API',
-      'Soporte dedicado',
+      'Up to 3 ServeBots',
+      'Everything in Pro',
+      'Advanced analytics',
+      'CRM integration',
+      'API access',
+      'Dedicated support',
     ],
   },
 ];
@@ -72,7 +72,7 @@ const Billing = () => {
   const [syncing, setSyncing] = useState(false);
   const [pendingChange, setPendingChange] = useState(null);
 
-  // Maneja redirección de Stripe tras el pago
+  // Handles Stripe redirect after payment
   const payment = searchParams.get('payment');
   useEffect(() => {
     if (payment === 'success') {
@@ -82,9 +82,9 @@ const Billing = () => {
         try {
           await syncPlanApi();
           await refreshUser();
-          toast.success('¡Plan actualizado correctamente!');
+          toast.success('Plan updated successfully!');
         } catch {
-          toast('¡Pago completado! Recarga la página si el plan no se actualiza.', { icon: 'ℹ️' });
+          toast('Payment completed! Reload the page if your plan does not update.', { icon: 'ℹ️' });
         } finally {
           setSyncing(false);
         }
@@ -92,7 +92,7 @@ const Billing = () => {
       sync();
     }
     if (payment === 'cancelled') {
-      toast('Pago cancelado.', { icon: 'ℹ️' });
+      toast('Payment cancelled.', { icon: 'ℹ️' });
       navigate('/dashboard/billing', { replace: true });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -103,36 +103,36 @@ const Billing = () => {
       setLoadingPlan(planId);
       const { data } = await createCheckoutApi(planId);
 
-      // Caso downgrade programado — el cambio se aplica al final del período
+      // Scheduled downgrade — change applies at end of period
       if (data?.upgraded && data?.scheduled) {
         await refreshUser();
         setPendingChange({ plan: planId, periodEnd: data.periodEnd });
-        toast.success(data.message || 'Cambio de plan programado');
+        toast.success(data.message || 'Plan change scheduled');
         setLoadingPlan(null);
         return;
       }
 
-      // Caso upgrade — la suscripción se actualizó en Stripe sin checkout
+      // Upgrade — subscription updated in Stripe without checkout
       if (data?.upgraded) {
         await refreshUser();
-        toast.success('Plan actualizado');
+        toast.success('Plan updated');
         setLoadingPlan(null);
         return;
       }
 
-      // Caso primera suscripción — redirigimos al checkout de Stripe
+      // First subscription — redirect to Stripe checkout
       if (data?.url) {
         window.location.assign(data.url);
         return;
       }
 
-      toast.error('Respuesta inesperada del servidor');
+      toast.error('Unexpected server response');
       setLoadingPlan(null);
     } catch (err) {
       toast.error(
         err?.response?.data?.message ||
           err?.response?.data?.error ||
-          'Error al iniciar el pago',
+          'Error starting payment',
       );
       setLoadingPlan(null);
     }
@@ -145,7 +145,7 @@ const Billing = () => {
       window.location.href = data.url;
     } catch (err) {
       toast.error(
-        err?.response?.data?.error || 'Error al abrir el portal de facturación',
+        err?.response?.data?.error || 'Error opening billing portal',
       );
       setLoadingPortal(false);
     }
@@ -163,9 +163,9 @@ const Billing = () => {
   const hasPaidPlan = ['pro', 'premium'].includes(user?.plan);
 
   return (
-    <DashboardLayout title="Facturación">
+    <DashboardLayout title="Billing">
       <div className="max-w-2xl mx-auto flex flex-col gap-5">
-        {/* Banner — plan actual */}
+        {/* Banner — current plan */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -181,7 +181,7 @@ const Billing = () => {
                 className="text-xs font-semibold uppercase tracking-widest mb-1"
                 style={{ color: 'var(--text-3)' }}
               >
-                {syncing ? 'Sincronizando plan...' : 'Plan actual'}
+                {syncing ? 'Syncing plan...' : 'Current plan'}
               </p>
               <p
                 className="text-xl font-black capitalize"
@@ -206,8 +206,8 @@ const Billing = () => {
                     }}
                   >
                     {trialDaysLeft > 0
-                      ? `${trialDaysLeft} día(s) restantes en tu prueba gratuita`
-                      : 'Tu prueba gratuita ha expirado'}
+                      ? `${trialDaysLeft} day(s) remaining in your free trial`
+                      : 'Your free trial has expired'}
                   </p>
                 </div>
               )}
@@ -220,7 +220,7 @@ const Billing = () => {
                 onClick={handlePortal}
               >
                 <ExternalLink size={13} />
-                Gestionar suscripción
+                Manage subscription
               </Button>
             )}
           </div>
@@ -236,24 +236,24 @@ const Billing = () => {
             >
               <Clock size={12} />
               <span>
-                Tu plan cambiará a{' '}
+                Your plan will change to{' '}
                 <strong className="capitalize">{pendingChange.plan}</strong>{' '}
                 {pendingChange.periodEnd
-                  ? `el ${new Date(pendingChange.periodEnd).toLocaleDateString(
-                      'es-ES',
+                  ? `on ${new Date(pendingChange.periodEnd).toLocaleDateString(
+                      'en-US',
                       {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric',
                       },
                     )}`
-                  : 'al final del período actual'}
+                  : 'at the end of the current period'}
               </span>
             </div>
           )}
         </motion.div>
 
-        {/* Tarjetas de plan */}
+        {/* Plan cards */}
         {PLANS.map((plan, i) => {
           const isCurrent = user?.plan === plan.id;
           const isDowngrade = plan.id === 'trial';
@@ -287,7 +287,7 @@ const Billing = () => {
                 </div>
               )}
 
-              {/* Nombre y badge */}
+              {/* Name and badge */}
               <div className="flex items-center gap-2 mb-2">
                 <p
                   className="text-xs font-bold uppercase tracking-widest"
@@ -300,7 +300,7 @@ const Billing = () => {
                     className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                     style={{ background: 'var(--accent)', color: '#fff' }}
                   >
-                    Actual
+                    Current
                   </span>
                 )}
                 {plan.popular && !isCurrent && (
@@ -367,7 +367,7 @@ const Billing = () => {
                 ))}
               </div>
 
-              {/* Botón de upgrade — inferior izquierdo */}
+              {/* Upgrade button — bottom left */}
               {canUpgrade && (
                 <Button
                   size="sm"
@@ -375,7 +375,7 @@ const Billing = () => {
                   onClick={() => handleUpgrade(plan.id)}
                 >
                   <Zap size={12} />
-                  Actualizar
+                  Upgrade
                 </Button>
               )}
             </motion.div>
@@ -384,8 +384,7 @@ const Billing = () => {
 
         {/* Nota informativa */}
         <p className="text-xs text-center" style={{ color: 'var(--text-3)' }}>
-          Los pagos son procesados de forma segura por Stripe. Puedes cancelar
-          en cualquier momento.
+          Payments are securely processed by Stripe. You can cancel at any time.
         </p>
       </div>
     </DashboardLayout>

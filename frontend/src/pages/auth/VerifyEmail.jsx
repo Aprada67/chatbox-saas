@@ -23,22 +23,22 @@ const VerifyEmail = () => {
 
   const inputsRef = useRef([]);
 
-  // Auto-foco en el primer input al montar
+  // Auto-focus on the first input on mount
   useEffect(() => {
     inputsRef.current[0]?.focus();
   }, []);
 
-  // Contador de cooldown para reenviar
+  // Cooldown countdown for resend
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [cooldown]);
 
-  // Si no hay email en la URL, no podemos verificar
+  // If there is no email in the URL we cannot verify
   useEffect(() => {
     if (!email) {
-      toast.error('Falta el email — vuelve a registrarte');
+      toast.error('Missing email — please register again');
     }
   }, [email]);
 
@@ -49,7 +49,7 @@ const VerifyEmail = () => {
   };
 
   const handleChange = (idx, value) => {
-    // Sólo dígitos, máximo 1 carácter
+    // Digits only, max 1 character
     const v = value.replace(/\D/g, '').slice(-1);
     setDigits((prev) => {
       const next = [...prev];
@@ -62,14 +62,14 @@ const VerifyEmail = () => {
   const handleKeyDown = (idx, e) => {
     if (e.key === 'Backspace') {
       if (digits[idx]) {
-        // Borra el dígito actual
+        // Clear current digit
         setDigits((prev) => {
           const next = [...prev];
           next[idx] = '';
           return next;
         });
       } else if (idx > 0) {
-        // Si el actual está vacío, retrocede y borra el anterior
+        // If current is empty, go back and clear the previous
         setDigits((prev) => {
           const next = [...prev];
           next[idx - 1] = '';
@@ -111,21 +111,21 @@ const VerifyEmail = () => {
   const handleSubmit = async (e) => {
     if (e?.preventDefault) e.preventDefault();
     if (!email) {
-      toast.error('Falta el email');
+      toast.error('Missing email');
       return;
     }
     if (!isComplete) {
-      toast.error('Introduce los 6 dígitos');
+      toast.error('Enter all 6 digits');
       return;
     }
     setSubmitting(true);
     try {
       const { data } = await verifyCodeApi({ email, code });
       login(data.token, data.user);
-      toast.success('¡Cuenta verificada!');
+      toast.success('Account verified!');
       navigate(data.user?.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
-      toast.error(err.message || 'Código incorrecto o expirado');
+      toast.error(err.message || 'Incorrect or expired code');
       setDigits(Array(CODE_LENGTH).fill(''));
       focusInput(0);
     } finally {
@@ -138,10 +138,10 @@ const VerifyEmail = () => {
     setResending(true);
     try {
       await resendVerificationApi(email);
-      toast.success('Código reenviado. Revisa tu bandeja de entrada.');
+      toast.success('Code resent. Check your inbox.');
       setCooldown(RESEND_COOLDOWN);
     } catch (err) {
-      toast.error(err.message || 'Error reenviando el código');
+      toast.error(err.message || 'Error resending the code');
     } finally {
       setResending(false);
     }
@@ -160,12 +160,12 @@ const VerifyEmail = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-            Verifica tu email
+            Verify your email
           </h1>
           <p className="text-sm text-(--text-3) mt-2">
-            Ingresa el código de 6 dígitos que enviamos a{' '}
+            Enter the 6-digit code we sent to{' '}
             <strong style={{ color: 'var(--text-2)' }}>
-              {email || 'tu email'}
+              {email || 'your email'}
             </strong>
           </p>
         </div>
@@ -206,12 +206,12 @@ const VerifyEmail = () => {
               disabled={!isComplete}
               className="w-full"
             >
-              Verificar
+              Verify
             </Button>
           </form>
 
           <div className="mt-5 text-center">
-            <p className="text-xs text-(--text-3) mb-2">¿No lo recibiste?</p>
+            <p className="text-xs text-(--text-3) mb-2">Didn't receive it?</p>
             <button
               type="button"
               onClick={handleResend}
@@ -220,16 +220,16 @@ const VerifyEmail = () => {
               style={{ color: 'var(--accent)' }}
             >
               {cooldown > 0
-                ? `Reenviar código en ${cooldown}s`
+                ? `Resend code in ${cooldown}s`
                 : resending
-                  ? 'Reenviando...'
-                  : 'Reenviar código'}
+                  ? 'Resending...'
+                  : 'Resend code'}
             </button>
           </div>
 
           <p className="text-center text-sm text-(--text-3) mt-5">
             <Link to="/login" className="text-(--accent) link-underline">
-              Volver al login
+              Back to login
             </Link>
           </p>
         </Card>
@@ -238,7 +238,7 @@ const VerifyEmail = () => {
           className="text-center text-xs mt-5"
           style={{ color: 'var(--text-3)' }}
         >
-          El código expira en 15 minutos.
+          The code expires in 15 minutes.
         </p>
       </motion.div>
     </div>

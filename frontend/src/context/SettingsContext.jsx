@@ -17,9 +17,11 @@ export const SettingsProvider = ({ children }) => {
     localStorage.getItem('timezone') ??
     'UTC';
 
-  const [language, setLanguage] = useState(
-    () => localStorage.getItem('language') || 'en',
-  );
+  const [language, setLanguage] = useState(() => {
+    if (localStorage.getItem('language')) return localStorage.getItem('language');
+    const browser = navigator.language?.slice(0, 2).toLowerCase();
+    return ['es', 'pt', 'fr'].includes(browser) ? browser : 'en';
+  });
 
   const t = getT(language);
 

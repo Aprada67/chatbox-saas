@@ -8,7 +8,7 @@ import { getChatbotAppointmentsApi } from '../../api/appointments';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 
-// Badge de estado para cada cita
+// Status badge for each appointment
 const StatusBadge = ({ status, t }) => {
   const styles = {
     confirmed: { bg: 'var(--accent-bg)', color: 'var(--accent)' },
@@ -31,7 +31,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const { t, formatDate, formatTime } = useSettings();
 
-  // Obtiene los chatbots del cliente autenticado
+  // Fetches the authenticated client's chatbots
   const { data: chatbotsData } = useQuery({
     queryKey: ['chatbots'],
     queryFn: () => getMyChatbotsApi().then((r) => r.data),
@@ -40,7 +40,7 @@ const Dashboard = () => {
   const chatbots = chatbotsData?.chatbots || [];
   const chatbotId = chatbots[0]?.id;
 
-  // Obtiene las citas del primer chatbot encontrado
+  // Fetches appointments for the first chatbot found
   const { data: appointmentsData } = useQuery({
     queryKey: ['appointments', chatbotId],
     queryFn: () => getChatbotAppointmentsApi(chatbotId).then((r) => r.data),
@@ -49,16 +49,16 @@ const Dashboard = () => {
 
   const appointments = appointmentsData?.appointments || [];
 
-  // Filtra solo las citas confirmadas
+  // Filters only confirmed appointments
   const confirmed = appointments.filter((a) => a.status === 'confirmed');
 
-  // Ordena y limita las próximas citas
+  // Sorts and limits upcoming appointments
   const upcoming = confirmed
     .filter((a) => new Date(a.date) > new Date())
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 5);
 
-  // Calcula los días restantes del trial
+  // Calculates remaining trial days
   const trialDaysLeft = user?.trialEndsAt
     ? Math.max(
         0,
@@ -70,7 +70,7 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout title="Dashboard">
-      {/* Banner de trial */}
+      {/* Trial banner */}
       {user?.plan === 'trial' && trialDaysLeft !== null && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -91,7 +91,7 @@ const Dashboard = () => {
         </motion.div>
       )}
 
-      {/* Grid de KPIs — 2 columnas en móvil, 4 en desktop */}
+      {/* KPI grid — 2 columns on mobile, 4 on desktop */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
         <KpiCard
           title={t('chatbots')}
@@ -126,7 +126,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Tabla de próximas citas */}
+      {/* Upcoming appointments table */}
       <div
         className="rounded-2xl border overflow-hidden"
         style={{
@@ -134,7 +134,7 @@ const Dashboard = () => {
           borderColor: 'var(--border)',
         }}
       >
-        {/* Encabezado */}
+        {/* Header */}
         <div
           className="px-4 md:px-5 py-4 border-b flex items-center justify-between"
           style={{ borderColor: 'var(--border)' }}
@@ -150,7 +150,7 @@ const Dashboard = () => {
           </span>
         </div>
 
-        {/* Estado vacío */}
+        {/* Empty state */}
         {upcoming.length === 0 ? (
           <div className="px-4 py-10 text-center">
             <Calendar
@@ -163,7 +163,7 @@ const Dashboard = () => {
             </p>
           </div>
         ) : (
-          // Lista de citas con animación escalonada
+          // Appointment list with staggered animation
           <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
             {upcoming.map((apt, i) => {
               const date = new Date(apt.date);
@@ -175,7 +175,7 @@ const Dashboard = () => {
                   transition={{ delay: i * 0.05 }}
                   className="px-4 md:px-5 py-3.5 flex items-center justify-between gap-3"
                 >
-                  {/* Nombre y servicio */}
+                  {/* Name and service */}
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <span
                       className="text-sm font-medium truncate"
@@ -191,7 +191,7 @@ const Dashboard = () => {
                     </span>
                   </div>
 
-                  {/* Fecha y badge */}
+                  {/* Date and badge */}
                   <div className="flex items-center gap-2 shrink-0">
                     <div className="text-right hidden sm:block">
                       <p

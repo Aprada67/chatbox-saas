@@ -16,65 +16,65 @@ const PLANS = [
   {
     id: 'trial',
     name: 'Trial',
-    price: 'Gratis',
-    period: '7 días',
+    price: 'Free',
+    period: '7 days',
     color: 'var(--text-3)',
-    cta: 'Empezar gratis',
-    note: 'Sin tarjeta',
+    cta: 'Start for free',
+    note: 'No card required',
     features: [
-      '1 chatbot',
-      'Reservas online 24/7',
-      'Email de confirmación',
-      'Calendario básico',
+      '1 ServeBot',
+      'Online bookings 24/7',
+      'Email confirmation',
+      'Basic calendar',
     ],
   },
   {
     id: 'pro',
     name: 'Pro',
-    price: '34,99 €',
-    oldPrice: '39,99 €',
-    period: '/mes',
+    price: '€34.99',
+    oldPrice: '€39.99',
+    period: '/month',
     color: 'var(--accent)',
     popular: true,
-    cta: 'Elegir Pro',
-    note: '7 días gratis · cancela cuando quieras',
+    cta: 'Choose Pro',
+    note: '7 days free · cancel anytime',
     features: [
-      '1 chatbot',
-      'Todo lo del Trial',
-      'Colores y marca propia',
-      'Recordatorios WhatsApp',
-      'Soporte prioritario',
+      '1 ServeBot',
+      'Everything in Trial',
+      'Custom colors & branding',
+      'WhatsApp reminders',
+      'Priority support',
     ],
   },
   {
     id: 'premium',
     name: 'Premium',
-    price: '79,99 €',
-    oldPrice: '110 €',
-    period: '/mes',
+    price: '€79.99',
+    oldPrice: '€110',
+    period: '/month',
     color: 'var(--success)',
-    cta: 'Elegir Premium',
-    note: '7 días gratis · cancela cuando quieras',
+    cta: 'Choose Premium',
+    note: '7 days free · cancel anytime',
     features: [
-      'Hasta 3 chatbots',
-      'Todo lo del Pro',
-      'Analíticas avanzadas',
-      'Integración CRM',
-      'Acceso API',
-      'Soporte dedicado',
+      'Up to 3 ServeBots',
+      'Everything in Pro',
+      'Advanced analytics',
+      'CRM integration',
+      'API access',
+      'Dedicated support',
     ],
   },
 ];
 
 const formSchema = z
   .object({
-    name: z.string().min(3, 'Mínimo 3 caracteres'),
-    email: z.string().email('Email inválido'),
-    password: z.string().min(8, 'Mínimo 8 caracteres'),
+    name: z.string().min(3, 'Minimum 3 characters'),
+    email: z.string().email('Invalid email'),
+    password: z.string().min(8, 'Minimum 8 characters'),
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {
-    message: 'Las contraseñas no coinciden',
+    message: 'Passwords do not match',
     path: ['confirm'],
   });
 
@@ -85,7 +85,7 @@ const Register = () => {
   const sessionId = searchParams.get('session_id');
   const planFromUrl = searchParams.get('plan');
 
-  // Si volvemos de Stripe (session_id presente), saltamos al paso 2
+  // If returning from Stripe (session_id present), skip to step 2
   const initialStep = sessionId ? 2 : 1;
   const [step, setStep] = useState(initialStep);
   const [selectedPlan, setSelectedPlan] = useState(planFromUrl || 'trial');
@@ -104,7 +104,7 @@ const Register = () => {
     resolver: zodResolver(formSchema),
   });
 
-  // Paso 1 — selección de plan
+  // Step 1 — plan selection
   const handlePickPlan = async (planId) => {
     if (planId === 'trial') {
       setSelectedPlan('trial');
@@ -119,17 +119,17 @@ const Register = () => {
         window.location.assign(data.url);
         return;
       }
-      toast.error('Respuesta inesperada del servidor');
+      toast.error('Unexpected server response');
       setLoadingPlan(null);
     } catch (err) {
       toast.error(
-        err?.response?.data?.message || err?.message || 'Error iniciando el pago',
+        err?.response?.data?.message || err?.message || 'Error starting payment',
       );
       setLoadingPlan(null);
     }
   };
 
-  // Paso 2 — submit del formulario de registro
+  // Step 2 — register form submission
   const onSubmit = async (data) => {
     try {
       await registerApi({
@@ -140,7 +140,7 @@ const Register = () => {
       });
       navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
-      toast.error(err.message || 'Error creando la cuenta');
+      toast.error(err.message || 'Error creating account');
     }
   };
 
@@ -159,10 +159,10 @@ const Register = () => {
           <>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-semibold text-(--text-1) tracking-tight">
-                Elige tu plan
+                Choose your plan
               </h1>
               <p className="text-sm text-(--text-3) mt-2">
-                Empieza gratis o prueba Pro/Premium 7 días sin coste
+                Start free or try Pro/Premium for 7 days at no cost
               </p>
             </div>
 
@@ -185,7 +185,7 @@ const Register = () => {
                       className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-semibold"
                       style={{ background: 'var(--accent)', color: '#fff' }}
                     >
-                      MÁS POPULAR
+                      MOST POPULAR
                     </div>
                   )}
 
@@ -259,9 +259,9 @@ const Register = () => {
             </div>
 
             <p className="text-center text-sm text-(--text-3) mt-8">
-              ¿Ya tienes una cuenta?{' '}
+              Already have an account?{' '}
               <Link to="/login" className="text-(--accent) link-underline">
-                Inicia sesión
+                Log in
               </Link>
             </p>
           </>
@@ -271,10 +271,10 @@ const Register = () => {
           <>
             <div className="text-center mb-8">
               <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-                Crea tu cuenta
+                Create your account
               </h1>
               <p className="text-sm text-(--text-3) mt-2">
-                Último paso para activar tu cuenta
+                Last step to activate your account
               </p>
             </div>
 
@@ -292,7 +292,7 @@ const Register = () => {
                     className="text-[10px] font-bold uppercase tracking-widest"
                     style={{ color: 'var(--accent)' }}
                   >
-                    Plan seleccionado
+                    Selected plan
                   </span>
                   <span
                     className="text-sm font-semibold"
@@ -300,9 +300,9 @@ const Register = () => {
                   >
                     {planMeta.name}
                     {sessionId && planMeta.id !== 'trial'
-                      ? ' · 7 días gratis'
+                      ? ' · 7 days free'
                       : planMeta.id === 'trial'
-                        ? ' · 7 días gratis'
+                        ? ' · 7 days free'
                         : ''}
                   </span>
                 </div>
@@ -314,7 +314,7 @@ const Register = () => {
                     style={{ color: 'var(--accent)' }}
                   >
                     <ArrowLeft size={12} />
-                    Cambiar
+                    Change
                   </button>
                 )}
               </div>
@@ -324,28 +324,28 @@ const Register = () => {
                 className="flex flex-col gap-4"
               >
                 <Input
-                  label="Nombre completo"
+                  label="Full name"
                   type="text"
-                  placeholder="Tu nombre"
+                  placeholder="Your name"
                   error={errors.name?.message}
                   {...register('name')}
                 />
                 <Input
                   label="Email"
                   type="email"
-                  placeholder="tu@email.com"
+                  placeholder="you@email.com"
                   error={errors.email?.message}
                   {...register('email')}
                 />
                 <Input
-                  label="Contraseña"
+                  label="Password"
                   type="password"
                   placeholder="••••••••"
                   error={errors.password?.message}
                   {...register('password')}
                 />
                 <Input
-                  label="Confirmar contraseña"
+                  label="Confirm password"
                   type="password"
                   placeholder="••••••••"
                   error={errors.confirm?.message}
@@ -357,14 +357,14 @@ const Register = () => {
                   loading={isSubmitting}
                   className="mt-2 w-full"
                 >
-                  Crear cuenta
+                  Create account
                 </Button>
               </form>
 
               <p className="text-center text-sm text-(--text-3) mt-5">
-                ¿Ya tienes una cuenta?{' '}
+                Already have an account?{' '}
                 <Link to="/login" className="text-(--accent) link-underline">
-                  Inicia sesión
+                  Log in
                 </Link>
               </p>
             </Card>

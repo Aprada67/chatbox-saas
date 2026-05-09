@@ -34,7 +34,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
   const queryClient = useQueryClient();
   const [deleting, setDeleting] = useState(null);
 
-  // Obtiene los chatbots del cliente autenticado
+  // Fetches the authenticated client's chatbots
   const { data, isLoading } = useQuery({
     queryKey: ['chatbots'],
     queryFn: () => getMyChatbotsApi().then((r) => r.data),
@@ -42,17 +42,17 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
 
   const chatbots = data?.chatbots || [];
 
-  // Límite según el plan del usuario
+  // Limit based on the user's plan
   const limits = { trial: 1, pro: 1, premium: 3 };
   const limit = limits[user?.plan] ?? 1;
   const canCreate = chatbots.length < limit;
 
-  // Mutación para eliminar chatbot con confirmación
+  // Mutation to delete a chatbot with confirmation
   const deleteMutation = useMutation({
     mutationFn: deleteChatbotApi,
     onSuccess: () => {
       queryClient.invalidateQueries(['chatbots']);
-      toast.success('Chatbot deleted');
+      toast.success('ServeBot deleted');
       setDeleting(null);
     },
     onError: (err) => {
@@ -61,7 +61,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
     },
   });
 
-  // Copia el link público al portapapeles
+  // Copies the public link to clipboard
   const copySlug = (slug) => {
     navigator.clipboard.writeText(`${window.location.origin}/chat/${slug}`);
     toast.success('Link copied');
@@ -153,7 +153,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
                   borderColor: 'var(--border)',
                 }}
               >
-                {/* Fila superior — info y badge */}
+                {/* Top row — info and badge */}
                 <div className="flex items-center gap-3 mb-3">
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
@@ -182,7 +182,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
                   <StatusBadge isActive={bot.isActive} t={t} />
                 </div>
 
-                {/* Fila inferior — acciones */}
+                {/* Bottom row — actions */}
                 <div
                   className="flex items-center gap-2 pt-3 border-t"
                   style={{ borderColor: 'var(--border)' }}
@@ -253,7 +253,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
         </div>
       )}
 
-      {/* Aviso de límite alcanzado */}
+      {/* Limit reached notice */}
       {!canCreate && chatbots.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}

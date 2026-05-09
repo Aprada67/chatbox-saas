@@ -25,111 +25,111 @@ import { useTheme } from '../context/ThemeContext';
 const PLANS = [
   {
     name: 'Trial',
-    price: 'Gratis',
+    price: 'Free',
     oldPrice: null,
-    period: '7 días',
+    period: '7 days',
     color: 'var(--text-3)',
     features: [
-      '1 chatbot',
-      'Reservas online 24/7',
-      'Confirmaciones por email',
-      'Calendario básico',
+      '1 ServeBot',
+      'Online bookings 24/7',
+      'Email confirmations',
+      'Basic calendar',
     ],
-    cta: 'Empezar gratis',
+    cta: 'Start for free',
     popular: false,
     savings: null,
   },
   {
     name: 'Pro',
-    price: '34,99 €',
-    oldPrice: '39,99 €',
-    period: '/mes',
+    price: '€34.99',
+    oldPrice: '€39.99',
+    period: '/month',
     color: 'var(--accent)',
     features: [
-      '1 chatbot',
-      'Todo lo del Trial',
-      'Colores y marca propia',
-      'Recordatorios WhatsApp',
-      'Soporte prioritario',
+      '1 ServeBot',
+      'Everything in Trial',
+      'Custom colors & branding',
+      'WhatsApp reminders',
+      'Priority support',
     ],
-    cta: 'Empezar con Pro',
+    cta: 'Start with Pro',
     popular: true,
-    savings: 'Ahorra 5 €/mes',
+    savings: 'Save €5/month',
   },
   {
     name: 'Premium',
-    price: '79,99 €',
-    oldPrice: '110 €',
-    period: '/mes',
+    price: '€79.99',
+    oldPrice: '€110',
+    period: '/month',
     color: 'var(--success)',
     features: [
-      'Hasta 3 chatbots',
-      'Todo lo del Pro',
-      'Analíticas avanzadas',
-      'Integración CRM',
-      'Acceso a la API',
-      'Soporte dedicado',
+      'Up to 3 ServeBots',
+      'Everything in Pro',
+      'Advanced analytics',
+      'CRM integration',
+      'API access',
+      'Dedicated support',
     ],
-    cta: 'Empezar con Premium',
+    cta: 'Start with Premium',
     popular: false,
-    savings: 'Ahorra 30 €/mes',
+    savings: 'Save €30/month',
   },
 ];
 
 const FEATURES = [
   {
     icon: MessageSquare,
-    title: 'Constructor de chatbot',
-    desc: 'Crea tu flujo de reservas en minutos. Sin código. Solo configura tus preguntas, servicios y horarios.',
+    title: 'ServeBot Builder',
+    desc: 'Create your booking flow in minutes. No code. Just configure your questions, services, and hours.',
   },
   {
     icon: Calendar,
-    title: 'Disponibilidad en tiempo real',
-    desc: 'Tus clientes solo ven los horarios disponibles. Sin dobles reservas, sin llamadas para reagendar.',
+    title: 'Real-time availability',
+    desc: 'Your clients only see available slots. No double bookings, no calls to reschedule.',
   },
   {
     icon: Bell,
-    title: 'Recordatorios automáticos',
-    desc: 'Recordatorios por email y WhatsApp enviados automáticamente 24h antes de cada cita.',
+    title: 'Automatic reminders',
+    desc: 'Email and WhatsApp reminders sent automatically 24h before each appointment.',
   },
   {
     icon: BarChart,
-    title: 'Analíticas de negocio',
-    desc: 'Controla reservas, horas pico y retención de clientes desde tu panel de control.',
+    title: 'Business analytics',
+    desc: 'Track bookings, peak hours, and client retention from your control panel.',
   },
   {
     icon: Shield,
-    title: 'Seguro y fiable',
-    desc: 'Autenticación JWT, límite de intentos y datos cifrados mantienen tu negocio protegido.',
+    title: 'Secure and reliable',
+    desc: 'JWT authentication, rate limiting, and encrypted data keep your business protected.',
   },
   {
     icon: Zap,
-    title: 'Configuración instantánea',
-    desc: 'Comparte tu enlace en Instagram, WhatsApp o tu web. Empieza a recibir reservas hoy mismo.',
+    title: 'Instant setup',
+    desc: 'Share your link on Instagram, WhatsApp, or your website. Start receiving bookings today.',
   },
 ];
 
 const TESTIMONIALS = [
   {
     name: 'Jesús B.',
-    role: 'Dueño de barbería',
-    text: 'Antes perdía 2 horas al día al teléfono. Ahora mis clientes se reservan solos y yo solo tengo que aparecer.',
+    role: 'Barbershop owner',
+    text: 'I used to lose 2 hours a day on the phone. Now my clients book themselves and I just show up.',
     avatar: 'J',
     color: '#A0522D',
     stars: 5,
   },
   {
     name: 'Sofía R.',
-    role: 'Dueña de nail salon',
-    text: 'Los recordatorios de WhatsApp redujeron mis no-shows un 60%. Vale cada céntimo.',
+    role: 'Nail salon owner',
+    text: 'WhatsApp reminders reduced my no-shows by 60%. Worth every penny.',
     avatar: 'S',
     color: '#ec4899',
     stars: 5,
   },
   {
     name: 'Carlos V.',
-    role: 'Entrenador personal',
-    text: 'Mis clientes adoran reservar a las 2 de la mañana. Me despierto con la agenda llena.',
+    role: 'Personal trainer',
+    text: 'My clients love booking at 2am. I wake up with a full calendar.',
     avatar: 'C',
     color: '#7c3aed',
     stars: 5,
@@ -137,16 +137,16 @@ const TESTIMONIALS = [
 ];
 
 const STATS = [
-  { icon: Users, value: '2.400+', label: 'negocios activos' },
-  { icon: Calendar, value: '180k+', label: 'reservas gestionadas' },
-  { icon: TrendingUp, value: '60%', label: 'menos no-shows' },
-  { icon: Clock, value: '3h', label: 'ahorradas por semana' },
+  { icon: Users, value: '2,400+', label: 'active businesses' },
+  { icon: Calendar, value: '180k+', label: 'bookings managed' },
+  { icon: TrendingUp, value: '60%', label: 'fewer no-shows' },
+  { icon: Clock, value: '3h', label: 'saved per week' },
 ];
 
 const NAV_LINKS = [
-  { label: 'Funciones', href: '#features' },
-  { label: 'Precios', href: '#pricing' },
-  { label: 'Testimonios', href: '#testimonials' },
+  { label: 'Features', href: '#features' },
+  { label: 'Pricing', href: '#pricing' },
+  { label: 'Testimonials', href: '#testimonials' },
 ];
 
 const fadeUp = {
@@ -183,7 +183,7 @@ const Landing = () => {
               className="font-bold text-base tracking-tight"
               style={{ color: 'var(--text-1)' }}
             >
-              Chatbox
+              ServeBot
             </span>
           </div>
 
@@ -235,7 +235,7 @@ const Landing = () => {
                 (e.currentTarget.style.background = 'transparent')
               }
             >
-              Iniciar sesión
+              Log in
             </Link>
             <Link to="/register">
               <motion.div
@@ -244,7 +244,7 @@ const Landing = () => {
                 className="hidden md:flex items-center gap-1.5 text-sm px-4 py-2 rounded-xl font-medium cursor-pointer shadow-sm"
                 style={{ background: 'var(--accent)', color: '#fff' }}
               >
-                Empezar gratis <ChevronRight size={13} />
+                Get started free <ChevronRight size={13} />
               </motion.div>
             </Link>
 
@@ -261,7 +261,7 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Menú móvil */}
+        {/* Mobile menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -299,7 +299,7 @@ const Landing = () => {
                       borderColor: 'var(--border)',
                     }}
                   >
-                    Iniciar sesión
+                    Log in
                   </Link>
                   <Link
                     to="/register"
@@ -307,7 +307,7 @@ const Landing = () => {
                     className="text-sm py-2.5 px-4 rounded-xl text-center font-medium cursor-pointer"
                     style={{ background: 'var(--accent)', color: '#fff' }}
                   >
-                    Empezar gratis
+                    Get started free
                   </Link>
                 </div>
               </div>
@@ -331,15 +331,15 @@ const Landing = () => {
               }}
             >
               <Zap size={11} fill="currentColor" />
-              La forma más rápida de gestionar reservas
+              The fastest way to manage bookings
             </motion.div>
 
             {/* Headline */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-              Tu negocio merece
+              Your business deserves
               <br />
               <span className="relative" style={{ color: 'var(--accent)' }}>
-                un sistema más inteligente
+                a smarter system
               </span>
             </h1>
 
@@ -347,8 +347,8 @@ const Landing = () => {
               className="text-base md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
               style={{ color: 'var(--text-3)' }}
             >
-              Crea un chatbot que gestiona reservas 24/7. Comparte un enlace.
-              Observa cómo tu agenda se llena sola.
+              Create a ServeBot that manages bookings 24/7. Share a link.
+              Watch your calendar fill itself.
             </p>
 
             {/* CTAs */}
@@ -365,7 +365,7 @@ const Landing = () => {
                       '0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent)',
                   }}
                 >
-                  Empezar gratis — 7 días
+                  Start free — 7 days
                   <ArrowRight size={15} />
                 </motion.div>
               </Link>
@@ -380,13 +380,13 @@ const Landing = () => {
                     background: 'var(--bg-secondary)',
                   }}
                 >
-                  Ver cómo funciona
+                  See how it works
                 </motion.div>
               </a>
             </div>
 
             <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-              Sin tarjeta de crédito · Cancela cuando quieras
+              No credit card required · Cancel anytime
             </p>
           </motion.div>
         </div>
@@ -450,7 +450,7 @@ const Landing = () => {
             boxShadow: '0 32px 80px rgba(0,0,0,0.35), 0 0 0 1px #2a314788',
           }}
         >
-          {/* Notificación flotante */}
+          {/* Floating notification */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -460,7 +460,7 @@ const Landing = () => {
             style={{ background: '#1D9E75', color: '#fff', zIndex: 10 }}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-white" />
-            ¡Nueva reserva recibida!
+            New booking received!
           </motion.div>
 
           {/* Header del preview */}
@@ -475,7 +475,7 @@ const Landing = () => {
               C
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white">Mi Asistente</p>
+              <p className="text-sm font-semibold text-white">My Assistant</p>
               <div className="flex items-center gap-1">
                 <motion.div
                   animate={{ opacity: [1, 0.3, 1] }}
@@ -483,7 +483,7 @@ const Landing = () => {
                   className="w-1.5 h-1.5 rounded-full bg-green-400"
                 />
                 <span className="text-xs" style={{ color: '#5a6a82' }}>
-                  En línea
+                  Online
                 </span>
               </div>
             </div>
@@ -494,10 +494,10 @@ const Landing = () => {
             {[
               {
                 from: 'bot',
-                text: '¡Hola! Soy tu asistente. ¿Qué servicio te interesa?',
+                text: 'Hi! I\'m your assistant. What service are you interested in?',
               },
-              { from: 'user', text: 'Corte + barba' },
-              { from: 'bot', text: '¡Perfecto! ¿Qué día te viene mejor?' },
+              { from: 'user', text: 'Haircut + beard' },
+              { from: 'bot', text: 'Perfect! Which day works best for you?' },
             ].map((msg, i) => (
               <motion.div
                 key={i}
@@ -540,7 +540,7 @@ const Landing = () => {
               transition={{ delay: 1.1 }}
               className="flex gap-2 flex-wrap mt-1"
             >
-              {['Lun 5 mayo', 'Mar 6 mayo', 'Mié 7 mayo'].map((day) => (
+              {['Mon May 5', 'Tue May 6', 'Wed May 7'].map((day) => (
                 <motion.div
                   key={day}
                   whileHover={{ scale: 1.05, borderColor: 'var(--accent)' }}
@@ -566,17 +566,16 @@ const Landing = () => {
             className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: 'var(--accent)' }}
           >
-            Funcionalidades
+            Features
           </p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Todo lo que necesita tu negocio
+            Everything your business needs
           </h2>
           <p
             className="text-base max-w-xl mx-auto"
             style={{ color: 'var(--text-3)' }}
           >
-            Diseñado para negocios de servicios que quieren trabajar de forma
-            más inteligente.
+            Built for service businesses that want to work smarter.
           </p>
         </motion.div>
 
@@ -628,16 +627,16 @@ const Landing = () => {
               className="text-xs font-semibold uppercase tracking-widest mb-3"
               style={{ color: 'var(--accent)' }}
             >
-              Cómo funciona
+              How it works
             </p>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              En marcha en 3 pasos
+              Up and running in 3 steps
             </h2>
             <p
               className="text-base max-w-xl mx-auto"
               style={{ color: 'var(--text-3)' }}
             >
-              Sin técnicos, sin configuraciones complicadas.
+              No tech team, no complicated setup.
             </p>
           </motion.div>
 
@@ -645,18 +644,18 @@ const Landing = () => {
             {[
               {
                 step: '01',
-                title: 'Crea tu chatbot',
-                desc: 'Define tus servicios, precios y horarios de disponibilidad en minutos.',
+                title: 'Create your ServeBot',
+                desc: 'Define your services, prices, and availability hours in minutes.',
               },
               {
                 step: '02',
-                title: 'Comparte el enlace',
-                desc: 'Comparte tu link en Instagram, WhatsApp o tu web. Sin apps, sin descargas.',
+                title: 'Share the link',
+                desc: 'Share your link on Instagram, WhatsApp, or your website. No app, no downloads.',
               },
               {
                 step: '03',
-                title: 'Recibe reservas',
-                desc: 'Tus clientes reservan solos. Tú recibes el aviso y apareces a la cita.',
+                title: 'Receive bookings',
+                desc: 'Your clients book themselves. You get notified and just show up.',
               },
             ].map((item, i) => (
               <motion.div
@@ -705,16 +704,16 @@ const Landing = () => {
             className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: 'var(--accent)' }}
           >
-            Precios
+            Pricing
           </p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Precios simples y honestos
+            Simple, honest pricing
           </h2>
           <p
             className="text-base max-w-xl mx-auto"
             style={{ color: 'var(--text-3)' }}
           >
-            Empieza gratis. Actualiza cuando estés listo.
+            Start for free. Upgrade when you're ready.
           </p>
         </motion.div>
 
@@ -744,7 +743,7 @@ const Landing = () => {
                   className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-semibold text-white shadow"
                   style={{ background: 'var(--accent)' }}
                 >
-                  Más popular
+                  Most popular
                 </div>
               )}
 
@@ -853,16 +852,16 @@ const Landing = () => {
               className="text-xs font-semibold uppercase tracking-widest mb-3"
               style={{ color: 'var(--accent)' }}
             >
-              Testimonios
+              Testimonials
             </p>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              Los negocios adoran Chatbox
+              Businesses love ServeBot
             </h2>
             <p
               className="text-base max-w-xl mx-auto"
               style={{ color: 'var(--text-3)' }}
             >
-              Resultados reales de dueños de negocios reales.
+              Real results from real business owners.
             </p>
           </motion.div>
 
@@ -949,20 +948,19 @@ const Landing = () => {
             className="text-xs font-semibold uppercase tracking-widest mb-4"
             style={{ color: 'var(--accent)' }}
           >
-            Empieza hoy
+            Get started today
           </p>
           <h2
             className="text-3xl md:text-4xl font-bold tracking-tight mb-4 relative"
             style={{ color: 'var(--text-1)' }}
           >
-            ¿Listo para automatizar tus reservas?
+            Ready to automate your bookings?
           </h2>
           <p
             className="text-base mb-10 max-w-lg mx-auto relative"
             style={{ color: 'var(--text-3)' }}
           >
-            Únete a cientos de negocios que ahorran horas cada semana con
-            Chatbox.
+            Join hundreds of businesses saving hours every week with ServeBot.
           </p>
           <Link to="/register">
             <motion.div
@@ -976,7 +974,7 @@ const Landing = () => {
                   '0 12px 32px color-mix(in srgb, var(--accent) 40%, transparent)',
               }}
             >
-              Empezar gratis ahora
+              Start for free now
               <ArrowRight size={16} />
             </motion.div>
           </Link>
@@ -984,7 +982,7 @@ const Landing = () => {
             className="text-xs mt-5 relative"
             style={{ color: 'var(--text-3)' }}
           >
-            7 días de prueba gratuita · Sin tarjeta de crédito
+            7-day free trial · No credit card required
           </p>
         </motion.div>
       </section>
@@ -1003,14 +1001,14 @@ const Landing = () => {
               className="text-sm font-bold"
               style={{ color: 'var(--text-1)' }}
             >
-              Chatbox
+              ServeBot
             </span>
           </div>
           <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-            © 2026 Chatbox. Todos los derechos reservados.
+            © 2026 ServeBot. All rights reserved.
           </p>
           <div className="flex items-center gap-5">
-            {['Privacidad', 'Términos', 'Contacto'].map((item) => (
+            {['Privacy', 'Terms', 'Contact'].map((item) => (
               <a
                 key={item}
                 href="#"

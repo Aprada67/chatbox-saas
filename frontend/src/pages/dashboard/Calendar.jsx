@@ -20,7 +20,7 @@ import api from '../../api/axios';
 
 const LOCALE_MAP = { en: 'en-US', es: 'es-ES', pt: 'pt-BR', fr: 'fr-FR' };
 
-// Colores por estado de cita
+// Colors by appointment status
 const STATUS_COLORS = {
   confirmed: '#3b82f6',
   pending: '#94a3b8',
@@ -42,15 +42,15 @@ const CalendarPage = () => {
     }),
   }));
 
-  // Estado del modal de detalle de cita
+  // Appointment detail modal state
   const [selectedApt, setSelectedApt] = useState(null);
 
-  // Estado del panel de disponibilidad
-  // localSlots = null significa "usa los datos del servidor"; cuando el usuario edita se setea
+  // Availability panel state
+  // localSlots = null means "use server data"; set when user edits
   const [localSlots, setLocalSlots] = useState(null);
   const [showAvail, setShowAvail] = useState(false);
 
-  // Obtiene los chatbots del cliente
+  // Fetches the client's chatbots
   const { data: chatbotsData } = useQuery({
     queryKey: ['chatbots'],
     queryFn: () => getMyChatbotsApi().then((r) => r.data),
@@ -59,27 +59,27 @@ const CalendarPage = () => {
   const chatbots = chatbotsData?.chatbots || [];
   const chatbotId = chatbots[0]?.id;
 
-  // Obtiene las citas del chatbot activo
+  // Fetches appointments for the active chatbot
   const { data: appointmentsData } = useQuery({
     queryKey: ['appointments', chatbotId],
     queryFn: () => getChatbotAppointmentsApi(chatbotId).then((r) => r.data),
     enabled: !!chatbotId,
   });
 
-  // Obtiene la disponibilidad configurada del chatbot
+  // Fetches the chatbot's configured availability
   const { data: availabilityData } = useQuery({
     queryKey: ['availability', chatbotId],
     queryFn: () => api.get(`/availability/${chatbotId}`).then((r) => r.data),
     enabled: !!chatbotId,
   });
 
-  // Estado derivado: localSlots sobreescribe los datos del servidor mientras el usuario edita
+  // Derived state: localSlots overrides server data while the user edits
   const availability = localSlots ?? availabilityData?.slots ?? [];
   const setAvailability = setLocalSlots;
 
   const appointments = appointmentsData?.appointments || [];
 
-  // Convierte las citas al formato que FullCalendar entiende
+  // Converts appointments to the format FullCalendar understands
   const events = appointments
     .filter((apt) => apt.status !== 'cancelled')
     .map((apt) => ({
@@ -94,7 +94,7 @@ const CalendarPage = () => {
       extendedProps: apt,
     }));
 
-  // Cancela una cita y refresca la lista
+  // Cancels an appointment and refreshes the list
   const cancelMutation = useMutation({
     mutationFn: cancelAppointmentApi,
     onSuccess: () => {
@@ -105,19 +105,19 @@ const CalendarPage = () => {
     onError: (err) => toast.error(err.message),
   });
 
-  // Guarda los horarios de disponibilidad
+  // Saves availability schedules
   const availMutation = useMutation({
     mutationFn: (slots) => api.post(`/availability/${chatbotId}`, { slots }),
     onSuccess: () => {
       queryClient.invalidateQueries(['availability', chatbotId]);
       toast.success(t('availabilitySaved'));
-      setLocalSlots(null); // reset para que vuelva a leer del servidor
+      setLocalSlots(null); // reset so it reads from the server again
       setShowAvail(false);
     },
     onError: (err) => toast.error(err.message),
   });
 
-  // Activa o desactiva un día de la semana
+  // Toggles a day of the week on or off
   const toggleDay = (day) => {
     const exists = availability.find((s) => s.dayOfWeek === day);
     if (exists) {
@@ -130,13 +130,13 @@ const CalendarPage = () => {
     }
   };
 
-  // Actualiza el horario de inicio o fin de un día
+  // Updates the start or end time of a day
   const updateSlot = (day, field, value) =>
     setAvailability((p) =>
       p.map((s) => (s.dayOfWeek === day ? { ...s, [field]: value } : s)),
     );
 
-  // Si no hay chatbot creado muestra mensaje guía
+  // If no chatbot exists, show a guide message
   if (!chatbotId)
     return (
       <DashboardLayout title={t('calendar')}>
@@ -182,7 +182,7 @@ const CalendarPage = () => {
         </Button>
       </div>
 
-      {/* Leyenda de estados */}
+      {/* Status legend */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         {Object.entries(STATUS_COLORS).map(([status, color]) => (
           <div key={status} className="flex items-center gap-1.5">
@@ -197,7 +197,7 @@ const CalendarPage = () => {
         ))}
       </div>
 
-      {/* Calendario — mes en móvil, semana en desktop */}
+      {/* Calendar — month view on mobile, week on desktop */}
       <Card className="overflow-hidden p-0">
         <style>{`
           .fc { font-family: inherit; }
@@ -262,7 +262,7 @@ const CalendarPage = () => {
         />
       </Card>
 
-      {/* ── MODAL DE DETALLE DE CITA ── */}
+      {/* ── APPOINTMENT DETAIL MODAL ── */}
       <AnimatePresence>
         {selectedApt && (
           <motion.div
@@ -285,7 +285,7 @@ const CalendarPage = () => {
                 borderColor: 'var(--border)',
               }}
             >
-              {/* Handle visible solo en móvil */}
+              {/* Handle visible on mobile only */}
               <div className="flex justify-center mb-4 sm:hidden">
                 <div
                   className="w-10 h-1 rounded-full"
@@ -293,7 +293,7 @@ const CalendarPage = () => {
                 />
               </div>
 
-              {/* Encabezado del modal */}
+              {/* Modal header */}
               <div className="flex items-center justify-between mb-5">
                 <h3
                   className="text-sm font-semibold"
@@ -309,7 +309,7 @@ const CalendarPage = () => {
                 </button>
               </div>
 
-              {/* Filas de detalles de la cita */}
+              {/* Appointment detail rows */}
               <div className="flex flex-col gap-3">
                 {[
                   { label: t('client'), value: selectedApt.guestName },
@@ -351,7 +351,7 @@ const CalendarPage = () => {
                   </div>
                 ))}
 
-                {/* Badge de estado con color dinámico */}
+                {/* Status badge with dynamic color */}
                 <div className="flex justify-between items-center">
                   <span className="text-xs" style={{ color: 'var(--text-3)' }}>
                     {t('status')}
@@ -368,7 +368,7 @@ const CalendarPage = () => {
                 </div>
               </div>
 
-              {/* Botón cancelar — solo visible si la cita está confirmada */}
+              {/* Cancel button — only visible if the appointment is confirmed */}
               {selectedApt.status === 'confirmed' && (
                 <Button
                   variant="danger"
@@ -385,7 +385,7 @@ const CalendarPage = () => {
         )}
       </AnimatePresence>
 
-      {/* ── PANEL DE DISPONIBILIDAD ── */}
+      {/* ── AVAILABILITY PANEL ── */}
       <AnimatePresence>
         {showAvail && (
           <motion.div
@@ -408,7 +408,7 @@ const CalendarPage = () => {
                 borderColor: 'var(--border)',
               }}
             >
-              {/* Handle visible solo en móvil */}
+              {/* Handle visible on mobile only */}
               <div className="flex justify-center pt-3 pb-2 sm:hidden">
                 <div
                   className="w-10 h-1 rounded-full"
@@ -416,7 +416,7 @@ const CalendarPage = () => {
                 />
               </div>
 
-              {/* Encabezado del panel */}
+              {/* Panel header */}
               <div
                 className="flex items-center justify-between px-5 py-4 border-b"
                 style={{ borderColor: 'var(--border)' }}
@@ -435,7 +435,7 @@ const CalendarPage = () => {
                 </button>
               </div>
 
-              {/* Lista de días configurables */}
+              {/* List of configurable days */}
               <div className="flex-1 p-4 flex flex-col gap-3 overflow-y-auto">
                 {DAYS.map((day) => {
                   const slot = availability.find(
@@ -453,7 +453,7 @@ const CalendarPage = () => {
                           : 'var(--bg-tertiary)',
                       }}
                     >
-                      {/* Fila con nombre del día y toggle */}
+                      {/* Row with day name and toggle */}
                       <div className="flex items-center justify-between mb-2">
                         <span
                           className="text-sm font-medium"
@@ -480,7 +480,7 @@ const CalendarPage = () => {
                         </button>
                       </div>
 
-                      {/* Selectores de horario — visibles solo si el día está activo */}
+                      {/* Time selectors — visible only when the day is active */}
                       {active && (
                         <div className="flex items-center gap-2 mt-1">
                           <input
@@ -512,7 +512,7 @@ const CalendarPage = () => {
                 })}
               </div>
 
-              {/* Botón guardar disponibilidad */}
+              {/* Save availability button */}
               <div
                 className="p-4 border-t"
                 style={{ borderColor: 'var(--border)' }}

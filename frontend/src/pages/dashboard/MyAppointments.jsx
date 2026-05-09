@@ -12,7 +12,7 @@ import {
   cancelAppointmentApi,
 } from '../../api/appointments';
 
-// Colores por estado de cita
+// Colors by appointment status
 const STATUS_COLORS = {
   confirmed: { color: 'var(--accent)', bg: 'var(--accent-bg)' },
   pending: { color: 'var(--text-3)', bg: 'var(--bg-tertiary)' },
@@ -44,17 +44,17 @@ const MyAppointments = () => {
 
   const appointments = data?.appointments || [];
 
-  // Filtra las citas según el tab activo
+  // Filters appointments by active tab
   const filtered = appointments.filter((a) =>
     activeTab === 'all' ? true : a.status === activeTab,
   );
 
-  // Ordena las citas — las más recientes primero
+  // Sorts appointments — most recent first
   const sorted = [...filtered].sort(
     (a, b) => new Date(b.date) - new Date(a.date),
   );
 
-  // Mutación para cancelar una cita
+  // Mutation to cancel an appointment
   const cancelMutation = useMutation({
     mutationFn: cancelAppointmentApi,
     onSuccess: () => {
@@ -83,7 +83,7 @@ const MyAppointments = () => {
 
   return (
     <DashboardLayout title={t('appointments')}>
-      {/* Encabezado */}
+      {/* Header */}
       <div className="mb-5">
         <h2
           className="text-base md:text-lg font-semibold"
@@ -96,7 +96,7 @@ const MyAppointments = () => {
         </p>
       </div>
 
-      {/* Tabs de filtro */}
+      {/* Filter tabs */}
       <div
         className="flex gap-1 mb-5 p-1 rounded-xl overflow-x-auto"
         style={{
@@ -140,7 +140,7 @@ const MyAppointments = () => {
         })}
       </div>
 
-      {/* Estado vacío */}
+      {/* Empty state */}
       {sorted.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -169,7 +169,7 @@ const MyAppointments = () => {
           </p>
         </motion.div>
       ) : (
-        // Lista de citas
+        // Appointment list
         <div className="flex flex-col gap-3">
           <AnimatePresence>
             {sorted.map((apt, i) => {
@@ -192,12 +192,12 @@ const MyAppointments = () => {
                     borderColor: 'var(--border)',
                   }}
                 >
-                  {/* Fila principal de la cita */}
+                  {/* Main appointment row */}
                   <div
                     className="p-4 flex items-center justify-between gap-3 cursor-pointer"
                     onClick={() => setExpandedId(isExpanded ? null : apt.id)}
                   >
-                    {/* Fecha compacta */}
+                    {/* Compact date */}
                     <div
                       className="w-12 flex flex-col items-center shrink-0 rounded-xl py-2"
                       style={{ background: 'var(--bg-tertiary)' }}
@@ -216,7 +216,7 @@ const MyAppointments = () => {
                       </span>
                     </div>
 
-                    {/* Info del servicio */}
+                    {/* Service info */}
                     <div className="flex-1 min-w-0">
                       <p
                         className="text-sm font-medium truncate"
@@ -240,7 +240,7 @@ const MyAppointments = () => {
                       </div>
                     </div>
 
-                    {/* Badge de estado y chevron */}
+                    {/* Status badge and chevron */}
                     <div className="flex items-center gap-2 shrink-0">
                       <span
                         className="text-xs font-medium px-2.5 py-1 rounded-full"
@@ -260,7 +260,7 @@ const MyAppointments = () => {
                     </div>
                   </div>
 
-                  {/* Panel expandible con detalles */}
+                  {/* Expandable panel with details */}
                   <AnimatePresence>
                     {isExpanded && (
                       <motion.div
@@ -273,7 +273,7 @@ const MyAppointments = () => {
                           className="px-4 pb-4 border-t"
                           style={{ borderColor: 'var(--border)' }}
                         >
-                          {/* Detalles de la cita */}
+                          {/* Appointment details */}
                           <div className="pt-3 flex flex-col gap-2 mb-4">
                             {[
                               { label: t('service'), value: apt.service },
@@ -319,7 +319,7 @@ const MyAppointments = () => {
                             ))}
                           </div>
 
-                          {/* Botón cancelar — solo para citas confirmadas y futuras */}
+                          {/* Cancel button — only for confirmed future appointments */}
                           {apt.status === 'confirmed' && !isPast && (
                             <div>
                               {confirmingId === apt.id ? (
@@ -361,7 +361,7 @@ const MyAppointments = () => {
                             </div>
                           )}
 
-                          {/* Mensaje para citas pasadas */}
+                          {/* Message for past appointments */}
                           {apt.status === 'confirmed' && isPast && (
                             <p
                               className="text-xs text-center"

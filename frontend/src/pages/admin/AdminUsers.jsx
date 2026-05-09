@@ -7,7 +7,7 @@ import AdminLayout from './AdminLayout';
 import Button from '../../components/ui/Button';
 import api from '../../api/axios';
 
-// Colores por plan
+// Colors by plan
 const PLAN_COLORS = {
   trial: { bg: 'var(--bg-tertiary)', color: 'var(--text-3)' },
   pro: { bg: 'var(--accent-bg)', color: 'var(--accent)' },
@@ -20,7 +20,7 @@ const AdminUsers = () => {
   const [planFilter, setPlanFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
 
-  // Obtiene todos los usuarios del sistema
+  // Fetches all users in the system
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: () => api.get('/admin/users').then((r) => r.data),
@@ -28,7 +28,7 @@ const AdminUsers = () => {
 
   const users = data?.users || [];
 
-  // Filtra usuarios por búsqueda y plan
+  // Filters users by search and plan
   const filtered = users.filter((u) => {
     const matchSearch =
       u.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -37,7 +37,7 @@ const AdminUsers = () => {
     return matchSearch && matchPlan;
   });
 
-  // Cambia el plan de un usuario
+  // Changes a user's plan
   const planMutation = useMutation({
     mutationFn: ({ id, plan }) =>
       api.patch(`/admin/users/${id}/plan`, { plan }),
@@ -48,7 +48,7 @@ const AdminUsers = () => {
     onError: (err) => toast.error(err.message),
   });
 
-  // Activa o desactiva la cuenta de un usuario
+  // Activates or deactivates a user account
   const toggleMutation = useMutation({
     mutationFn: (id) => api.patch(`/admin/users/${id}/toggle`),
     onSuccess: (data) => {
@@ -75,9 +75,9 @@ const AdminUsers = () => {
 
   return (
     <AdminLayout title="Users">
-      {/* Barra de búsqueda y filtros */}
+      {/* Search bar and filters */}
       <div className="flex flex-col sm:flex-row gap-3 mb-5">
-        {/* Input de búsqueda */}
+        {/* Search input */}
         <div className="relative flex-1">
           <Search
             size={14}
@@ -92,7 +92,7 @@ const AdminUsers = () => {
           />
         </div>
 
-        {/* Filtro por plan */}
+        {/* Plan filter */}
         <select
           value={planFilter}
           onChange={(e) => setPlanFilter(e.target.value)}
@@ -105,12 +105,12 @@ const AdminUsers = () => {
         </select>
       </div>
 
-      {/* Contador de resultados */}
+      {/* Result count */}
       <p className="text-xs mb-4" style={{ color: 'var(--text-3)' }}>
         {filtered.length} user(s) found
       </p>
 
-      {/* Lista de usuarios */}
+      {/* User list */}
       <div className="flex flex-col gap-3">
         <AnimatePresence>
           {filtered.map((user, i) => (
@@ -126,10 +126,10 @@ const AdminUsers = () => {
                 borderColor: 'var(--border)',
               }}
             >
-              {/* Fila principal del usuario */}
+              {/* Main user row */}
               <div className="p-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  {/* Avatar con inicial */}
+                  {/* Avatar with initial */}
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-semibold text-white"
                     style={{
@@ -141,7 +141,7 @@ const AdminUsers = () => {
                     {user.name.charAt(0).toUpperCase()}
                   </div>
 
-                  {/* Info del usuario */}
+                  {/* User info */}
                   <div className="min-w-0">
                     <p
                       className="text-sm font-medium truncate"
@@ -162,7 +162,7 @@ const AdminUsers = () => {
                   </div>
                 </div>
 
-                {/* Badge de plan y botón expandir */}
+                {/* Plan badge and expand button */}
                 <div className="flex items-center gap-2 shrink-0">
                   <span
                     className="text-xs font-medium px-2.5 py-1 rounded-full capitalize hidden sm:inline"
@@ -192,7 +192,7 @@ const AdminUsers = () => {
                 </div>
               </div>
 
-              {/* Panel expandible con acciones */}
+              {/* Expandable panel with actions */}
               <AnimatePresence>
                 {expandedId === user.id && (
                   <motion.div
@@ -205,7 +205,7 @@ const AdminUsers = () => {
                       className="px-4 pb-4 pt-0 border-t flex flex-col sm:flex-row gap-3"
                       style={{ borderColor: 'var(--border)' }}
                     >
-                      {/* Info adicional */}
+                      {/* Additional info */}
                       <div className="flex-1 pt-3 flex flex-col gap-1">
                         <p
                           className="text-xs"
@@ -254,9 +254,9 @@ const AdminUsers = () => {
                         </p>
                       </div>
 
-                      {/* Acciones del usuario */}
+                      {/* User actions */}
                       <div className="flex flex-col gap-2 sm:items-end pt-3">
-                        {/* Selector de plan */}
+                        {/* Plan selector */}
                         <select
                           value={user.plan}
                           onChange={(e) =>
@@ -276,7 +276,7 @@ const AdminUsers = () => {
                           <option value="premium">Premium</option>
                         </select>
 
-                        {/* Toggle de cuenta activa/inactiva */}
+                        {/* Active/inactive account toggle */}
                         <Button
                           variant={user.isActive ? 'danger' : 'secondary'}
                           size="sm"
@@ -302,7 +302,7 @@ const AdminUsers = () => {
           ))}
         </AnimatePresence>
 
-        {/* Estado vacío */}
+        {/* Empty state */}
         {filtered.length === 0 && (
           <div
             className="py-16 text-center rounded-2xl border"

@@ -58,13 +58,13 @@ const Login = () => {
   const handleResend = async (e) => {
     e.preventDefault();
     if (!resendEmail) {
-      toast.error('Introduce tu email');
+      toast.error('Enter your email');
       return;
     }
     setResending(true);
     try {
       await resendVerificationApi(resendEmail);
-      toast.success('Código reenviado. Revisa tu bandeja de entrada.');
+      toast.success('Code resent. Check your inbox.');
       navigate(`/verify-email?email=${encodeURIComponent(resendEmail)}`);
     } catch (err) {
       toast.error(err.message);
@@ -130,7 +130,7 @@ const Login = () => {
             >
               <form onSubmit={handleResend} className="flex flex-col gap-3">
                 <p className="text-xs text-(--text-3)">
-                  Reenviar código de verificación a:
+                  Resend verification code to:
                 </p>
                 <Input
                   type="email"
@@ -145,7 +145,7 @@ const Login = () => {
                   loading={resending}
                   className="w-full"
                 >
-                  Reenviar código
+                  Resend code
                 </Button>
               </form>
             </div>
@@ -161,7 +161,7 @@ const Login = () => {
                 }}
                 className="text-(--accent) link-underline cursor-pointer bg-transparent border-0 p-0"
               >
-                Reenviar código de verificación
+                Resend verification code
               </button>
             </p>
           )}

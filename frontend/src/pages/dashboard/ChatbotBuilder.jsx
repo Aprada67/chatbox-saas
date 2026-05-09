@@ -13,7 +13,7 @@ import Card from '../../components/ui/Card';
 import { createChatbotApi, updateChatbotApi } from '../../api/chatbot';
 import { useSettings } from '../../context/SettingsContext';
 
-// Colores disponibles para personalizar el chatbot
+// Available colors for customizing the chatbot
 const COLORS = [
   '#3b82f6',
   '#1D9E75',
@@ -33,14 +33,14 @@ const LANGUAGES = [
   { value: 'fr', label: 'Français' },
 ];
 
-// Schema de validación del formulario
+// Form validation schema
 const schema = z.object({
   name: z.string().min(3, 'Minimum 3 characters'),
   welcomeMessage: z.string().min(5, 'Minimum 5 characters'),
   language: z.string().default('en'),
 });
 
-// Genera un servicio vacío con ID único
+// Generates an empty service with a unique ID
 const emptyService = () => ({
   id: Date.now(),
   name: '',
@@ -48,7 +48,7 @@ const emptyService = () => ({
   durationMins: 30,
 });
 
-// Genera un paso vacío con orden asignado
+// Generates an empty step with assigned order
 const emptyStep = (order) => ({
   id: Date.now(),
   order,
@@ -61,13 +61,13 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
   const { t } = useSettings();
   const isEditing = !!chatbot;
 
-  // Estado de servicios, pasos y color
+  // State: services, steps, and color
   const [services, setServices] = useState(
     chatbot?.services || [emptyService()],
   );
   const [steps, setSteps] = useState(chatbot?.steps || [emptyStep(1)]);
   const [color, setColor] = useState(chatbot?.color || '#3b82f6');
-  // Tab activo en móvil
+  // Active tab on mobile
   const [activeTab, setActiveTab] = useState('info');
 
   const {
@@ -83,7 +83,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     },
   });
 
-  // Mutación para crear o editar el chatbot
+  // Mutation to create or edit the chatbot
   const mutation = useMutation({
     mutationFn: (data) =>
       isEditing ? updateChatbotApi(chatbot.id, data) : createChatbotApi(data),
@@ -108,7 +108,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     });
   };
 
-  // Funciones de servicios
+  // Service functions
   const addService = () => setServices((p) => [...p, emptyService()]);
   const removeService = (id) =>
     setServices((p) => p.filter((s) => s.id !== id));
@@ -117,7 +117,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
       p.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
     );
 
-  // Funciones de pasos
+  // Step functions
   const addStep = () => setSteps((p) => [...p, emptyStep(p.length + 1)]);
   const removeStep = (id) => setSteps((p) => p.filter((s) => s.id !== id));
   const updateStep = (id, field, value) =>
@@ -141,7 +141,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     { id: 'flow', label: t('flow') },
   ];
 
-  // Panel de info básica
+  // Basic info panel
   const infoPanel = (
     <div className="flex flex-col gap-4">
       <Card>
@@ -190,7 +190,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
         </div>
       </Card>
 
-      {/* Selector de color */}
+      {/* Color selector */}
       <Card>
         <h3
           className="text-sm font-semibold mb-3"
@@ -216,7 +216,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
             />
           ))}
         </div>
-        {/* Preview del color */}
+        {/* Color preview */}
         <div
           className="mt-4 rounded-xl p-3 flex items-center gap-2"
           style={{ background: color + '18', border: `1px solid ${color}44` }}
@@ -233,7 +233,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     </div>
   );
 
-  // Panel de servicios
+  // Services panel
   const servicesPanel = (
     <Card>
       <div className="flex items-center justify-between mb-4">
@@ -307,7 +307,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     </Card>
   );
 
-  // Panel del flujo
+  // Flow panel
   const flowPanel = (
     <Card>
       <div className="flex items-center justify-between mb-4">
@@ -402,7 +402,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     <DashboardLayout
       title={t(isEditing ? 'editChatbotTitle' : 'newChatbotTitle')}
     >
-      {/* Botón volver */}
+      {/* Back button */}
       <button
         onClick={onBack}
         className="flex items-center gap-2 text-sm mb-5 transition-all"
@@ -412,7 +412,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
         {t('backToChatbots')}
       </button>
 
-      {/* Tabs de navegación — solo en móvil */}
+      {/* Navigation tabs — mobile only */}
       <div
         className="flex lg:hidden gap-1 mb-5 p-1 rounded-xl"
         style={{
@@ -437,7 +437,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Layout unificado — grid en desktop, panel único en móvil */}
+        {/* Unified layout — grid on desktop, single panel on mobile */}
         <div className="lg:grid lg:grid-cols-3 lg:gap-6">
           <div className={activeTab !== 'info' ? 'hidden lg:block' : ''}>
             {infoPanel}
@@ -450,7 +450,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
           </div>
         </div>
 
-        {/* Botones */}
+        {/* Action buttons */}
         <div className="flex justify-end gap-3 mt-6">
           <Button type="button" variant="secondary" onClick={onBack}>
             {t('cancel')}

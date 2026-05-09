@@ -15,7 +15,7 @@ const schema = z
     confirm: z.string(),
   })
   .refine((d) => d.password === d.confirm, {
-    message: 'Las contraseñas no coinciden',
+    message: 'Passwords do not match',
     path: ['confirm'],
   });
 
@@ -33,12 +33,12 @@ const ResetPassword = () => {
 
   const onSubmit = async (data) => {
     if (!token) {
-      toast.error('Token inválido');
+      toast.error('Invalid token');
       return;
     }
     try {
       await resetPasswordApi(token, data.password);
-      toast.success('Contraseña actualizada correctamente');
+      toast.success('Password updated successfully');
       navigate('/login');
     } catch (err) {
       toast.error(err.message);
@@ -58,10 +58,10 @@ const ResetPassword = () => {
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-            Nueva contraseña
+            New password
           </h1>
           <p className="text-sm text-(--text-3) mt-2">
-            Crea una nueva contraseña para tu cuenta
+            Create a new password for your account
           </p>
         </div>
 
@@ -71,14 +71,14 @@ const ResetPassword = () => {
             className="flex flex-col gap-4"
           >
             <Input
-              label="Nueva contraseña"
+              label="New password"
               type="password"
               placeholder="••••••••"
               error={errors.password?.message}
               {...register('password')}
             />
             <Input
-              label="Confirmar contraseña"
+              label="Confirm password"
               type="password"
               placeholder="••••••••"
               error={errors.confirm?.message}
@@ -90,13 +90,13 @@ const ResetPassword = () => {
               loading={isSubmitting}
               className="mt-2 w-full"
             >
-              Cambiar contraseña
+              Change password
             </Button>
           </form>
 
           <p className="text-center text-sm text-(--text-3) mt-5">
             <Link to="/login" className="text-(--accent) link-underline">
-              Volver al login
+              Back to login
             </Link>
           </p>
         </Card>

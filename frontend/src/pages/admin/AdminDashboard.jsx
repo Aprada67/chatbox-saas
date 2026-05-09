@@ -40,7 +40,7 @@ const AdminDashboard = () => {
           icon={Users}
         />
         <KpiCard
-          title="Chatbots"
+          title="ServeBots"
           value={stats?.totalChatbots}
           subtitle="created"
           icon={MessageSquare}
