@@ -7,6 +7,7 @@ import {
   sendOwnerNotification,
   sendCancellationEmail
 } from '../services/emailService.js'
+import { createNotification } from './notificationsController.js'
 
 // Genera los slots disponibles de un día dado los horarios del negocio
 const generateTimeSlots = (startTime, endTime, durationMins) => {
@@ -132,7 +133,7 @@ export const createAppointment = asyncHandler(async (req, res) => {
   } = req.body
 
   // Validaciones
-  if (!chatbotId || !guestName || !service || !price || !durationMins || !date) {
+  if (!chatbotId || !guestName || !service || price === undefined || price === null || price === '' || !durationMins || !date) {
     throw new AppError('Missing required fields', 400)
   }
 
@@ -205,12 +206,22 @@ export const createAppointment = asyncHandler(async (req, res) => {
   // Enviar email de confirmación al cliente
   sendAppointmentConfirmation(newAppointment)
 
-  // Enviar notificación al dueño si tiene emailNotifs activo
+  // Enviar notificación al dueño si tiene emailNotifs activo + notificación in-app
   const [owner] = await db
     .select({ email: users.email, emailNotifs: users.emailNotifs })
     .from(users)
     .where(eq(users.id, chatbot.ownerId))
   if (owner?.emailNotifs) sendOwnerNotification(newAppointment, owner.email)
+
+  const aptDate = new Date(newAppointment.date)
+  const dateStr = aptDate.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })
+  const timeStr = aptDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+  createNotification(chatbot.ownerId, {
+    type: 'new_appointment',
+    title: 'Nueva cita reservada',
+    message: `${newAppointment.guestName} reservó ${newAppointment.service} el ${dateStr} a las ${timeStr}`,
+    data: { appointmentId: newAppointment.id },
+  })
 
   res.status(201).json({
     success: true,
@@ -332,6 +343,20 @@ export const cancelGuestAppointment = asyncHandler(async (req, res) => {
     .returning()
 
   sendCancellationEmail(updated)
+
+  // Notificación in-app al dueño
+  const [cancelledChatbot] = await db
+    .select({ ownerId: chatbots.ownerId })
+    .from(chatbots)
+    .where(eq(chatbots.id, updated.chatbotId))
+  if (cancelledChatbot) {
+    createNotification(cancelledChatbot.ownerId, {
+      type: 'cancellation',
+      title: 'Cita cancelada',
+      message: `${updated.guestName} canceló su cita de ${updated.service}`,
+      data: { appointmentId: updated.id },
+    })
+  }
 
   res.json({ success: true, message: 'Appointment cancelled successfully', appointment: updated })
 })

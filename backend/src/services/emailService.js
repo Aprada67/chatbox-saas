@@ -86,7 +86,7 @@ export const sendAppointmentConfirmation = async (appointment) => {
           <p style="margin:6px 0"><strong>Date:</strong> ${formattedDate}</p>
           <p style="margin:6px 0"><strong>Time:</strong> ${formattedTime}</p>
           <p style="margin:6px 0"><strong>Duration:</strong> ${appointment.durationMins} minutes</p>
-          <p style="margin:6px 0"><strong>Price:</strong> $${appointment.price}</p>
+          <p style="margin:6px 0"><strong>Price:</strong> €${appointment.price}</p>
         </div>
         <p style="color:#64748b;font-size:13px">If you need to cancel your appointment, you can do so at any time.</p>
       </div>
@@ -153,7 +153,7 @@ export const sendOwnerNotification = async (appointment, ownerEmail) => {
           <p style="margin:6px 0"><strong>Date:</strong> ${formattedDate}</p>
           <p style="margin:6px 0"><strong>Time:</strong> ${formattedTime}</p>
           <p style="margin:6px 0"><strong>Duration:</strong> ${appointment.durationMins} min</p>
-          <p style="margin:6px 0"><strong>Price:</strong> $${appointment.price}</p>
+          <p style="margin:6px 0"><strong>Price:</strong> €${appointment.price}</p>
         </div>
       </div>
     `

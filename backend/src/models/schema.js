@@ -63,6 +63,18 @@ export const appointments = pgTable('appointments', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// Define la tabla de notificaciones
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 50 }).notNull(), // 'new_appointment' | 'cancellation'
+  title: varchar('title', { length: 150 }).notNull(),
+  message: text('message').notNull(),
+  isRead: boolean('is_read').default(false).notNull(),
+  data: jsonb('data'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
 // Define la tabla de horarios disponibles
 export const availabilitySlots = pgTable('availability_slots', {
   id: uuid('id').primaryKey().defaultRandom(),

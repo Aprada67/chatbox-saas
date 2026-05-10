@@ -9,8 +9,9 @@ import appointmentRoutes from './routes/appointmentRoutes.js'
 import availabilityRoutes from './routes/availabilityRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 import stripeRoutes from './routes/stripeRoutes.js'
+import notificationsRoutes from './routes/notificationsRoutes.js'
 import { handleWebhook } from './controllers/stripeController.js'
-import { globalLimiter, authLimiter, appointmentLimiter } from './middlewares/rateLimiter.js'
+import { globalLimiter, authLimiter } from './middlewares/rateLimiter.js'
 import { startScheduler } from './services/scheduler.js'
 
 const app = express()
@@ -41,9 +42,10 @@ app.get('/health', (req, res) => {
 app.use('/api/stripe', stripeRoutes)
 app.use('/api/auth', authLimiter, authRoutes)
 app.use('/api/chatbots', chatbotRoutes)
-app.use('/api/appointments', appointmentLimiter, appointmentRoutes)
+app.use('/api/appointments', appointmentRoutes)
 app.use('/api/availability', availabilityRoutes)
 app.use('/api/admin', adminRoutes)
+app.use('/api/notifications', notificationsRoutes)
 
 app.use(errorHandler)
 

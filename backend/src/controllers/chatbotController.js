@@ -41,6 +41,7 @@ export const getPublicChatbot = asyncHandler(async (req, res) => {
       bgImage: chatbots.bgImage,
       steps: chatbots.steps,
       services: chatbots.services,
+      language: chatbots.language,
     })
     .from(chatbots)
     .where(and(
@@ -55,7 +56,7 @@ export const getPublicChatbot = asyncHandler(async (req, res) => {
 
 // POST /api/chatbots — crear chatbot
 export const createChatbot = asyncHandler(async (req, res) => {
-  const { name, welcomeMessage, color, steps, services } = req.body
+  const { name, welcomeMessage, color, steps, services, language } = req.body
 
   if (!name || !welcomeMessage) {
     throw new AppError('Name and welcome message are required', 400)
@@ -85,6 +86,7 @@ export const createChatbot = asyncHandler(async (req, res) => {
       name: name.trim(),
       welcomeMessage: welcomeMessage.trim(),
       color: color || '#3b82f6',
+      language: language || 'en',
       steps: steps || [],
       services: services || [],
       slug,
@@ -100,7 +102,7 @@ export const createChatbot = asyncHandler(async (req, res) => {
 
 // PATCH /api/chatbots/:id — editar chatbot
 export const updateChatbot = asyncHandler(async (req, res) => {
-  const { name, welcomeMessage, color, bgImage, steps, services, isActive } = req.body
+  const { name, welcomeMessage, color, bgImage, steps, services, isActive, language } = req.body
 
   const [existing] = await db
     .select()
@@ -121,6 +123,7 @@ export const updateChatbot = asyncHandler(async (req, res) => {
     ...(steps !== undefined && { steps }),
     ...(services !== undefined && { services }),
     ...(isActive !== undefined && { isActive }),
+    ...(language !== undefined && { language }),
   }
 
   const [updated] = await db

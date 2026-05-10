@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -86,13 +86,10 @@ const Register = () => {
   // If returning from Stripe (session_id present), skip to step 2
   const initialStep = sessionId ? 2 : 1;
   const [step, setStep] = useState(initialStep);
-  const [selectedPlan, setSelectedPlan] = useState(planFromUrl || 'trial');
   const [loadingPlan, setLoadingPlan] = useState(null);
 
-  const planMeta = useMemo(
-    () => PLANS.find((p) => p.id === selectedPlan) || PLANS[0],
-    [selectedPlan],
-  );
+  const selectedPlan = planFromUrl || 'trial';
+  const planMeta = PLANS.find((p) => p.id === selectedPlan) || PLANS[0];
 
   const {
     register,
