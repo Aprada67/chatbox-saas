@@ -1,6 +1,6 @@
 import { db } from '../config/db.js'
 import { chatbots } from '../models/schema.js'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, asc } from 'drizzle-orm'
 import { AppError, asyncHandler } from '../middlewares/errorHandler.js'
 import { generateUniqueSlug } from '../services/slugService.js'
 
@@ -10,6 +10,7 @@ export const getMyChatbots = asyncHandler(async (req, res) => {
     .select()
     .from(chatbots)
     .where(eq(chatbots.ownerId, req.user.id))
+    .orderBy(asc(chatbots.createdAt))
 
   res.json({ success: true, chatbots: results })
 })

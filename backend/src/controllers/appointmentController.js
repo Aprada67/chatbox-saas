@@ -37,11 +37,15 @@ export const getAvailableSlots = asyncHandler(async (req, res) => {
   }
 
   const duration = parseInt(durationMins)
-  const selected = new Date(date)
 
-  if (isNaN(selected.getTime())) {
+  // Parseamos la fecha como fecha LOCAL (no UTC) para que getDay() y las horas
+  // coincidan con lo que el usuario ve en su zona horaria
+  const dateParts = date.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!dateParts) {
     throw new AppError('Invalid date format. Use YYYY-MM-DD', 400)
   }
+  const [, yr, mo, dy] = dateParts.map(Number)
+  const selected = new Date(yr, mo - 1, dy)
 
   // Verificar que el chatbot existe y está activo
   const [chatbot] = await db
@@ -71,6 +75,7 @@ export const getAvailableSlots = asyncHandler(async (req, res) => {
     return res.json({
       success: true,
       available: [],
+      slots: [],
       message: 'There is no availability for this day'
     })
   }
@@ -82,11 +87,9 @@ export const getAvailableSlots = asyncHandler(async (req, res) => {
     allSlots = [...allSlots, ...generated]
   }
 
-  // Obtener citas ya reservadas ese día
-  const startOfDay = new Date(date)
-  startOfDay.setHours(0, 0, 0, 0)
-  const endOfDay = new Date(date)
-  endOfDay.setHours(23, 59, 59, 999)
+  // Rango del día en tiempo LOCAL del servidor
+  const startOfDay = new Date(yr, mo - 1, dy, 0, 0, 0, 0)
+  const endOfDay   = new Date(yr, mo - 1, dy, 23, 59, 59, 999)
 
   const bookedAppointments = await db
     .select({ date: appointments.date, durationMins: appointments.durationMins })

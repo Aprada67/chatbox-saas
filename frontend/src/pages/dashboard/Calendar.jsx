@@ -50,6 +50,7 @@ const CalendarPage = () => {
   // localSlots = null means "use server data"; set when user edits
   const [localSlots, setLocalSlots] = useState(null);
   const [showAvail, setShowAvail] = useState(false);
+  const [selectedChatbotId, setSelectedChatbotId] = useState(null);
 
   // Fetches the client's chatbots
   const { data: chatbotsData, isLoading: chatbotsLoading } = useQuery({
@@ -58,7 +59,7 @@ const CalendarPage = () => {
   });
 
   const chatbots = chatbotsData?.chatbots || [];
-  const chatbotId = chatbots[0]?.id;
+  const chatbotId = selectedChatbotId || chatbots[0]?.id;
 
   // Fetches appointments for the active chatbot
   const { data: appointmentsData, isLoading: apptLoading } = useQuery({
@@ -75,6 +76,11 @@ const CalendarPage = () => {
   });
 
   const isLoading = chatbotsLoading || (!!chatbotId && apptLoading);
+
+  const handleSelectChatbot = (id) => {
+    setSelectedChatbotId(id);
+    setLocalSlots(null); // reset unsaved edits when switching chatbot
+  };
 
   // Derived state: localSlots overrides server data while the user edits
   const availability = localSlots ?? availabilityData?.slots ?? [];
@@ -245,6 +251,26 @@ const CalendarPage = () => {
 
   return (
     <DashboardLayout title={t('calendar')}>
+      {/* Chatbot selector — visible only when there are multiple chatbots */}
+      {chatbots.length > 1 && (
+        <div className="flex items-center gap-2 mb-4">
+          {chatbots.map((bot) => (
+            <button
+              key={bot.id}
+              onClick={() => handleSelectChatbot(bot.id)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer"
+              style={{
+                background: chatbotId === bot.id ? 'var(--accent-bg)' : 'var(--bg-secondary)',
+                borderColor: chatbotId === bot.id ? 'var(--accent)' : 'var(--border)',
+                color: chatbotId === bot.id ? 'var(--accent)' : 'var(--text-2)',
+              }}
+            >
+              {bot.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2

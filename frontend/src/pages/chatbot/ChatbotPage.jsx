@@ -163,7 +163,12 @@ const formatDate = (date) =>
     day: 'numeric',
   });
 
-const toISODate = (date) => date.toISOString().split('T')[0];
+const toISODate = (date) => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+};
 
 const DAYS = getNextDays(14);
 
@@ -291,7 +296,7 @@ const ChatbotPage = () => {
     botMsg(t.askService, 400);
   };
 
-  const doDay = async () => {
+  const doDay = async (durationMins = 30) => {
     goTo('day');
     botMsg(t.askDay, 400);
 
@@ -308,7 +313,7 @@ const ChatbotPage = () => {
         getAvailableSlotsApi(
           chatbot.id,
           toISODate(d),
-          booking.service?.durationMins || 30,
+          durationMins,
         ),
       ),
     );
@@ -750,7 +755,7 @@ const ChatbotPage = () => {
                 onClick={() => {
                   setBooking((p) => ({ ...p, service: svc }));
                   userMsg(`${svc.name} — €${svc.price}`);
-                  doDay();
+                  doDay(svc.durationMins);
                 }}
                 className="shrink-0 rounded-2xl p-4 text-left border"
                 style={{
