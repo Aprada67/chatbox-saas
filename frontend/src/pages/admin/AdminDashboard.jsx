@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Users, MessageSquare, Calendar, TrendingUp } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import KpiCard from '../../components/ui/KpiCard';
+import { SkeletonStat } from '../../components/ui/Skeleton';
 import api from '../../api/axios';
 
 const AdminDashboard = () => {
@@ -17,14 +18,47 @@ const AdminDashboard = () => {
   if (isLoading)
     return (
       <AdminLayout title="Admin Dashboard">
-        <div className="flex items-center justify-center h-48">
-          <span
-            className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
-            style={{
-              borderColor: 'var(--accent)',
-              borderTopColor: 'transparent',
-            }}
-          />
+        {/* KPI skeleton grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonStat key={i} />
+          ))}
+        </div>
+
+        {/* Plan distribution skeleton */}
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+        >
+          <div
+            className="px-5 py-4 border-b"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <div className="w-32 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          </div>
+          <div className="p-5 flex flex-col gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+                  <div className="w-20 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+                </div>
+                {/* Progress bar skeleton */}
+                <div
+                  className="h-1.5 rounded-full overflow-hidden"
+                  style={{ background: 'var(--bg-tertiary)' }}
+                >
+                  <div
+                    className="h-full rounded-full animate-pulse"
+                    style={{
+                      width: `${[40, 35, 25][i]}%`,
+                      background: 'var(--border)',
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </AdminLayout>
     );

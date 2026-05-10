@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { Search, MessageSquare, Edit, X, Save } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import Button from '../../components/ui/Button';
+import { SkeletonAdminChatbotRow } from '../../components/ui/Skeleton';
 import api from '../../api/axios';
 
 const AdminChatbots = () => {
@@ -52,14 +53,17 @@ const AdminChatbots = () => {
   if (isLoading)
     return (
       <AdminLayout title="ServeBots">
-        <div className="flex items-center justify-center h-48">
-          <span
-            className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
-            style={{
-              borderColor: 'var(--accent)',
-              borderTopColor: 'transparent',
-            }}
-          />
+        {/* Search bar skeleton */}
+        <div className="relative mb-5">
+          <div className="w-full h-10 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
+        </div>
+        <div className="w-32 h-3 animate-pulse rounded-lg mb-4" style={{ background: 'var(--bg-tertiary)' }} />
+
+        {/* Chatbot row skeletons */}
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SkeletonAdminChatbotRow key={i} />
+          ))}
         </div>
       </AdminLayout>
     );
@@ -218,7 +222,7 @@ const AdminChatbots = () => {
                         onClick={() =>
                           setEditData((p) => ({ ...p, isActive: !p.isActive }))
                         }
-                        className="w-10 h-6 rounded-full transition-all relative"
+                        className="w-10 h-6 rounded-full transition-all relative cursor-pointer"
                         style={{
                           background: editData.isActive
                             ? 'var(--accent)'

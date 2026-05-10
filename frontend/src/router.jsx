@@ -4,7 +4,6 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import ForgotPassword from './pages/auth/ForgotPassword';
-import ResetPassword from './pages/auth/ResetPassword';
 import Dashboard from './pages/dashboard/Dashboard';
 import ChatbotsPage from './pages/dashboard/ChatbotsPage';
 import CalendarPage from './pages/dashboard/Calendar';
@@ -63,10 +62,6 @@ const AppRouter = () => {
         <Route
           path="/forgot-password"
           element={!user ? <ForgotPassword /> : <Navigate to="/dashboard" />}
-        />
-        <Route
-          path="/reset-password/:token"
-          element={!user ? <ResetPassword /> : <Navigate to="/dashboard" />}
         />
         <Route path="/chat/:slug" element={<ChatbotPage />} />
 

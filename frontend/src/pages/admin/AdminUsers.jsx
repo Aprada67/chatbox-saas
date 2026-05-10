@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { Search, Shield, ShieldOff, ChevronDown } from 'lucide-react';
 import AdminLayout from './AdminLayout';
 import Button from '../../components/ui/Button';
+import { SkeletonUserRow } from '../../components/ui/Skeleton';
 import api from '../../api/axios';
 
 // Colors by plan
@@ -61,14 +62,18 @@ const AdminUsers = () => {
   if (isLoading)
     return (
       <AdminLayout title="Users">
-        <div className="flex items-center justify-center h-48">
-          <span
-            className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
-            style={{
-              borderColor: 'var(--accent)',
-              borderTopColor: 'transparent',
-            }}
-          />
+        {/* Search + filter skeleton */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+          <div className="flex-1 h-10 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
+          <div className="w-28 h-10 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
+        </div>
+        <div className="w-24 h-3 animate-pulse rounded-lg mb-4" style={{ background: 'var(--bg-tertiary)' }} />
+
+        {/* User row skeletons */}
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonUserRow key={i} />
+          ))}
         </div>
       </AdminLayout>
     );
@@ -177,7 +182,7 @@ const AdminUsers = () => {
                     onClick={() =>
                       setExpandedId(expandedId === user.id ? null : user.id)
                     }
-                    className="w-7 h-7 flex items-center justify-center rounded-lg transition-all"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg transition-all cursor-pointer"
                     style={{
                       color: 'var(--text-3)',
                       background: 'var(--bg-tertiary)',

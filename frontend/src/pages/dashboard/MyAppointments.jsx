@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import { Calendar, Clock, X, ChevronDown } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
+import { SkeletonAppointmentRow } from '../../components/ui/Skeleton';
 import { getMyChatbotsApi } from '../../api/chatbot';
 import { useSettings } from '../../context/SettingsContext';
 import {
@@ -69,14 +70,31 @@ const MyAppointments = () => {
   if (isLoading)
     return (
       <DashboardLayout title={t('appointments')}>
-        <div className="flex items-center justify-center h-48">
-          <span
-            className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
-            style={{
-              borderColor: 'var(--accent)',
-              borderTopColor: 'transparent',
-            }}
-          />
+        {/* Header skeleton */}
+        <div className="mb-5">
+          <div className="w-36 h-4 animate-pulse rounded-lg mb-2" style={{ background: 'var(--bg-tertiary)' }} />
+          <div className="w-16 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+        </div>
+
+        {/* Filter tabs skeleton */}
+        <div
+          className="flex gap-1 mb-5 p-1 rounded-xl"
+          style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)' }}
+        >
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex-1 h-8 animate-pulse rounded-lg"
+              style={{ background: 'var(--bg-tertiary)' }}
+            />
+          ))}
+        </div>
+
+        {/* Appointment row skeletons */}
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <SkeletonAppointmentRow key={i} />
+          ))}
         </div>
       </DashboardLayout>
     );
@@ -114,7 +132,7 @@ const MyAppointments = () => {
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className="flex-1 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap flex items-center justify-center gap-1.5"
+              className="flex-1 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap flex items-center justify-center gap-1.5 cursor-pointer"
               style={{
                 background: activeTab === id ? 'var(--accent)' : 'transparent',
                 color: activeTab === id ? '#fff' : 'var(--text-3)',

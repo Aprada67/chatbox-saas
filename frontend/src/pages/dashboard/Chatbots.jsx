@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
+import { SkeletonChatbotCard } from '../../components/ui/Skeleton';
 import { getMyChatbotsApi, deleteChatbotApi } from '../../api/chatbot';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
@@ -43,7 +44,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
   const chatbots = data?.chatbots || [];
 
   // Limit based on the user's plan
-  const limits = { trial: 1, pro: 1, premium: 3 };
+  const limits = { trial: 1, pro: 1, premium: 2 };
   const limit = limits[user?.plan] ?? 1;
   const canCreate = chatbots.length < limit;
 
@@ -70,14 +71,19 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
   if (isLoading)
     return (
       <DashboardLayout title={t('chatbots')}>
-        <div className="flex items-center justify-center h-48">
-          <span
-            className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
-            style={{
-              borderColor: 'var(--accent)',
-              borderTopColor: 'transparent',
-            }}
-          />
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex flex-col gap-2">
+            <div className="w-32 h-4 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-24 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          </div>
+          <div className="w-28 h-9 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)' }} />
+        </div>
+        {/* Chatbot card skeletons — show up to 2 placeholder cards */}
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <SkeletonChatbotCard key={i} />
+          ))}
         </div>
       </DashboardLayout>
     );

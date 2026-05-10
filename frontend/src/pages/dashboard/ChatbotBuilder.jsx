@@ -10,6 +10,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
+import Skeleton from '../../components/ui/Skeleton';
 import { createChatbotApi, updateChatbotApi } from '../../api/chatbot';
 import { useSettings } from '../../context/SettingsContext';
 
@@ -56,7 +57,7 @@ const emptyStep = (order) => ({
   type: 'service',
 });
 
-const ChatbotBuilder = ({ chatbot, onBack }) => {
+const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
   const queryClient = useQueryClient();
   const { t } = useSettings();
   const isEditing = !!chatbot;
@@ -204,7 +205,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
               key={c}
               type="button"
               onClick={() => setColor(c)}
-              className="w-8 h-8 rounded-full transition-all"
+              className="w-8 h-8 rounded-full transition-all cursor-pointer"
               style={{
                 background: c,
                 border:
@@ -290,7 +291,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
                   <button
                     type="button"
                     onClick={() => removeService(svc.id)}
-                    className="w-9 h-9 flex items-center justify-center rounded-lg shrink-0"
+                    className="w-9 h-9 flex items-center justify-center rounded-lg shrink-0 cursor-pointer"
                     style={{
                       color: 'var(--error)',
                       background: 'var(--error-bg)',
@@ -347,7 +348,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
                     type="button"
                     onClick={() => moveStep(step.id, -1)}
                     disabled={i === 0}
-                    className="w-6 h-6 flex items-center justify-center rounded disabled:opacity-30"
+                    className="w-6 h-6 flex items-center justify-center rounded disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                     style={{ color: 'var(--text-3)' }}
                   >
                     <ChevronUp size={13} />
@@ -356,7 +357,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
                     type="button"
                     onClick={() => moveStep(step.id, 1)}
                     disabled={i === steps.length - 1}
-                    className="w-6 h-6 flex items-center justify-center rounded disabled:opacity-30"
+                    className="w-6 h-6 flex items-center justify-center rounded disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
                     style={{ color: 'var(--text-3)' }}
                   >
                     <ChevronDown size={13} />
@@ -365,7 +366,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
                     <button
                       type="button"
                       onClick={() => removeStep(step.id)}
-                      className="w-6 h-6 flex items-center justify-center rounded"
+                      className="w-6 h-6 flex items-center justify-center rounded cursor-pointer"
                       style={{ color: 'var(--error)' }}
                     >
                       <Trash2 size={13} />
@@ -398,6 +399,50 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
     </Card>
   );
 
+  // Skeleton while chatbot data is loading in edit mode (e.g. passed from parent
+  // before the query result is available)
+  if (isLoadingChatbot)
+    return (
+      <DashboardLayout title={t('editChatbotTitle')}>
+        <button
+          onClick={onBack}
+          className="flex items-center gap-2 text-sm mb-5 cursor-pointer"
+          style={{ color: 'var(--text-3)' }}
+        >
+          {t('backToChatbots')}
+        </button>
+        <div className="lg:grid lg:grid-cols-3 lg:gap-6">
+          {Array.from({ length: 3 }).map((_, col) => (
+            <div
+              key={col}
+              className="rounded-2xl border p-6 flex flex-col gap-4"
+              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+            >
+              {/* Card title */}
+              <Skeleton width="45%" height="0.85rem" />
+              {/* Input fields */}
+              {Array.from({ length: col === 0 ? 3 : 2 }).map((_, j) => (
+                <div key={j} className="flex flex-col gap-1.5">
+                  <Skeleton width="30%" height="0.65rem" />
+                  <Skeleton width="100%" height="2.4rem" className="rounded-xl" style={{ borderRadius: '0.75rem' }} />
+                </div>
+              ))}
+              {/* Extra rows for services / flow panels */}
+              {col > 0 && (
+                <div
+                  className="rounded-xl border p-3 flex flex-col gap-2"
+                  style={{ borderColor: 'var(--border)', background: 'var(--bg-tertiary)' }}
+                >
+                  <Skeleton width="60%" height="0.75rem" />
+                  <Skeleton width="80%" height="2rem" className="rounded-lg" style={{ borderRadius: '0.5rem' }} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </DashboardLayout>
+    );
+
   return (
     <DashboardLayout
       title={t(isEditing ? 'editChatbotTitle' : 'newChatbotTitle')}
@@ -424,7 +469,7 @@ const ChatbotBuilder = ({ chatbot, onBack }) => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="flex-1 py-2 rounded-lg text-xs font-medium transition-all"
+            className="flex-1 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer"
             style={{
               background:
                 activeTab === tab.id ? 'var(--accent)' : 'transparent',

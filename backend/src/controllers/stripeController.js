@@ -3,6 +3,7 @@ import { db } from '../config/db.js'
 import { users } from '../models/schema.js'
 import { eq } from 'drizzle-orm'
 import { asyncHandler } from '../middlewares/errorHandler.js'
+import { sendPaymentSuccessEmail, sendPaymentFailedEmail } from '../services/emailService.js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -70,18 +71,20 @@ const cancelOtherSubscriptions = async (customerId, keepId) => {
 }
 
 // POST /api/stripe/pre-checkout — sesión de Stripe ANTES del registro
-// Endpoint público (sin auth). Se usa cuando un visitante elige Pro/Premium
-// en /register: lo enviamos a Stripe y, tras pagar, vuelve con session_id.
+// Endpoint público (sin auth). Se usa para todos los planes incluyendo trial.
+// Trial usa el precio de Pro con 7 días gratis — después de la prueba Stripe
+// cobra automáticamente y el webhook actualiza el plan a 'pro'.
 export const preCheckout = asyncHandler(async (req, res) => {
   const { plan } = req.body
 
-  if (!['pro', 'premium'].includes(plan)) {
+  if (!['trial', 'pro', 'premium'].includes(plan)) {
     return res.status(400).json({ success: false, message: 'Invalid plan' })
   }
 
-  const priceId = plan === 'pro'
-    ? process.env.STRIPE_PRICE_PRO
-    : process.env.STRIPE_PRICE_PREMIUM
+  // Trial usa el precio de Pro (se convierte en Pro al acabar la prueba)
+  const priceId = plan === 'premium'
+    ? process.env.STRIPE_PRICE_PREMIUM
+    : process.env.STRIPE_PRICE_PRO
 
   if (!priceId) {
     return res.status(500).json({ success: false, message: 'Price ID not configured' })
@@ -89,8 +92,6 @@ export const preCheckout = asyncHandler(async (req, res) => {
 
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
 
-  // Sesión anónima — no fijamos customer porque el usuario aún no existe.
-  // Stripe creará un customer al completar el checkout.
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     payment_method_collection: 'always',
@@ -100,12 +101,103 @@ export const preCheckout = asyncHandler(async (req, res) => {
     cancel_url: `${clientUrl}/register`,
     metadata: { plan },
     subscription_data: {
-      trial_period_days: 7,
+      ...(plan === 'trial' ? { trial_period_days: 7 } : {}),
       metadata: { plan },
     },
   })
 
   res.json({ success: true, url: session.url })
+})
+
+// GET /api/stripe/upgrade-preview?plan=pro|premium
+// Devuelve el importe exacto que se cobrará (con prorrateo si hay suscripción activa)
+export const previewUpgrade = asyncHandler(async (req, res) => {
+  const { plan } = req.query
+
+  if (!['pro', 'premium'].includes(plan)) {
+    return res.status(400).json({ success: false, message: 'Invalid plan' })
+  }
+
+  const priceId = plan === 'pro'
+    ? process.env.STRIPE_PRICE_PRO
+    : process.env.STRIPE_PRICE_PREMIUM
+
+  // Sin suscripción activa → devuelve el precio completo del plan
+  if (!req.user.stripeSubscriptionId || !req.user.stripeCustomerId) {
+    const price = await stripe.prices.retrieve(priceId)
+    return res.json({
+      success: true,
+      amount: price.unit_amount,
+      currency: price.currency,
+      isProration: false,
+    })
+  }
+
+  // Con suscripción activa → calcula el prorrateo exacto
+  let sub
+  try {
+    sub = await stripe.subscriptions.retrieve(req.user.stripeSubscriptionId)
+  } catch {
+    const price = await stripe.prices.retrieve(priceId)
+    return res.json({
+      success: true,
+      amount: price.unit_amount,
+      currency: price.currency,
+      isProration: false,
+    })
+  }
+
+  if (['canceled', 'incomplete_expired'].includes(sub.status)) {
+    const price = await stripe.prices.retrieve(priceId)
+    return res.json({
+      success: true,
+      amount: price.unit_amount,
+      currency: price.currency,
+      isProration: false,
+    })
+  }
+
+  const itemId = sub.items.data[0].id
+
+  // Suscripción en trial: terminar el trial inmediatamente y cobrar el nuevo plan completo
+  // Suscripción en trial: terminar el trial inmediatamente y cobrar el nuevo plan completo
+  // (evita el abuso de trial gratis → upgrade gratis)
+  if (sub.status === 'trialing') {
+    const price = await stripe.prices.retrieve(priceId)
+    return res.json({
+      success: true,
+      amount: price.unit_amount,
+      currency: price.currency,
+      isProration: false,
+      isTrial: false,
+      isTrialEnd: true,
+    })
+  }
+
+  // Suscripción activa: calcular prorrateo manualmente
+  // (más fiable que createPreview, que puede devolver 0 si los ítems no se marcan como proration)
+  const currentPriceId = sub.items.data[0]?.price?.id
+  const [currentPrice, newPrice] = await Promise.all([
+    stripe.prices.retrieve(currentPriceId),
+    stripe.prices.retrieve(priceId),
+  ])
+
+  const now = Math.floor(Date.now() / 1000)
+  const totalSeconds = sub.current_period_end - sub.current_period_start
+  const remainingSeconds = Math.max(0, sub.current_period_end - now)
+
+  const unusedCredit = Math.round((currentPrice.unit_amount * remainingSeconds) / totalSeconds)
+  const newCharge = Math.round((newPrice.unit_amount * remainingSeconds) / totalSeconds)
+  const amountDue = Math.max(0, newCharge - unusedCredit)
+
+  res.json({
+    success: true,
+    amount: amountDue,
+    currency: currentPrice.currency,
+    isProration: true,
+    isTrial: false,
+    periodEnd: sub.current_period_end * 1000,
+  })
 })
 
 // POST /api/stripe/checkout — crea sesión de pago en Stripe
@@ -159,11 +251,19 @@ export const createCheckout = asyncHandler(async (req, res) => {
         // ─── UPGRADE: aplica cambio inmediato con prorrateo y actualiza DB
         const itemId = existingSub.items.data[0].id
 
-        const updated = await stripe.subscriptions.update(req.user.stripeSubscriptionId, {
+        const upgradeParams = {
           items: [{ id: itemId, price: priceId }],
           proration_behavior: 'create_prorations',
           metadata: { userId: req.user.id, plan },
-        })
+        }
+
+        // Si el usuario está en trial, lo terminamos ahora para cobrar el nuevo plan completo
+        if (existingSub.status === 'trialing') {
+          upgradeParams.trial_end = 'now'
+          upgradeParams.proration_behavior = 'none'
+        }
+
+        const updated = await stripe.subscriptions.update(req.user.stripeSubscriptionId, upgradeParams)
 
         // Cancela cualquier otra suscripción duplicada del customer
         await cancelOtherSubscriptions(customerId, updated.id)
@@ -218,24 +318,29 @@ export const createCheckout = asyncHandler(async (req, res) => {
     }
   }
 
-  // ─── Caso 2: usuario sin suscripción activa → checkout con trial de 7 días
+  // ─── Caso 2: usuario sin suscripción activa → checkout directo (sin trial)
   // Antes de crear la sesión, cancelamos cualquier suscripción residual del customer
   await cancelOtherSubscriptions(customerId, null)
 
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    payment_method_types: ['card'],
-    payment_method_collection: 'always',
-    mode: 'subscription',
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: process.env.CLIENT_URL + '/dashboard/billing?payment=success',
-    cancel_url: process.env.CLIENT_URL + '/dashboard/billing?payment=cancelled',
-    metadata: { userId: req.user.id, plan },
-    subscription_data: {
-      trial_period_days: 7,
+  // Idempotency key: misma sesión si el mismo usuario intenta el mismo plan en la misma ventana de 2 min
+  const idempotencyKey = `checkout-${req.user.id}-${plan}-${Math.floor(Date.now() / 120000)}`
+
+  const session = await stripe.checkout.sessions.create(
+    {
+      customer: customerId,
+      payment_method_types: ['card'],
+      payment_method_collection: 'always',
+      mode: 'subscription',
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: process.env.CLIENT_URL + '/dashboard/billing?payment=success',
+      cancel_url: process.env.CLIENT_URL + '/dashboard/billing?payment=cancelled',
       metadata: { userId: req.user.id, plan },
+      subscription_data: {
+        metadata: { userId: req.user.id, plan },
+      },
     },
-  })
+    { idempotencyKey }
+  )
 
   res.json({ success: true, url: session.url })
 })
@@ -265,11 +370,14 @@ export const handleWebhook = async (req, res) => {
         const session = event.data.object
         const userId = session.metadata?.userId
         const plan = session.metadata?.plan
+
         if (userId && plan) {
+          // Flujo autenticado: usuario ya registrado
           await db
             .update(users)
             .set({
               plan,
+              stripeCustomerId: session.customer || undefined,
               stripeSubscriptionId: session.subscription,
               updatedAt: new Date(),
             })
@@ -279,14 +387,34 @@ export const handleWebhook = async (req, res) => {
             await cancelOtherSubscriptions(session.customer, session.subscription)
           }
 
-          console.log('Plan activated — user:', userId, 'plan:', plan)
+          console.log('Plan activated (auth checkout) — user:', userId, 'plan:', plan)
+        } else if (plan && session.customer) {
+          // Flujo pre-checkout: el usuario puede ya existir en DB (registrado antes del redirect)
+          const [existingUser] = await db
+            .select({ id: users.id })
+            .from(users)
+            .where(eq(users.stripeCustomerId, session.customer))
+
+          if (existingUser) {
+            await db
+              .update(users)
+              .set({
+                plan,
+                stripeSubscriptionId: session.subscription,
+                updatedAt: new Date(),
+              })
+              .where(eq(users.id, existingUser.id))
+
+            console.log('Plan activated (pre-checkout) — customer:', session.customer, 'plan:', plan)
+          }
         }
         break
       }
 
-      // Suscripción actualizada desde el portal de Stripe o vía API
-      case 'customer.subscription.updated': {
+      // Nueva suscripción creada — solo sincroniza si ya está activa (no en trial pendiente de cobro)
+      case 'customer.subscription.created': {
         const sub = event.data.object
+        if (sub.status !== 'active') break  // trialing/incomplete: el plan lo gestiona checkout.session.completed
         const priceId = sub.items?.data?.[0]?.price?.id
         const plan = PRICE_TO_PLAN[priceId]
         if (plan && sub.customer) {
@@ -298,7 +426,28 @@ export const handleWebhook = async (req, res) => {
               updatedAt: new Date(),
             })
             .where(eq(users.stripeCustomerId, sub.customer))
-          console.log('Plan updated — customer:', sub.customer, 'plan:', plan)
+          console.log('Subscription created (active) — customer:', sub.customer, 'plan:', plan)
+        }
+        break
+      }
+
+      // Suscripción actualizada — solo actualiza el plan cuando el cobro está confirmado (active)
+      // 'trialing' → no ha pagado aún; 'past_due' → cobro fallido; 'incomplete' → setup fallido.
+      case 'customer.subscription.updated': {
+        const sub = event.data.object
+        if (sub.status !== 'active') break
+        const priceId = sub.items?.data?.[0]?.price?.id
+        const plan = PRICE_TO_PLAN[priceId]
+        if (plan && sub.customer) {
+          await db
+            .update(users)
+            .set({
+              plan,
+              stripeSubscriptionId: sub.id,
+              updatedAt: new Date(),
+            })
+            .where(eq(users.stripeCustomerId, sub.customer))
+          console.log('Plan updated (active) — customer:', sub.customer, 'plan:', plan)
         }
         break
       }
@@ -307,16 +456,78 @@ export const handleWebhook = async (req, res) => {
       case 'customer.subscription.deleted': {
         const sub = event.data.object
         if (sub.customer) {
+          // trialEndsAt en el pasado (1s atrás) para que checkTrial bloquee inmediatamente
+          const expiredAt = new Date(Date.now() - 1000)
           await db
             .update(users)
             .set({
               plan: 'trial',
               stripeSubscriptionId: null,
-              trialEndsAt: new Date(),
+              trialEndsAt: expiredAt,
               updatedAt: new Date(),
             })
             .where(eq(users.stripeCustomerId, sub.customer))
           console.log('Subscription cancelled — customer:', sub.customer)
+        }
+        break
+      }
+
+      // Cobro exitoso — notifica al usuario por email
+      case 'invoice.paid': {
+        const invoice = event.data.object
+        if (!invoice.customer || invoice.amount_paid === 0) break
+
+        const [user] = await db
+          .select({ email: users.email, name: users.name, plan: users.plan })
+          .from(users)
+          .where(eq(users.stripeCustomerId, invoice.customer))
+
+        if (user) {
+          const priceId = invoice.lines?.data?.[0]?.price?.id
+          const plan = PRICE_TO_PLAN[priceId] || user.plan
+          await sendPaymentSuccessEmail({
+            to: user.email,
+            name: user.name,
+            amount: invoice.amount_paid,
+            currency: invoice.currency,
+            plan,
+            invoiceUrl: invoice.hosted_invoice_url,
+          })
+          console.log('Payment success email sent — customer:', invoice.customer)
+        }
+        break
+      }
+
+      // Cobro fallido — notifica al usuario y genera link al portal para actualizar tarjeta
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object
+        if (!invoice.customer) break
+
+        const [user] = await db
+          .select({ email: users.email, name: users.name, stripeCustomerId: users.stripeCustomerId })
+          .from(users)
+          .where(eq(users.stripeCustomerId, invoice.customer))
+
+        if (user) {
+          let portalUrl = null
+          try {
+            const portalSession = await stripe.billingPortal.sessions.create({
+              customer: invoice.customer,
+              return_url: process.env.CLIENT_URL + '/dashboard/billing',
+            })
+            portalUrl = portalSession.url
+          } catch {
+            // Si el portal no está configurado, enviamos el email sin el link
+          }
+
+          await sendPaymentFailedEmail({
+            to: user.email,
+            name: user.name,
+            amount: invoice.amount_due,
+            currency: invoice.currency,
+            portalUrl,
+          })
+          console.log('Payment failed email sent — customer:', invoice.customer)
         }
         break
       }

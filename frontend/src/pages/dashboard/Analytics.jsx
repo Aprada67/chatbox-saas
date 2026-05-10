@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import KpiCard from '../../components/ui/KpiCard';
+import { SkeletonStat, SkeletonChart, SkeletonTable } from '../../components/ui/Skeleton';
 import { getMyChatbotsApi } from '../../api/chatbot';
 import { getAppointmentStatsApi } from '../../api/appointments';
 import { useAuth } from '../../context/AuthContext';
@@ -23,7 +24,7 @@ const Analytics = () => {
   const isPremium = user?.plan === 'premium';
 
   // 1) Get the user's chatbots — we use the first one
-  const { data: chatbotsData } = useQuery({
+  const { data: chatbotsData, isLoading: chatbotsLoading } = useQuery({
     queryKey: ['chatbots'],
     queryFn: () => getMyChatbotsApi().then((r) => r.data),
   });
@@ -32,11 +33,14 @@ const Analytics = () => {
   const chatbotId = chatbots[0]?.id;
 
   // 2) Fetch advanced stats for that chatbot
-  const { data: statsData, isLoading } = useQuery({
+  const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ['appointmentStats', chatbotId],
     queryFn: () => getAppointmentStatsApi(chatbotId).then((r) => r.data),
     enabled: !!chatbotId,
   });
+
+  // Combined loading: true while chatbots OR stats are still fetching
+  const isLoading = chatbotsLoading || (!!chatbotId && statsLoading);
 
   const summary = statsData?.summary || {
     total: 0,
@@ -51,6 +55,59 @@ const Analytics = () => {
 
   // Max value used to scale the bar chart
   const maxCount = byDay.reduce((m, d) => (d.count > m ? d.count : m), 0) || 1;
+
+  if (isLoading)
+    return (
+      <DashboardLayout title={t('analytics')}>
+        {/* KPI cards skeleton */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonStat key={i} />
+          ))}
+        </div>
+
+        {/* Chart area skeleton */}
+        <div
+          className="rounded-2xl border overflow-hidden mb-6"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+        >
+          <div
+            className="px-4 md:px-5 py-4 border-b flex items-center justify-between"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <div className="w-24 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-16 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          </div>
+          <div className="px-4 md:px-5 py-5">
+            <SkeletonChart />
+            {/* Day labels skeleton */}
+            <div className="flex gap-1 mt-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex-1">
+                  {i % 1 === 0 && (
+                    <div className="w-6 h-2.5 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Top services skeleton */}
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+        >
+          <div
+            className="px-4 md:px-5 py-4 border-b"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <div className="w-24 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          </div>
+          <SkeletonTable rows={4} />
+        </div>
+      </DashboardLayout>
+    );
 
   return (
     <DashboardLayout title={t('analytics')}>
@@ -142,11 +199,8 @@ const Analytics = () => {
             </div>
 
             <div className="px-4 md:px-5 py-5">
-              {isLoading ? (
-                <div
-                  className="h-40 rounded-lg animate-pulse"
-                  style={{ background: 'var(--bg-tertiary)' }}
-                />
+              {statsLoading ? (
+                <SkeletonChart />
               ) : (
                 <>
                   {/* Bars row */}

@@ -10,6 +10,7 @@ import {
   getAppointmentStats,
 } from '../controllers/appointmentController.js'
 import { protect, optionalAuth } from '../middlewares/auth.js'
+import { checkTrial } from '../middlewares/checkTrial.js'
 
 const router = Router()
 
@@ -21,6 +22,7 @@ router.patch('/:id/cancel-guest', cancelGuestAppointment)
 
 // Rutas protegidas - Requieren token
 router.use(protect)
+router.use(checkTrial)
 router.get('/my', getMyAppointments)
 router.get('/chatbot/:chatbotId', getChatbotAppointments)
 router.get('/stats/:chatbotId', getAppointmentStats)

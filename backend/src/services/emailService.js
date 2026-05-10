@@ -160,6 +160,74 @@ export const sendOwnerNotification = async (appointment, ownerEmail) => {
   })
 }
 
+// Notificación de cobro exitoso (upgrade, renovación, prorrateo)
+export const sendPaymentSuccessEmail = async ({ to, name, amount, currency, plan, invoiceUrl }) => {
+  const formatted = new Intl.NumberFormat('en-EU', {
+    style: 'currency',
+    currency: currency?.toUpperCase() || 'EUR',
+  }).format(amount / 100)
+
+  await sendEmail({
+    to,
+    subject: `Payment confirmed — ServeBot ${plan ? plan.charAt(0).toUpperCase() + plan.slice(1) : ''}`,
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#1e293b">Payment confirmed ✓</h2>
+        <p>Hi <strong>${name}</strong>, your payment has been processed successfully.</p>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin:24px 0;text-align:center">
+          <p style="margin:0;font-size:13px;color:#16a34a;font-weight:600;text-transform:uppercase;letter-spacing:1px">Amount charged</p>
+          <p style="margin:8px 0 0;font-size:32px;font-weight:800;color:#15803d">${formatted}</p>
+          ${plan ? `<p style="margin:8px 0 0;font-size:13px;color:#166534">Plan: <strong>${plan.charAt(0).toUpperCase() + plan.slice(1)}</strong></p>` : ''}
+        </div>
+        ${invoiceUrl ? `
+        <div style="text-align:center;margin:24px 0">
+          <a href="${invoiceUrl}" style="display:inline-block;padding:12px 24px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+            View invoice
+          </a>
+        </div>` : ''}
+        <p style="color:#94a3b8;font-size:12px;text-align:center;margin-top:16px">
+          You can manage your subscription at any time from your billing dashboard.
+        </p>
+      </div>
+    `,
+  })
+}
+
+// Notificación de cobro fallido
+export const sendPaymentFailedEmail = async ({ to, name, amount, currency, portalUrl }) => {
+  const formatted = amount
+    ? new Intl.NumberFormat('en-EU', {
+        style: 'currency',
+        currency: currency?.toUpperCase() || 'EUR',
+      }).format(amount / 100)
+    : null
+
+  await sendEmail({
+    to,
+    subject: 'Payment failed — action required',
+    html: `
+      <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#1e293b">Payment failed</h2>
+        <p>Hi <strong>${name}</strong>, we were unable to process your payment${formatted ? ` of <strong>${formatted}</strong>` : ''}.</p>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;margin:24px 0">
+          <p style="margin:0;color:#991b1b;font-size:14px">
+            Your subscription may be paused if the payment is not resolved. Please update your payment method to avoid losing access.
+          </p>
+        </div>
+        ${portalUrl ? `
+        <div style="text-align:center;margin:24px 0">
+          <a href="${portalUrl}" style="display:inline-block;padding:12px 24px;background:#dc2626;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+            Update payment method
+          </a>
+        </div>` : ''}
+        <p style="color:#94a3b8;font-size:12px;text-align:center;margin-top:16px">
+          Stripe will retry the charge automatically. If it fails again your subscription will be cancelled.
+        </p>
+      </div>
+    `,
+  })
+}
+
 // En caso de cancelación por parte del cliente o del negocio
 export const sendCancellationEmail = async (appointment) => {
   if (!appointment.guestEmail) return

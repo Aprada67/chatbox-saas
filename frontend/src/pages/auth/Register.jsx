@@ -19,8 +19,8 @@ const PLANS = [
     price: 'Free',
     period: '7 days',
     color: 'var(--text-3)',
-    cta: 'Start for free',
-    note: 'No card required',
+    cta: 'Try free for 7 days',
+    note: 'Card required · cancel anytime',
     features: [
       '1 ServeBot',
       'Online bookings 24/7',
@@ -37,7 +37,7 @@ const PLANS = [
     color: 'var(--accent)',
     popular: true,
     cta: 'Choose Pro',
-    note: '7 days free · cancel anytime',
+    note: 'Billed monthly · cancel anytime',
     features: [
       '1 ServeBot',
       'Everything in Trial',
@@ -49,18 +49,16 @@ const PLANS = [
   {
     id: 'premium',
     name: 'Premium',
-    price: '€79.99',
-    oldPrice: '€110',
+    price: '€54.99',
+    oldPrice: '€79,99',
     period: '/month',
     color: 'var(--success)',
     cta: 'Choose Premium',
-    note: '7 days free · cancel anytime',
+    note: 'Billed monthly · cancel anytime',
     features: [
-      'Up to 3 ServeBots',
+      'Up to 2 ServeBots',
       'Everything in Pro',
       'Advanced analytics',
-      'CRM integration',
-      'API access',
       'Dedicated support',
     ],
   },
@@ -106,12 +104,6 @@ const Register = () => {
 
   // Step 1 — plan selection
   const handlePickPlan = async (planId) => {
-    if (planId === 'trial') {
-      setSelectedPlan('trial');
-      setStep(2);
-      return;
-    }
-
     try {
       setLoadingPlan(planId);
       const { data } = await preCheckoutApi(planId);
@@ -299,11 +291,7 @@ const Register = () => {
                     style={{ color: 'var(--text-1)' }}
                   >
                     {planMeta.name}
-                    {sessionId && planMeta.id !== 'trial'
-                      ? ' · 7 days free'
-                      : planMeta.id === 'trial'
-                        ? ' · 7 days free'
-                        : ''}
+                    {sessionId && planMeta.id === 'trial' ? ' · 7 days free' : ''}
                   </span>
                 </div>
                 {!sessionId && (

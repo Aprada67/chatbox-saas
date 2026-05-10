@@ -48,14 +48,13 @@ export const registerUser = asyncHandler(async (req, res) => {
     try {
       const session = await stripe.checkout.sessions.retrieve(sessionId)
 
-      // Aceptamos sesiones pagadas o sesiones en trial (status active/trialing)
-      // payment_status puede ser 'paid', 'unpaid' o 'no_payment_required'.
-      // Para suscripciones con trial, el pago aún no se ha cobrado.
+      // Solo aceptamos sesiones COMPLETADAS por el usuario.
+      // payment_status 'no_payment_required' = trial (cobro futuro, pero el usuario sí introdujo la tarjeta).
+      // payment_status 'paid' = cobro inmediato completado.
+      // Nunca aceptar 'open' (checkout abandonado) ni 'unpaid' (cobro fallido).
       const isAcceptable =
-        session.payment_status === 'paid' ||
-        session.payment_status === 'no_payment_required' ||
-        session.status === 'complete' ||
-        session.status === 'open'
+        session.status === 'complete' &&
+        (session.payment_status === 'paid' || session.payment_status === 'no_payment_required')
 
       if (isAcceptable) {
         plan = session.metadata?.plan || 'trial'
@@ -216,15 +215,14 @@ export const changePassword = asyncHandler(async (req, res) => {
   res.json({ success: true, message: 'Password updated successfully' })
 })
 
-// POST /api/auth/forgot-password — solicita un enlace de recuperación
+// POST /api/auth/forgot-password — sends a 6-digit reset code
 export const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body
 
-  // Respuesta genérica para no revelar si el email existe
   const genericResponse = () =>
     res.json({
       success: true,
-      message: 'Si existe una cuenta con ese email, recibirás un enlace de recuperación.',
+      message: 'If an account exists for that email, you will receive a reset code.',
     })
 
   if (!email || typeof email !== 'string') {
@@ -236,86 +234,89 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     .from(users)
     .where(eq(users.email, email.toLowerCase().trim()))
 
-  // Aunque no exista, devolvemos la misma respuesta
   if (!user) {
     return genericResponse()
   }
 
-  // Genera token (32 bytes hex) y guarda su SHA-256 en DB
-  const rawToken = crypto.randomBytes(32).toString('hex')
-  const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex')
-  const expires = new Date(Date.now() + 60 * 60 * 1000) // 1 hora
+  const code = generateVerificationCode()
+  const expires = new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
 
   await db
     .update(users)
     .set({
-      resetPasswordToken: hashedToken,
+      resetPasswordToken: code,
       resetPasswordExpires: expires,
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id))
 
-  const resetUrl = `${process.env.CLIENT_URL}/reset-password/${rawToken}`
-
-  // Siempre imprime el link en consola (útil si el email falla en desarrollo)
-  console.log(`\n🔗 LINK DE RECUPERACIÓN para ${user.email}:\n${resetUrl}\n`)
+  console.log(`\n🔑 RESET CODE for ${user.email}: ${code}\n`)
 
   try {
     await sendEmail({
       to: user.email,
-      subject: 'Recupera tu contraseña — ServeBot',
+      subject: 'Your password reset code — ServeBot',
       html: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-          <h2 style="color:#1e293b">Recupera tu contraseña</h2>
-          <p>Hola <strong>${user.name}</strong>, recibimos una solicitud para restablecer tu contraseña.</p>
-          <p>Pulsa el botón de abajo para crear una nueva. Este enlace expira en 1 hora.</p>
-          <div style="text-align:center;margin:24px 0">
-            <a href="${resetUrl}"
-               style="display:inline-block;padding:12px 24px;background:#3b82f6;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
-              Restablecer contraseña
-            </a>
+          <h2 style="color:#1e293b">Reset your password</h2>
+          <p>Hi <strong>${user.name}</strong>, use the code below to reset your password:</p>
+          <div style="text-align:center;margin:32px 0">
+            <div style="
+              display:inline-block;
+              padding:18px 28px;
+              background:#f1f5f9;
+              border:1px solid #e2e8f0;
+              border-radius:12px;
+              font-family:'Courier New',Courier,monospace;
+              font-size:36px;
+              font-weight:700;
+              color:#1e293b;
+              letter-spacing:12px;
+            ">
+              ${code}
+            </div>
           </div>
-          <p style="color:#64748b;font-size:13px">
-            Si no solicitaste este cambio, puedes ignorar este email.
+          <p style="color:#64748b;font-size:13px;text-align:center">
+            This code expires in 15 minutes.
           </p>
-          <p style="color:#94a3b8;font-size:12px;word-break:break-all">
-            O copia este enlace en tu navegador:<br>${resetUrl}
+          <p style="color:#94a3b8;font-size:12px;text-align:center;margin-top:16px">
+            If you did not request this, you can ignore this email.
           </p>
         </div>
       `,
     })
   } catch (err) {
     console.error('Error sending password reset email:', err.message)
+    throw new AppError('Failed to send the reset code. Please try again.', 500)
   }
 
   return genericResponse()
 })
 
-// POST /api/auth/reset-password — establece la nueva contraseña con un token válido
+// POST /api/auth/reset-password — resets password using a 6-digit code
 export const resetPassword = asyncHandler(async (req, res) => {
-  const { token, password } = req.body
+  const { email, code, password } = req.body
 
-  if (!token || !password) {
-    throw new AppError('Token and password are required', 400)
+  if (!email || !code || !password) {
+    throw new AppError('Email, code and password are required', 400)
   }
   if (password.length < 8) {
     throw new AppError('Password must be at least 8 characters', 400)
   }
-
-  const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
 
   const [user] = await db
     .select()
     .from(users)
     .where(
       and(
-        eq(users.resetPasswordToken, hashedToken),
+        eq(users.email, email.toLowerCase().trim()),
+        eq(users.resetPasswordToken, String(code).trim()),
         gt(users.resetPasswordExpires, new Date())
       )
     )
 
   if (!user) {
-    throw new AppError('Token inválido o expirado', 400)
+    throw new AppError('Incorrect or expired code', 400)
   }
 
   const hashed = await bcrypt.hash(password, 12)
@@ -330,7 +331,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
     })
     .where(eq(users.id, user.id))
 
-  res.json({ success: true, message: 'Contraseña actualizada correctamente' })
+  res.json({ success: true, message: 'Password updated successfully' })
 })
 
 // POST /api/auth/verify-code — verifica el email con código de 6 dígitos
@@ -420,6 +421,8 @@ export const resendVerification = asyncHandler(async (req, res) => {
       updatedAt: new Date(),
     })
     .where(eq(users.id, user.id))
+
+  console.log(`\n🔑 CÓDIGO DE VERIFICACIÓN para ${user.email}: ${verificationCode}\n`)
 
   try {
     await sendVerificationCode(user, verificationCode)

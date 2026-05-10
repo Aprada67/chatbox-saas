@@ -5,11 +5,13 @@ import { toast } from 'react-hot-toast';
 import { Check, ExternalLink, Zap, Clock } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
+import { SkeletonPlanCard } from '../../components/ui/Skeleton';
 import { useAuth } from '../../context/AuthContext';
 import {
   createCheckoutApi,
   createPortalApi,
   syncPlanApi,
+  upgradePreviewApi,
 } from '../../api/stripe';
 
 const PLANS = [
@@ -47,17 +49,15 @@ const PLANS = [
   {
     id: 'premium',
     name: 'Premium',
-    price: '€79.99',
-    oldPrice: '€110',
+    price: '€54.99',
+    oldPrice: '€79.99',
     period: '/month',
     color: 'var(--success)',
-    savings: 'Save €30/month',
+    savings: 'Save €55/month',
     features: [
-      'Up to 3 ServeBots',
+      'Up to 2 ServeBots',
       'Everything in Pro',
       'Advanced analytics',
-      'CRM integration',
-      'API access',
       'Dedicated support',
     ],
   },
@@ -71,6 +71,7 @@ const Billing = () => {
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [pendingChange, setPendingChange] = useState(null);
+  const [confirm, setConfirm] = useState(null); // { plan, amount, currency, isProration, periodEnd }
 
   // Handles Stripe redirect after payment
   const payment = searchParams.get('payment');
@@ -98,12 +99,28 @@ const Billing = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payment]);
 
+  // Step 1 — fetch charge preview and show confirmation modal
   const handleUpgrade = async (planId) => {
+    try {
+      setLoadingPlan(planId);
+      const { data } = await upgradePreviewApi(planId);
+      setConfirm({ plan: planId, ...data });
+      setLoadingPlan(null);
+    } catch (err) {
+      console.error('Preview error:', err);
+      toast.error(err?.message || 'Error fetching plan details');
+      setLoadingPlan(null);
+    }
+  };
+
+  // Step 2 — user confirmed, apply the upgrade
+  const handleConfirm = async () => {
+    const planId = confirm.plan;
+    setConfirm(null);
     try {
       setLoadingPlan(planId);
       const { data } = await createCheckoutApi(planId);
 
-      // Scheduled downgrade — change applies at end of period
       if (data?.upgraded && data?.scheduled) {
         await refreshUser();
         setPendingChange({ plan: planId, periodEnd: data.periodEnd });
@@ -112,15 +129,13 @@ const Billing = () => {
         return;
       }
 
-      // Upgrade — subscription updated in Stripe without checkout
       if (data?.upgraded) {
         await refreshUser();
-        toast.success('Plan updated');
+        toast.success('Plan updated successfully');
         setLoadingPlan(null);
         return;
       }
 
-      // First subscription — redirect to Stripe checkout
       if (data?.url) {
         window.location.assign(data.url);
         return;
@@ -129,11 +144,8 @@ const Billing = () => {
       toast.error('Unexpected server response');
       setLoadingPlan(null);
     } catch (err) {
-      toast.error(
-        err?.response?.data?.message ||
-          err?.response?.data?.error ||
-          'Error starting payment',
-      );
+      console.error('Upgrade error:', err);
+      toast.error(err?.message || 'Error processing payment');
       setLoadingPlan(null);
     }
   };
@@ -162,8 +174,100 @@ const Billing = () => {
 
   const hasPaidPlan = ['pro', 'premium'].includes(user?.plan);
 
+  // Show skeleton when auth user data is still being loaded or plan is syncing
+  if (!user || syncing)
+    return (
+      <DashboardLayout title="Billing">
+        <div className="max-w-2xl mx-auto flex flex-col gap-5">
+          {/* Current plan banner skeleton */}
+          <div
+            className="rounded-2xl border p-5"
+            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-2">
+                <div className="w-20 h-2.5 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+                <div className="w-16 h-6 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+                <div className="w-32 h-2.5 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+              </div>
+              <div className="w-32 h-9 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)' }} />
+            </div>
+          </div>
+
+          {/* Plan card skeletons — one per plan */}
+          {PLANS.map((plan) => (
+            <SkeletonPlanCard key={plan.id} features={plan.features.length} />
+          ))}
+        </div>
+      </DashboardLayout>
+    );
+
+  const formatAmount = (amount, currency) =>
+    new Intl.NumberFormat('en-EU', {
+      style: 'currency',
+      currency: currency?.toUpperCase() || 'EUR',
+    }).format(amount / 100);
+
   return (
     <DashboardLayout title="Billing">
+      {/* Confirmation modal */}
+      {confirm && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => !loadingPlan && setConfirm(null)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="rounded-2xl border p-6 w-full max-w-sm"
+            style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-1)' }}>
+              Confirm upgrade to {confirm.plan.charAt(0).toUpperCase() + confirm.plan.slice(1)}
+            </h3>
+
+            <div
+              className="rounded-xl p-4 my-4 text-center"
+              style={{ background: 'var(--bg-tertiary)' }}
+            >
+              <>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'var(--text-3)' }}>
+                  {confirm.isProration ? 'Charged now (prorated)' : 'Charged now'}
+                </p>
+                <p className="text-3xl font-black" style={{ color: 'var(--text-1)' }}>
+                  {formatAmount(confirm.amount, confirm.currency)}
+                </p>
+                {confirm.isTrialEnd && (
+                  <p className="text-xs mt-2" style={{ color: 'var(--text-3)' }}>
+                    Your current trial will end immediately and you'll be charged now.
+                  </p>
+                )}
+                {confirm.isProration && confirm.periodEnd && (
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>
+                    Credit applied for unused days of your current plan.
+                    Full price from {new Date(confirm.periodEnd).toLocaleDateString('en-US', { day: 'numeric', month: 'long' })}.
+                  </p>
+                )}
+              </>
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="secondary" size="sm" className="flex-1" onClick={() => setConfirm(null)}>
+                Cancel
+              </Button>
+              <Button size="sm" className="flex-1" loading={!!loadingPlan} onClick={handleConfirm}>
+                <Zap size={13} />
+                Confirm
+              </Button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
       <div className="max-w-2xl mx-auto flex flex-col gap-5">
         {/* Banner — current plan */}
         <motion.div

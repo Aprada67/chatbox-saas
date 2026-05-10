@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Calendar, MessageSquare, Clock, CheckCircle } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import KpiCard from '../../components/ui/KpiCard';
+import { SkeletonStat, SkeletonTable } from '../../components/ui/Skeleton';
 import { getMyChatbotsApi } from '../../api/chatbot';
 import { getChatbotAppointmentsApi } from '../../api/appointments';
 import { useAuth } from '../../context/AuthContext';
@@ -32,7 +33,7 @@ const Dashboard = () => {
   const { t, formatDate, formatTime } = useSettings();
 
   // Fetches the authenticated client's chatbots
-  const { data: chatbotsData } = useQuery({
+  const { data: chatbotsData, isLoading: chatbotsLoading } = useQuery({
     queryKey: ['chatbots'],
     queryFn: () => getMyChatbotsApi().then((r) => r.data),
   });
@@ -41,11 +42,13 @@ const Dashboard = () => {
   const chatbotId = chatbots[0]?.id;
 
   // Fetches appointments for the first chatbot found
-  const { data: appointmentsData } = useQuery({
+  const { data: appointmentsData, isLoading: apptLoading } = useQuery({
     queryKey: ['appointments', chatbotId],
     queryFn: () => getChatbotAppointmentsApi(chatbotId).then((r) => r.data),
     enabled: !!chatbotId,
   });
+
+  const isLoading = chatbotsLoading || (!!chatbotId && apptLoading);
 
   const appointments = appointmentsData?.appointments || [];
 
@@ -67,6 +70,34 @@ const Dashboard = () => {
         ),
       )
     : null;
+
+  if (isLoading)
+    return (
+      <DashboardLayout title="Dashboard">
+        {/* KPI skeleton grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonStat key={i} />
+          ))}
+        </div>
+
+        {/* Upcoming appointments skeleton */}
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+        >
+          {/* Header row */}
+          <div
+            className="px-4 md:px-5 py-4 border-b flex items-center justify-between"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <div className="w-32 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-16 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          </div>
+          <SkeletonTable rows={4} />
+        </div>
+      </DashboardLayout>
+    );
 
   return (
     <DashboardLayout title="Dashboard">

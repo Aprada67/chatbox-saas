@@ -66,7 +66,7 @@ export const createChatbot = asyncHandler(async (req, res) => {
     .from(chatbots)
     .where(eq(chatbots.ownerId, req.user.id))
 
-  const limits = { trial: 1, pro: 1, premium: 3 }
+  const limits = { trial: 1, pro: 1, premium: 2 }
   const limit = limits[req.user.plan] ?? 1
 
   if (existing.length >= limit) {

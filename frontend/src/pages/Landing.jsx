@@ -21,133 +21,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-
-const PLANS = [
-  {
-    name: 'Trial',
-    price: 'Free',
-    oldPrice: null,
-    period: '7 days',
-    color: 'var(--text-3)',
-    features: [
-      '1 ServeBot',
-      'Online bookings 24/7',
-      'Email confirmations',
-      'Basic calendar',
-    ],
-    cta: 'Start for free',
-    popular: false,
-    savings: null,
-  },
-  {
-    name: 'Pro',
-    price: '€34.99',
-    oldPrice: '€39.99',
-    period: '/month',
-    color: 'var(--accent)',
-    features: [
-      '1 ServeBot',
-      'Everything in Trial',
-      'Custom colors & branding',
-      'WhatsApp reminders',
-      'Priority support',
-    ],
-    cta: 'Start with Pro',
-    popular: true,
-    savings: 'Save €5/month',
-  },
-  {
-    name: 'Premium',
-    price: '€79.99',
-    oldPrice: '€110',
-    period: '/month',
-    color: 'var(--success)',
-    features: [
-      'Up to 3 ServeBots',
-      'Everything in Pro',
-      'Advanced analytics',
-      'CRM integration',
-      'API access',
-      'Dedicated support',
-    ],
-    cta: 'Start with Premium',
-    popular: false,
-    savings: 'Save €30/month',
-  },
-];
-
-const FEATURES = [
-  {
-    icon: MessageSquare,
-    title: 'ServeBot Builder',
-    desc: 'Create your booking flow in minutes. No code. Just configure your questions, services, and hours.',
-  },
-  {
-    icon: Calendar,
-    title: 'Real-time availability',
-    desc: 'Your clients only see available slots. No double bookings, no calls to reschedule.',
-  },
-  {
-    icon: Bell,
-    title: 'Automatic reminders',
-    desc: 'Email and WhatsApp reminders sent automatically 24h before each appointment.',
-  },
-  {
-    icon: BarChart,
-    title: 'Business analytics',
-    desc: 'Track bookings, peak hours, and client retention from your control panel.',
-  },
-  {
-    icon: Shield,
-    title: 'Secure and reliable',
-    desc: 'JWT authentication, rate limiting, and encrypted data keep your business protected.',
-  },
-  {
-    icon: Zap,
-    title: 'Instant setup',
-    desc: 'Share your link on Instagram, WhatsApp, or your website. Start receiving bookings today.',
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    name: 'Jesús B.',
-    role: 'Barbershop owner',
-    text: 'I used to lose 2 hours a day on the phone. Now my clients book themselves and I just show up.',
-    avatar: 'J',
-    color: '#A0522D',
-    stars: 5,
-  },
-  {
-    name: 'Sofía R.',
-    role: 'Nail salon owner',
-    text: 'WhatsApp reminders reduced my no-shows by 60%. Worth every penny.',
-    avatar: 'S',
-    color: '#ec4899',
-    stars: 5,
-  },
-  {
-    name: 'Carlos V.',
-    role: 'Personal trainer',
-    text: 'My clients love booking at 2am. I wake up with a full calendar.',
-    avatar: 'C',
-    color: '#7c3aed',
-    stars: 5,
-  },
-];
-
-const STATS = [
-  { icon: Users, value: '2,400+', label: 'active businesses' },
-  { icon: Calendar, value: '180k+', label: 'bookings managed' },
-  { icon: TrendingUp, value: '60%', label: 'fewer no-shows' },
-  { icon: Clock, value: '3h', label: 'saved per week' },
-];
-
-const NAV_LINKS = [
-  { label: 'Features', href: '#features' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Testimonials', href: '#testimonials' },
-];
+import { useSettings } from '../context/SettingsContext';
 
 const fadeUp = {
   initial: { opacity: 0, y: 28 },
@@ -158,7 +32,169 @@ const fadeUp = {
 
 const Landing = () => {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const NAV_LINKS = [
+    { label: t('landing_navFeatures'), href: '#features' },
+    { label: t('landing_navPricing'), href: '#pricing' },
+    { label: t('landing_navTestimonials'), href: '#testimonials' },
+  ];
+
+  const STATS = [
+    { icon: Users, value: '2,400+', label: t('landing_statActiveBusinesses') },
+    { icon: Calendar, value: '180k+', label: t('landing_statBookingsManaged') },
+    { icon: TrendingUp, value: '60%', label: t('landing_statFewerNoShows') },
+    { icon: Clock, value: '3h', label: t('landing_statSavedPerWeek') },
+  ];
+
+  const FEATURES = [
+    {
+      icon: MessageSquare,
+      title: t('landing_feature1Title'),
+      desc: t('landing_feature1Desc'),
+    },
+    {
+      icon: Calendar,
+      title: t('landing_feature2Title'),
+      desc: t('landing_feature2Desc'),
+    },
+    {
+      icon: Bell,
+      title: t('landing_feature3Title'),
+      desc: t('landing_feature3Desc'),
+    },
+    {
+      icon: BarChart,
+      title: t('landing_feature4Title'),
+      desc: t('landing_feature4Desc'),
+    },
+    {
+      icon: Shield,
+      title: t('landing_feature5Title'),
+      desc: t('landing_feature5Desc'),
+    },
+    {
+      icon: Zap,
+      title: t('landing_feature6Title'),
+      desc: t('landing_feature6Desc'),
+    },
+  ];
+
+  const HOW_STEPS = [
+    {
+      step: '01',
+      title: t('landing_step1Title'),
+      desc: t('landing_step1Desc'),
+    },
+    {
+      step: '02',
+      title: t('landing_step2Title'),
+      desc: t('landing_step2Desc'),
+    },
+    {
+      step: '03',
+      title: t('landing_step3Title'),
+      desc: t('landing_step3Desc'),
+    },
+  ];
+
+  const PLANS = [
+    {
+      name: t('landing_planTrialName'),
+      price: 'Free',
+      oldPrice: null,
+      period: t('landing_planTrialPeriod'),
+      color: 'var(--text-3)',
+      features: [
+        t('landing_planTrialF1'),
+        t('landing_planTrialF2'),
+        t('landing_planTrialF3'),
+        t('landing_planTrialF4'),
+      ],
+      cta: t('landing_planTrialCta'),
+      popular: false,
+      savings: null,
+    },
+    {
+      name: t('landing_planProName'),
+      price: '€29.99',
+      oldPrice: '€39.99',
+      period: t('landing_planProPeriod'),
+      color: 'var(--accent)',
+      features: [
+        t('landing_planProF1'),
+        t('landing_planProF2'),
+        t('landing_planProF3'),
+        t('landing_planProF4'),
+        t('landing_planProF5'),
+      ],
+      cta: t('landing_planProCta'),
+      popular: true,
+      savings: t('landing_planProSavings'),
+    },
+    {
+      name: t('landing_planPremiumName'),
+      price: '€54.99',
+      oldPrice: '€79.99',
+      period: t('landing_planPremiumPeriod'),
+      color: 'var(--success)',
+      features: [
+        t('landing_planPremiumF1'),
+        t('landing_planPremiumF2'),
+        t('landing_planPremiumF3'),
+        t('landing_planPremiumF4'),
+      ],
+      cta: t('landing_planPremiumCta'),
+      popular: false,
+      savings: t('landing_planPremiumSavings'),
+    },
+  ];
+
+  const TESTIMONIALS = [
+    {
+      name: t('landing_testimonial1Name'),
+      role: t('landing_testimonial1Role'),
+      text: t('landing_testimonial1Text'),
+      avatar: 'J',
+      color: '#A0522D',
+      stars: 5,
+    },
+    {
+      name: t('landing_testimonial2Name'),
+      role: t('landing_testimonial2Role'),
+      text: t('landing_testimonial2Text'),
+      avatar: 'S',
+      color: '#ec4899',
+      stars: 5,
+    },
+    {
+      name: t('landing_testimonial3Name'),
+      role: t('landing_testimonial3Role'),
+      text: t('landing_testimonial3Text'),
+      avatar: 'C',
+      color: '#7c3aed',
+      stars: 5,
+    },
+  ];
+
+  const PREVIEW_MESSAGES = [
+    { from: 'bot', text: t('landing_previewMsg1') },
+    { from: 'user', text: t('landing_previewMsg2') },
+    { from: 'bot', text: t('landing_previewMsg3') },
+  ];
+
+  const PREVIEW_DAYS = [
+    t('landing_previewDay1'),
+    t('landing_previewDay2'),
+    t('landing_previewDay3'),
+  ];
+
+  const FOOTER_LINKS = [
+    t('landing_footerPrivacy'),
+    t('landing_footerTerms'),
+    t('landing_footerContact'),
+  ];
 
   return (
     <div style={{ background: 'var(--bg-primary)', color: 'var(--text-1)' }}>
@@ -235,7 +271,7 @@ const Landing = () => {
                 (e.currentTarget.style.background = 'transparent')
               }
             >
-              Log in
+              {t('landing_logIn')}
             </Link>
             <Link to="/register">
               <motion.div
@@ -244,7 +280,7 @@ const Landing = () => {
                 className="hidden md:flex items-center gap-1.5 text-sm px-4 py-2 rounded-xl font-medium cursor-pointer shadow-sm"
                 style={{ background: 'var(--accent)', color: '#fff' }}
               >
-                Get started free <ChevronRight size={13} />
+                {t('landing_getStartedFree')} <ChevronRight size={13} />
               </motion.div>
             </Link>
 
@@ -299,7 +335,7 @@ const Landing = () => {
                       borderColor: 'var(--border)',
                     }}
                   >
-                    Log in
+                    {t('landing_logIn')}
                   </Link>
                   <Link
                     to="/register"
@@ -307,7 +343,7 @@ const Landing = () => {
                     className="text-sm py-2.5 px-4 rounded-xl text-center font-medium cursor-pointer"
                     style={{ background: 'var(--accent)', color: '#fff' }}
                   >
-                    Get started free
+                    {t('landing_getStartedFree')}
                   </Link>
                 </div>
               </div>
@@ -331,15 +367,15 @@ const Landing = () => {
               }}
             >
               <Zap size={11} fill="currentColor" />
-              The fastest way to manage bookings
+              {t('landing_badge')}
             </motion.div>
 
             {/* Headline */}
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 leading-[1.1]">
-              Your business deserves
+              {t('landing_heroTitle1')}
               <br />
               <span className="relative" style={{ color: 'var(--accent)' }}>
-                a smarter system
+                {t('landing_heroTitle2')}
               </span>
             </h1>
 
@@ -347,8 +383,7 @@ const Landing = () => {
               className="text-base md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed"
               style={{ color: 'var(--text-3)' }}
             >
-              Create a ServeBot that manages bookings 24/7. Share a link.
-              Watch your calendar fill itself.
+              {t('landing_heroSubtitle')}
             </p>
 
             {/* CTAs */}
@@ -365,7 +400,7 @@ const Landing = () => {
                       '0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent)',
                   }}
                 >
-                  Start free — 7 days
+                  {t('landing_ctaStart')}
                   <ArrowRight size={15} />
                 </motion.div>
               </Link>
@@ -380,13 +415,13 @@ const Landing = () => {
                     background: 'var(--bg-secondary)',
                   }}
                 >
-                  See how it works
+                  {t('landing_ctaSeeHow')}
                 </motion.div>
               </a>
             </div>
 
             <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-              No credit card required · Cancel anytime
+              {t('landing_noCreditCard')}
             </p>
           </motion.div>
         </div>
@@ -460,7 +495,7 @@ const Landing = () => {
             style={{ background: '#1D9E75', color: '#fff', zIndex: 10 }}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-white" />
-            New booking received!
+            {t('landing_previewNewBooking')}
           </motion.div>
 
           {/* Header del preview */}
@@ -475,7 +510,7 @@ const Landing = () => {
               C
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-white">My Assistant</p>
+              <p className="text-sm font-semibold text-white">{t('landing_previewAssistantName')}</p>
               <div className="flex items-center gap-1">
                 <motion.div
                   animate={{ opacity: [1, 0.3, 1] }}
@@ -483,7 +518,7 @@ const Landing = () => {
                   className="w-1.5 h-1.5 rounded-full bg-green-400"
                 />
                 <span className="text-xs" style={{ color: '#5a6a82' }}>
-                  Online
+                  {t('landing_previewOnline')}
                 </span>
               </div>
             </div>
@@ -491,14 +526,7 @@ const Landing = () => {
 
           {/* Mensajes del preview */}
           <div className="p-4 flex flex-col gap-3">
-            {[
-              {
-                from: 'bot',
-                text: 'Hi! I\'m your assistant. What service are you interested in?',
-              },
-              { from: 'user', text: 'Haircut + beard' },
-              { from: 'bot', text: 'Perfect! Which day works best for you?' },
-            ].map((msg, i) => (
+            {PREVIEW_MESSAGES.map((msg, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: msg.from === 'bot' ? -12 : 12 }}
@@ -540,7 +568,7 @@ const Landing = () => {
               transition={{ delay: 1.1 }}
               className="flex gap-2 flex-wrap mt-1"
             >
-              {['Mon May 5', 'Tue May 6', 'Wed May 7'].map((day) => (
+              {PREVIEW_DAYS.map((day) => (
                 <motion.div
                   key={day}
                   whileHover={{ scale: 1.05, borderColor: 'var(--accent)' }}
@@ -566,16 +594,16 @@ const Landing = () => {
             className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: 'var(--accent)' }}
           >
-            Features
+            {t('landing_featuresLabel')}
           </p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Everything your business needs
+            {t('landing_featuresTitle')}
           </h2>
           <p
             className="text-base max-w-xl mx-auto"
             style={{ color: 'var(--text-3)' }}
           >
-            Built for service businesses that want to work smarter.
+            {t('landing_featuresSubtitle')}
           </p>
         </motion.div>
 
@@ -627,37 +655,21 @@ const Landing = () => {
               className="text-xs font-semibold uppercase tracking-widest mb-3"
               style={{ color: 'var(--accent)' }}
             >
-              How it works
+              {t('landing_howLabel')}
             </p>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              Up and running in 3 steps
+              {t('landing_howTitle')}
             </h2>
             <p
               className="text-base max-w-xl mx-auto"
               style={{ color: 'var(--text-3)' }}
             >
-              No tech team, no complicated setup.
+              {t('landing_howSubtitle')}
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                step: '01',
-                title: 'Create your ServeBot',
-                desc: 'Define your services, prices, and availability hours in minutes.',
-              },
-              {
-                step: '02',
-                title: 'Share the link',
-                desc: 'Share your link on Instagram, WhatsApp, or your website. No app, no downloads.',
-              },
-              {
-                step: '03',
-                title: 'Receive bookings',
-                desc: 'Your clients book themselves. You get notified and just show up.',
-              },
-            ].map((item, i) => (
+            {HOW_STEPS.map((item, i) => (
               <motion.div
                 key={item.step}
                 initial={{ opacity: 0, y: 20 }}
@@ -704,16 +716,16 @@ const Landing = () => {
             className="text-xs font-semibold uppercase tracking-widest mb-3"
             style={{ color: 'var(--accent)' }}
           >
-            Pricing
+            {t('landing_pricingLabel')}
           </p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Simple, honest pricing
+            {t('landing_pricingTitle')}
           </h2>
           <p
             className="text-base max-w-xl mx-auto"
             style={{ color: 'var(--text-3)' }}
           >
-            Start for free. Upgrade when you're ready.
+            {t('landing_pricingSubtitle')}
           </p>
         </motion.div>
 
@@ -743,7 +755,7 @@ const Landing = () => {
                   className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-semibold text-white shadow"
                   style={{ background: 'var(--accent)' }}
                 >
-                  Most popular
+                  {t('landing_mostPopular')}
                 </div>
               )}
 
@@ -852,23 +864,23 @@ const Landing = () => {
               className="text-xs font-semibold uppercase tracking-widest mb-3"
               style={{ color: 'var(--accent)' }}
             >
-              Testimonials
+              {t('landing_testimonialsLabel')}
             </p>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-              Businesses love ServeBot
+              {t('landing_testimonialsTitle')}
             </h2>
             <p
               className="text-base max-w-xl mx-auto"
               style={{ color: 'var(--text-3)' }}
             >
-              Real results from real business owners.
+              {t('landing_testimonialsSubtitle')}
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
+            {TESTIMONIALS.map((testimonial, i) => (
               <motion.div
-                key={t.name}
+                key={testimonial.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -882,7 +894,7 @@ const Landing = () => {
               >
                 {/* Estrellas */}
                 <div className="flex gap-0.5">
-                  {Array.from({ length: t.stars }).map((_, si) => (
+                  {Array.from({ length: testimonial.stars }).map((_, si) => (
                     <Star
                       key={si}
                       size={13}
@@ -896,25 +908,25 @@ const Landing = () => {
                   className="text-sm leading-relaxed flex-1"
                   style={{ color: 'var(--text-2)' }}
                 >
-                  "{t.text}"
+                  "{testimonial.text}"
                 </p>
 
                 <div className="flex items-center gap-3">
                   <div
                     className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
-                    style={{ background: t.color }}
+                    style={{ background: testimonial.color }}
                   >
-                    {t.avatar}
+                    {testimonial.avatar}
                   </div>
                   <div>
                     <p
                       className="text-xs font-semibold"
                       style={{ color: 'var(--text-1)' }}
                     >
-                      {t.name}
+                      {testimonial.name}
                     </p>
                     <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-                      {t.role}
+                      {testimonial.role}
                     </p>
                   </div>
                 </div>
@@ -948,19 +960,19 @@ const Landing = () => {
             className="text-xs font-semibold uppercase tracking-widest mb-4"
             style={{ color: 'var(--accent)' }}
           >
-            Get started today
+            {t('landing_ctaFinalLabel')}
           </p>
           <h2
             className="text-3xl md:text-4xl font-bold tracking-tight mb-4 relative"
             style={{ color: 'var(--text-1)' }}
           >
-            Ready to automate your bookings?
+            {t('landing_ctaFinalTitle')}
           </h2>
           <p
             className="text-base mb-10 max-w-lg mx-auto relative"
             style={{ color: 'var(--text-3)' }}
           >
-            Join hundreds of businesses saving hours every week with ServeBot.
+            {t('landing_ctaFinalSubtitle')}
           </p>
           <Link to="/register">
             <motion.div
@@ -974,7 +986,7 @@ const Landing = () => {
                   '0 12px 32px color-mix(in srgb, var(--accent) 40%, transparent)',
               }}
             >
-              Start for free now
+              {t('landing_ctaFinalButton')}
               <ArrowRight size={16} />
             </motion.div>
           </Link>
@@ -982,7 +994,7 @@ const Landing = () => {
             className="text-xs mt-5 relative"
             style={{ color: 'var(--text-3)' }}
           >
-            7-day free trial · No credit card required
+            {t('landing_ctaFinalNote')}
           </p>
         </motion.div>
       </section>
@@ -1005,10 +1017,10 @@ const Landing = () => {
             </span>
           </div>
           <p className="text-xs" style={{ color: 'var(--text-3)' }}>
-            © 2026 ServeBot. All rights reserved.
+            {t('landing_footerCopyright')}
           </p>
           <div className="flex items-center gap-5">
-            {['Privacy', 'Terms', 'Contact'].map((item) => (
+            {FOOTER_LINKS.map((item) => (
               <a
                 key={item}
                 href="#"

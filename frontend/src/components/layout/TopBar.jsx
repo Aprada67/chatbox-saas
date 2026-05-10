@@ -25,7 +25,7 @@ const TopBar = ({ title }) => {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={toggleTheme}
-          className="w-8 h-8 flex items-center justify-center rounded-lg transition-all"
+          className="w-8 h-8 flex items-center justify-center rounded-lg transition-all cursor-pointer"
           style={{ color: 'var(--text-3)', background: 'var(--bg-tertiary)' }}
         >
           {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
@@ -34,7 +34,7 @@ const TopBar = ({ title }) => {
         {/* Botón de notificaciones */}
         <motion.button
           whileTap={{ scale: 0.9 }}
-          className="w-8 h-8 flex items-center justify-center rounded-lg"
+          className="w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer"
           style={{ color: 'var(--text-3)', background: 'var(--bg-tertiary)' }}
         >
           <Bell size={15} />

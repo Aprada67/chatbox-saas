@@ -151,32 +151,17 @@ const Login = () => {
             </div>
           )}
 
-          {!showResend && (
-            <p className="text-center text-sm text-(--text-3) mt-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setResendEmail(getValues('email') || '');
-                  setShowResend(true);
-                }}
-                className="text-(--accent) link-underline cursor-pointer bg-transparent border-0 p-0"
-              >
-                Resend verification code
-              </button>
-            </p>
-          )}
-
           <p className="text-center text-sm text-(--text-3) mt-4">
             <Link
               to="/forgot-password"
               className="text-(--accent) link-underline"
             >
-              ¿Olvidaste tu contraseña?
+              Forgot your password?
             </Link>
           </p>
 
           <p className="text-center text-sm text-(--text-3) mt-3">
-            ¿Don&apos;t have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link to="/register" className="text-(--accent) link-underline">
               Register
             </Link>

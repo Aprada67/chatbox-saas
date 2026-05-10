@@ -119,7 +119,7 @@ const Sidebar = () => {
         })}
         <button
           onClick={() => setDrawerOpen(true)}
-          className="flex flex-col items-center gap-0.5 px-3 py-1"
+          className="flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer"
         >
           <Menu size={22} style={{ color: 'var(--text-3)' }} />
           <span
@@ -205,7 +205,7 @@ const Sidebar = () => {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm mt-2"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm mt-2 cursor-pointer"
                   style={{ color: 'var(--error)' }}
                 >
                   <LogOut size={18} />
@@ -229,7 +229,7 @@ const Sidebar = () => {
           className="px-5 py-5 border-b"
           style={{ borderColor: 'var(--border)' }}
         >
-          <div className="flex items-center gap-2.5">
+          <Link to="/dashboard" className="flex items-center gap-2.5 cursor-pointer">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center"
               style={{ background: 'var(--accent)' }}
@@ -242,7 +242,7 @@ const Sidebar = () => {
             >
               ServeBot
             </span>
-          </div>
+          </Link>
         </div>
 
         <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
@@ -252,7 +252,7 @@ const Sidebar = () => {
               <Link key={item.path} to={item.path}>
                 <motion.div
                   whileHover={{ x: 2 }}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer"
                   style={{
                     background: active ? 'var(--accent-bg)' : 'transparent',
                     color: active ? 'var(--accent)' : 'var(--text-3)',
@@ -287,7 +287,7 @@ const Sidebar = () => {
           <motion.button
             whileHover={{ x: 2 }}
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all cursor-pointer"
             style={{ color: 'var(--text-3)' }}
           >
             <LogOut size={16} />

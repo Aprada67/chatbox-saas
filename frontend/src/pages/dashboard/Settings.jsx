@@ -80,7 +80,7 @@ const Toggle = ({ value, onChange }) => (
   <button
     type="button"
     onClick={() => onChange(!value)}
-    className="w-11 h-6 rounded-full transition-all relative shrink-0"
+    className="w-11 h-6 rounded-full transition-all relative shrink-0 cursor-pointer"
     style={{ background: value ? 'var(--accent)' : 'var(--border)' }}
   >
     <motion.div

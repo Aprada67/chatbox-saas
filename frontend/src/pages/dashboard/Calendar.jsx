@@ -10,6 +10,7 @@ import { Clock, X, Save } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
+import { SkeletonStat } from '../../components/ui/Skeleton';
 import { getMyChatbotsApi } from '../../api/chatbot';
 import {
   getChatbotAppointmentsApi,
@@ -51,7 +52,7 @@ const CalendarPage = () => {
   const [showAvail, setShowAvail] = useState(false);
 
   // Fetches the client's chatbots
-  const { data: chatbotsData } = useQuery({
+  const { data: chatbotsData, isLoading: chatbotsLoading } = useQuery({
     queryKey: ['chatbots'],
     queryFn: () => getMyChatbotsApi().then((r) => r.data),
   });
@@ -60,7 +61,7 @@ const CalendarPage = () => {
   const chatbotId = chatbots[0]?.id;
 
   // Fetches appointments for the active chatbot
-  const { data: appointmentsData } = useQuery({
+  const { data: appointmentsData, isLoading: apptLoading } = useQuery({
     queryKey: ['appointments', chatbotId],
     queryFn: () => getChatbotAppointmentsApi(chatbotId).then((r) => r.data),
     enabled: !!chatbotId,
@@ -72,6 +73,8 @@ const CalendarPage = () => {
     queryFn: () => api.get(`/availability/${chatbotId}`).then((r) => r.data),
     enabled: !!chatbotId,
   });
+
+  const isLoading = chatbotsLoading || (!!chatbotId && apptLoading);
 
   // Derived state: localSlots overrides server data while the user edits
   const availability = localSlots ?? availabilityData?.slots ?? [];
@@ -119,21 +122,105 @@ const CalendarPage = () => {
 
   // Toggles a day of the week on or off
   const toggleDay = (day) => {
-    const exists = availability.find((s) => s.dayOfWeek === day);
+    const current = localSlots ?? availabilityData?.slots ?? [];
+    const exists = current.find((s) => s.dayOfWeek === day);
     if (exists) {
-      setAvailability((p) => p.filter((s) => s.dayOfWeek !== day));
+      setLocalSlots(current.filter((s) => s.dayOfWeek !== day));
     } else {
-      setAvailability((p) => [
-        ...p,
+      setLocalSlots([
+        ...current,
         { dayOfWeek: day, startTime: '09:00', endTime: '18:00' },
       ]);
     }
   };
 
   // Updates the start or end time of a day
-  const updateSlot = (day, field, value) =>
-    setAvailability((p) =>
-      p.map((s) => (s.dayOfWeek === day ? { ...s, [field]: value } : s)),
+  const updateSlot = (day, field, value) => {
+    const current = localSlots ?? availabilityData?.slots ?? [];
+    setLocalSlots(current.map((s) => (s.dayOfWeek === day ? { ...s, [field]: value } : s)));
+  };
+
+  // Show skeleton while chatbot / appointment data is loading
+  if (isLoading)
+    return (
+      <DashboardLayout title={t('calendar')}>
+        {/* Header row skeleton */}
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex flex-col gap-2">
+            <div className="w-32 h-4 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-20 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          </div>
+          <div className="w-28 h-9 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)' }} />
+        </div>
+
+        {/* Status legend skeleton */}
+        <div className="flex items-center gap-3 mb-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-14 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            </div>
+          ))}
+        </div>
+
+        {/* Calendar area skeleton */}
+        <div
+          className="rounded-2xl border overflow-hidden"
+          style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+        >
+          {/* Toolbar row */}
+          <div
+            className="flex items-center justify-between px-4 py-3 border-b"
+            style={{ borderColor: 'var(--border)' }}
+          >
+            <div className="flex gap-2">
+              <div className="w-8 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-8 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            </div>
+            <div className="w-28 h-4 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="flex gap-2">
+              <div className="w-16 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-16 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            </div>
+          </div>
+          {/* Day-of-week headers */}
+          <div className="grid grid-cols-7 border-b" style={{ borderColor: 'var(--border)' }}>
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={i}
+                className="py-3 flex justify-center"
+                style={{ background: 'var(--bg-tertiary)' }}
+              >
+                <div className="w-8 h-3 animate-pulse rounded" style={{ background: 'var(--border)' }} />
+              </div>
+            ))}
+          </div>
+          {/* Calendar grid rows — 5 weeks */}
+          {Array.from({ length: 5 }).map((_, row) => (
+            <div
+              key={row}
+              className="grid grid-cols-7 border-b last:border-b-0"
+              style={{ borderColor: 'var(--border)' }}
+            >
+              {Array.from({ length: 7 }).map((_, col) => (
+                <div
+                  key={col}
+                  className="h-20 border-r last:border-r-0 p-1.5"
+                  style={{
+                    borderColor: 'var(--border)',
+                    background: 'var(--bg-secondary)',
+                  }}
+                >
+                  <div
+                    className="w-6 h-4 animate-pulse rounded"
+                    style={{ background: 'var(--bg-tertiary)' }}
+                  />
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </DashboardLayout>
     );
 
   // If no chatbot exists, show a guide message
@@ -303,6 +390,7 @@ const CalendarPage = () => {
                 </h3>
                 <button
                   onClick={() => setSelectedApt(null)}
+                  className="cursor-pointer"
                   style={{ color: 'var(--text-3)' }}
                 >
                   <X size={16} />
@@ -429,6 +517,7 @@ const CalendarPage = () => {
                 </h3>
                 <button
                   onClick={() => setShowAvail(false)}
+                  className="cursor-pointer"
                   style={{ color: 'var(--text-3)' }}
                 >
                   <X size={16} />
@@ -466,7 +555,7 @@ const CalendarPage = () => {
                         <button
                           type="button"
                           onClick={() => toggleDay(day.value)}
-                          className="w-10 h-6 rounded-full transition-all relative flex-shrink-0"
+                          className="w-10 h-6 rounded-full transition-all relative flex-shrink-0 cursor-pointer"
                           style={{
                             background: active
                               ? 'var(--accent)'
