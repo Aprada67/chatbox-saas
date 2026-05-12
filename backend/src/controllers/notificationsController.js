@@ -45,3 +45,21 @@ export const markAllAsRead = asyncHandler(async (req, res) => {
 
   res.json({ success: true })
 })
+
+// DELETE /api/notifications/:id — eliminar una notificación
+export const deleteNotification = asyncHandler(async (req, res) => {
+  await db
+    .delete(notifications)
+    .where(and(eq(notifications.id, req.params.id), eq(notifications.userId, req.user.id)))
+
+  res.json({ success: true })
+})
+
+// DELETE /api/notifications — eliminar todas las notificaciones del usuario
+export const deleteAllNotifications = asyncHandler(async (req, res) => {
+  await db
+    .delete(notifications)
+    .where(eq(notifications.userId, req.user.id))
+
+  res.json({ success: true })
+})

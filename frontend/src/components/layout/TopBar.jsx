@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { Moon, Sun, Bell, Calendar, X } from 'lucide-react';
+import { Moon, Sun, Bell, Calendar, X, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import { getNotificationsApi, markAsReadApi, markAllAsReadApi } from '../../api/notifications';
+import { useSettings } from '../../context/SettingsContext';
+import {
+  getNotificationsApi,
+  markAsReadApi,
+  markAllAsReadApi,
+  deleteNotificationApi,
+  deleteAllNotificationsApi,
+} from '../../api/notifications';
 
 const TYPE_ICON = {
   new_appointment: <Calendar size={14} />,
@@ -19,11 +26,11 @@ const TYPE_COLOR = {
 const timeAgo = (dateStr) => {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'ahora';
-  if (mins < 60) return `hace ${mins}m`;
+  if (mins < 1) return 'now';
+  if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `hace ${hrs}h`;
-  return `hace ${Math.floor(hrs / 24)}d`;
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
 };
 
 const NotificationBell = () => {
@@ -31,6 +38,7 @@ const NotificationBell = () => {
   const panelRef = useRef(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  const { t } = useSettings();
 
   const { data } = useQuery({
     queryKey: ['notifications'],
@@ -49,6 +57,16 @@ const NotificationBell = () => {
 
   const { mutate: readAll } = useMutation({
     mutationFn: markAllAsReadApi,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+
+  const { mutate: deleteOne } = useMutation({
+    mutationFn: deleteNotificationApi,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+
+  const { mutate: deleteAll } = useMutation({
+    mutationFn: deleteAllNotificationsApi,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
@@ -97,17 +115,28 @@ const NotificationBell = () => {
               style={{ borderColor: 'var(--border)' }}
             >
               <span className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
-                Notificaciones
+                Notifications
               </span>
-              {unread > 0 && (
-                <button
-                  onClick={() => readAll()}
-                  className="text-xs cursor-pointer"
-                  style={{ color: 'var(--accent)' }}
-                >
-                  Marcar todo como leído
-                </button>
-              )}
+              <div className="flex items-center gap-3">
+                {unread > 0 && (
+                  <button
+                    onClick={() => readAll()}
+                    className="text-xs cursor-pointer"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    {t('markAllRead')}
+                  </button>
+                )}
+                {notifications.length > 0 && (
+                  <button
+                    onClick={() => deleteAll()}
+                    className="text-xs cursor-pointer"
+                    style={{ color: 'var(--text-3)' }}
+                  >
+                    {t('deleteAll')}
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* List */}
@@ -115,32 +144,35 @@ const NotificationBell = () => {
               {notifications.length === 0 ? (
                 <div className="py-10 text-center">
                   <Bell size={24} style={{ color: 'var(--text-3)', margin: '0 auto 8px' }} />
-                  <p className="text-sm" style={{ color: 'var(--text-3)' }}>No hay notificaciones</p>
+                  <p className="text-sm" style={{ color: 'var(--text-3)' }}>{t('noNotifications')}</p>
                 </div>
               ) : (
                 notifications.map((n) => (
-                  <button
+                  <div
                     key={n.id}
-                    onClick={() => { if (!n.isRead) readOne(n.id); }}
-                    className="w-full text-left flex items-start gap-3 px-4 py-3 border-b cursor-pointer transition-colors"
+                    className="flex items-start gap-3 px-4 py-3 border-b transition-colors group"
                     style={{
                       borderColor: 'var(--border)',
                       background: n.isRead ? 'transparent' : 'var(--accent-bg)',
                     }}
                   >
                     {/* Icon */}
-                    <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                    <button
+                      onClick={() => { if (!n.isRead) readOne(n.id); }}
+                      className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 cursor-pointer"
                       style={{
                         background: (TYPE_COLOR[n.type] || 'var(--accent)') + '22',
                         color: TYPE_COLOR[n.type] || 'var(--accent)',
                       }}
                     >
                       {TYPE_ICON[n.type] || <Bell size={14} />}
-                    </div>
+                    </button>
 
                     {/* Text */}
-                    <div className="flex-1 min-w-0">
+                    <button
+                      onClick={() => { if (!n.isRead) readOne(n.id); }}
+                      className="flex-1 min-w-0 text-left cursor-pointer"
+                    >
                       <p
                         className="text-xs font-semibold truncate"
                         style={{ color: 'var(--text-1)' }}
@@ -156,16 +188,25 @@ const NotificationBell = () => {
                       <p className="text-[10px] mt-1" style={{ color: 'var(--text-3)' }}>
                         {timeAgo(n.createdAt)}
                       </p>
-                    </div>
+                    </button>
 
-                    {/* Unread dot */}
-                    {!n.isRead && (
-                      <div
-                        className="w-2 h-2 rounded-full shrink-0 mt-1.5"
-                        style={{ background: 'var(--accent)' }}
-                      />
-                    )}
-                  </button>
+                    {/* Actions: unread dot + delete */}
+                    <div className="flex flex-col items-center gap-1.5 shrink-0 mt-1">
+                      {!n.isRead && (
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{ background: 'var(--accent)' }}
+                        />
+                      )}
+                      <button
+                        onClick={() => deleteOne(n.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded p-0.5"
+                        style={{ color: 'var(--text-3)' }}
+                      >
+                        <Trash2 size={11} />
+                      </button>
+                    </div>
+                  </div>
                 ))
               )}
             </div>

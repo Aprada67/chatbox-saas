@@ -56,7 +56,7 @@ export const getPublicChatbot = asyncHandler(async (req, res) => {
 
 // POST /api/chatbots — crear chatbot
 export const createChatbot = asyncHandler(async (req, res) => {
-  const { name, welcomeMessage, color, steps, services, language } = req.body
+  const { name, welcomeMessage, color, bgImage, steps, services, language } = req.body
 
   if (!name || !welcomeMessage) {
     throw new AppError('Name and welcome message are required', 400)
@@ -86,6 +86,7 @@ export const createChatbot = asyncHandler(async (req, res) => {
       name: name.trim(),
       welcomeMessage: welcomeMessage.trim(),
       color: color || '#3b82f6',
+      bgImage: bgImage || null,
       language: language || 'en',
       steps: steps || [],
       services: services || [],

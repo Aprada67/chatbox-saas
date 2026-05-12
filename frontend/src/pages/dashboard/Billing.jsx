@@ -7,6 +7,7 @@ import DashboardLayout from '../../components/layout/DashboardLayout';
 import Button from '../../components/ui/Button';
 import { SkeletonPlanCard } from '../../components/ui/Skeleton';
 import { useAuth } from '../../context/AuthContext';
+import { useSettings } from '../../context/SettingsContext';
 import {
   createCheckoutApi,
   createPortalApi,
@@ -65,6 +66,7 @@ const PLANS = [
 
 const Billing = () => {
   const { user, refreshUser } = useAuth();
+  const { t } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [loadingPlan, setLoadingPlan] = useState(null);
@@ -83,9 +85,9 @@ const Billing = () => {
         try {
           await syncPlanApi();
           await refreshUser();
-          toast.success('Plan updated successfully!');
+          toast.success(t('planUpdatedSuccess'));
         } catch {
-          toast('Payment completed! Reload the page if your plan does not update.', { icon: 'ℹ️' });
+          toast(t('paymentCompletedReload'), { icon: 'ℹ️' });
         } finally {
           setSyncing(false);
         }
@@ -93,7 +95,7 @@ const Billing = () => {
       sync();
     }
     if (payment === 'cancelled') {
-      toast('Payment cancelled.', { icon: 'ℹ️' });
+      toast(t('paymentCancelled'), { icon: 'ℹ️' });
       navigate('/dashboard/billing', { replace: true });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,7 +110,7 @@ const Billing = () => {
       setLoadingPlan(null);
     } catch (err) {
       console.error('Preview error:', err);
-      toast.error(err?.message || 'Error fetching plan details');
+      toast.error(err?.message || t('errorFetchingPlanDetails'));
       setLoadingPlan(null);
     }
   };
@@ -124,14 +126,14 @@ const Billing = () => {
       if (data?.upgraded && data?.scheduled) {
         await refreshUser();
         setPendingChange({ plan: planId, periodEnd: data.periodEnd });
-        toast.success(data.message || 'Plan change scheduled');
+        toast.success(data.message || t('planChangeScheduled'));
         setLoadingPlan(null);
         return;
       }
 
       if (data?.upgraded) {
         await refreshUser();
-        toast.success('Plan updated successfully');
+        toast.success(t('planUpdated'));
         setLoadingPlan(null);
         return;
       }
@@ -141,11 +143,11 @@ const Billing = () => {
         return;
       }
 
-      toast.error('Unexpected server response');
+      toast.error(t('unexpectedResponse'));
       setLoadingPlan(null);
     } catch (err) {
       console.error('Upgrade error:', err);
-      toast.error(err?.message || 'Error processing payment');
+      toast.error(err?.message || t('errorProcessingPayment'));
       setLoadingPlan(null);
     }
   };
@@ -157,7 +159,7 @@ const Billing = () => {
       window.location.href = data.url;
     } catch (err) {
       toast.error(
-        err?.response?.data?.error || 'Error opening billing portal',
+        err?.response?.data?.error || t('errorOpeningPortal'),
       );
       setLoadingPortal(false);
     }
@@ -227,7 +229,11 @@ const Billing = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-base font-bold mb-1" style={{ color: 'var(--text-1)' }}>
-              Confirm upgrade to {confirm.plan.charAt(0).toUpperCase() + confirm.plan.slice(1)}
+              {(() => {
+                const RANK = { trial: 0, pro: 1, premium: 2 };
+                const action = (RANK[confirm.plan] ?? 0) > (RANK[user?.plan] ?? 0) ? 'Upgrade' : 'Downgrade';
+                return `Confirm ${action.toLowerCase()} to ${confirm.plan.charAt(0).toUpperCase() + confirm.plan.slice(1)}`;
+              })()}
             </h3>
 
             <div
@@ -359,9 +365,12 @@ const Billing = () => {
 
         {/* Plan cards */}
         {PLANS.map((plan, i) => {
+          const RANK = { trial: 0, pro: 1, premium: 2 };
           const isCurrent = user?.plan === plan.id;
-          const isDowngrade = plan.id === 'trial';
-          const canUpgrade = !isCurrent && !isDowngrade;
+          const currentRank = RANK[user?.plan] ?? 0;
+          const planRank = RANK[plan.id] ?? 0;
+          const isUpgrade = !isCurrent && planRank > currentRank;
+          const isDowngrade = !isCurrent && planRank < currentRank && plan.id !== 'trial';
 
           return (
             <motion.div
@@ -471,8 +480,7 @@ const Billing = () => {
                 ))}
               </div>
 
-              {/* Upgrade button — bottom left */}
-              {canUpgrade && (
+              {isUpgrade && (
                 <Button
                   size="sm"
                   loading={loadingPlan === plan.id}
@@ -480,6 +488,16 @@ const Billing = () => {
                 >
                   <Zap size={12} />
                   Upgrade
+                </Button>
+              )}
+              {isDowngrade && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  loading={loadingPlan === plan.id}
+                  onClick={() => handleUpgrade(plan.id)}
+                >
+                  Downgrade
                 </Button>
               )}
             </motion.div>

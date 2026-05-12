@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 import { toast } from 'react-hot-toast';
-import { Moon, Sun, Globe, Clock, Bell, Shield, LogOut } from 'lucide-react';
+import { Moon, Sun, Globe, Clock, Bell, Shield, LogOut, Trash2, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import api from '../../api/axios';
+import { deleteAccountApi } from '../../api/auth';
 
 // Idiomas disponibles
 const LANGUAGES = [
@@ -113,6 +114,10 @@ const Settings = () => {
     () => user?.reminderNotifs ?? true,
   );
   const [savingPrefs, setSavingPrefs] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const savePreferences = async () => {
     try {
@@ -162,6 +167,22 @@ const Settings = () => {
       toast.error(err.message);
     } finally {
       setChangingPass(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) return;
+    try {
+      setDeletingAccount(true);
+      await deleteAccountApi(deletePassword);
+      toast.success(t('accountDeleted'));
+      logout();
+      window.location.href = '/login';
+    } catch (err) {
+      toast.error(err?.response?.data?.message || t('incorrectPassword'));
+      setDeletePassword('');
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -379,17 +400,169 @@ const Settings = () => {
               <Button
                 variant="danger"
                 size="sm"
-                onClick={() => {
-                  logout();
-                  window.location.href = '/login';
-                }}
+                onClick={() => setShowLogoutModal(true)}
               >
                 {t('signOut')}
               </Button>
             </SettingRow>
           </Card>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <p
+            className="text-xs font-medium uppercase tracking-wide mb-3"
+            style={{ color: 'var(--error)' }}
+          >
+            {t('dangerZone')}
+          </p>
+          <Card className="p-0 px-4" style={{ borderColor: 'var(--error)' }}>
+            <SettingRow
+              icon={Trash2}
+              title={t('deleteAccount')}
+              subtitle={t('deleteAccountSubtitle')}
+            >
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => setShowDeleteModal(true)}
+              >
+                {t('deleteAccount')}
+              </Button>
+            </SettingRow>
+          </Card>
+        </motion.div>
       </div>
+
+      {/* Sign out confirmation modal */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.5)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowLogoutModal(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.15 }}
+              className="w-full max-w-sm rounded-2xl border shadow-2xl p-6 flex flex-col gap-4"
+              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: 'var(--error-bg)', color: 'var(--error)' }}
+                >
+                  <LogOut size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
+                    {t('signOutConfirmTitle')}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+                    {t('signOutConfirmDesc')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <Button variant="secondary" size="sm" onClick={() => setShowLogoutModal(false)}>
+                  {t('cancel')}
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={() => { logout(); window.location.href = '/login'; }}
+                >
+                  <LogOut size={14} />
+                  {t('signOut')}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete account confirmation modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.5)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowDeleteModal(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.15 }}
+              className="w-full max-w-md rounded-2xl border shadow-2xl p-6 flex flex-col gap-4"
+              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: 'var(--error-bg)', color: 'var(--error)' }}
+                >
+                  <AlertTriangle size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
+                    {t('deleteAccountConfirmTitle')}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+                    {t('deleteAccountConfirmDesc')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium" style={{ color: 'var(--text-2)' }}>
+                  {t('deleteAccountPasswordLabel')}
+                </label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleDeleteAccount()}
+                  className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--error) border-(--border)"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => { setShowDeleteModal(false); setDeletePassword(''); }}
+                >
+                  {t('cancel')}
+                </Button>
+                <Button
+                  variant="danger"
+                  size="sm"
+                  loading={deletingAccount}
+                  onClick={handleDeleteAccount}
+                  disabled={!deletePassword}
+                >
+                  <Trash2 size={14} />
+                  {t('deleteAccountConfirmBtn')}
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </DashboardLayout>
   );
 };

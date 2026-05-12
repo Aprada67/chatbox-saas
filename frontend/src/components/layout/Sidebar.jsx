@@ -76,6 +76,8 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
   const handleLogout = () => {
     logout();
     toast.success(t('loggedOut'));
@@ -204,7 +206,7 @@ const Sidebar = () => {
                 })}
                 <motion.button
                   whileTap={{ scale: 0.97 }}
-                  onClick={handleLogout}
+                  onClick={() => setShowLogoutModal(true)}
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm mt-2 cursor-pointer"
                   style={{ color: 'var(--error)' }}
                 >
@@ -214,6 +216,63 @@ const Sidebar = () => {
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Logout confirmation modal */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.5)' }}
+            onClick={(e) => { if (e.target === e.currentTarget) setShowLogoutModal(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.15 }}
+              className="w-full max-w-sm rounded-2xl border shadow-2xl p-6 flex flex-col gap-4"
+              style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  style={{ background: 'var(--error-bg)', color: 'var(--error)' }}
+                >
+                  <LogOut size={18} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--text-1)' }}>
+                    {t('signOutConfirmTitle')}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: 'var(--text-3)' }}>
+                    {t('signOutConfirmDesc')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2 justify-end">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  className="px-3 py-1.5 rounded-lg text-sm cursor-pointer transition-colors"
+                  style={{ background: 'var(--bg-tertiary)', color: 'var(--text-2)' }}
+                >
+                  {t('cancel')}
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer flex items-center gap-1.5"
+                  style={{ background: 'var(--error)', color: 'white' }}
+                >
+                  <LogOut size={14} />
+                  {t('signOut')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -286,7 +345,7 @@ const Sidebar = () => {
           </div>
           <motion.button
             whileHover={{ x: 2 }}
-            onClick={handleLogout}
+            onClick={() => setShowLogoutModal(true)}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all cursor-pointer"
             style={{ color: 'var(--text-3)' }}
           >

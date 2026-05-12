@@ -39,6 +39,7 @@ const schema = z.object({
   name: z.string().min(3, 'Minimum 3 characters'),
   welcomeMessage: z.string().min(5, 'Minimum 5 characters'),
   language: z.string().default('en'),
+  bgImage: z.string().optional(),
 });
 
 // Generates an empty service with a unique ID
@@ -81,6 +82,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
       name: chatbot?.name || '',
       welcomeMessage: chatbot?.welcomeMessage || '',
       language: chatbot?.language || 'en',
+      bgImage: chatbot?.bgImage || '',
     },
   });
 
@@ -188,6 +190,23 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
               ))}
             </select>
           </div>
+          <div className="flex flex-col gap-1.5">
+            <label
+              className="text-xs font-medium uppercase tracking-wide"
+              style={{ color: 'var(--text-3)' }}
+            >
+              {t('bgImageLabel')}{' '}
+              <span className="normal-case font-normal" style={{ color: 'var(--text-3)' }}>
+                — optional
+              </span>
+            </label>
+            <input
+              type="text"
+              placeholder={t('bgImagePH')}
+              className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--accent) border-(--border)"
+              {...register('bgImage')}
+            />
+          </div>
         </div>
       </Card>
 
@@ -266,32 +285,67 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
                 placeholder={t('serviceName')}
                 value={svc.name}
                 onChange={(e) => updateService(svc.id, 'name', e.target.value)}
-                style={{ fontSize: '13px', padding: '7px 10px' }}
+                className="w-full rounded-xl border px-3 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--accent) border-(--border)"
               />
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder={t('priceLabel')}
-                  value={svc.price}
-                  onChange={(e) =>
-                    updateService(svc.id, 'price', e.target.value)
-                  }
-                  style={{ fontSize: '13px', padding: '7px 10px' }}
-                />
-                <input
-                  type="number"
-                  placeholder={t('minsLabel')}
-                  value={svc.durationMins}
-                  onChange={(e) =>
-                    updateService(svc.id, 'durationMins', e.target.value)
-                  }
-                  style={{ fontSize: '13px', padding: '7px 10px' }}
-                />
+              <div className="flex gap-2 items-end">
+                {/* Price */}
+                <div className="flex flex-col gap-1 flex-1">
+                  <span
+                    className="text-[10px] font-medium uppercase tracking-wide"
+                    style={{ color: 'var(--text-3)' }}
+                  >
+                    {t('priceLabel')}
+                  </span>
+                  <div className="relative">
+                    <span
+                      className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold pointer-events-none select-none"
+                      style={{ color: 'var(--text-3)' }}
+                    >
+                      €
+                    </span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={svc.price}
+                      onChange={(e) =>
+                        updateService(svc.id, 'price', e.target.value)
+                      }
+                      className="w-full rounded-xl border pl-6 pr-2.5 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) focus:border-(--accent) border-(--border)"
+                    />
+                  </div>
+                </div>
+                {/* Duration */}
+                <div className="flex flex-col gap-1 flex-1">
+                  <span
+                    className="text-[10px] font-medium uppercase tracking-wide"
+                    style={{ color: 'var(--text-3)' }}
+                  >
+                    {t('durationLabel')}
+                  </span>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      value={svc.durationMins}
+                      onChange={(e) =>
+                        updateService(svc.id, 'durationMins', e.target.value)
+                      }
+                      className="w-full rounded-xl border pl-2.5 pr-9 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) focus:border-(--accent) border-(--border)"
+                    />
+                    <span
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold pointer-events-none select-none"
+                      style={{ color: 'var(--text-3)' }}
+                    >
+                      min
+                    </span>
+                  </div>
+                </div>
                 {services.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeService(svc.id)}
-                    className="w-9 h-9 flex items-center justify-center rounded-lg shrink-0 cursor-pointer"
+                    className="w-9 h-9 flex items-center justify-center rounded-lg shrink-0 cursor-pointer mb-0.5"
                     style={{
                       color: 'var(--error)',
                       background: 'var(--error-bg)',

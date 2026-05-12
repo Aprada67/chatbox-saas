@@ -20,3 +20,6 @@ export const resendVerificationApi = (email) =>
 
 export const verifyCodeApi = ({ email, code }) =>
   api.post('/auth/verify-code', { email, code })
+
+export const deleteAccountApi = (password) =>
+  api.delete('/auth/account', { data: { password } })

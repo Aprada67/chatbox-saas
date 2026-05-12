@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { resetPasswordApi } from '../../api/auth';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
@@ -22,6 +23,7 @@ const schema = z
 const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
+  const { t } = useSettings();
 
   const {
     register,
@@ -33,12 +35,12 @@ const ResetPassword = () => {
 
   const onSubmit = async (data) => {
     if (!token) {
-      toast.error('Invalid token');
+      toast.error(t('invalidToken'));
       return;
     }
     try {
       await resetPasswordApi(token, data.password);
-      toast.success('Password updated successfully');
+      toast.success(t('passwordUpdatedSuccess'));
       navigate('/login');
     } catch (err) {
       toast.error(err.message);

@@ -282,25 +282,34 @@ export const createCheckout = asyncHandler(async (req, res) => {
       }
 
       // ─── DOWNGRADE: programa el cambio para el final del período actual
-      // Usamos Subscription Schedules. Phase 1 mantiene el plan actual hasta
-      // current_period_end, Phase 2 aplica el nuevo plan después.
-      const schedule = await stripe.subscriptionSchedules.create({
+      // Si la suscripción ya tiene un schedule adjunto lo liberamos primero —
+      // intentar migrar una suscripción ya adjunta devuelve un error de Stripe.
+      const existingScheduleId = existingSub.schedule
+        ? (typeof existingSub.schedule === 'string' ? existingSub.schedule : existingSub.schedule.id)
+        : null
+
+      if (existingScheduleId) {
+        await stripe.subscriptionSchedules.release(existingScheduleId)
+      }
+
+      // Volvemos a recuperar la suscripción para tener los datos actualizados
+      const freshSub = await stripe.subscriptions.retrieve(req.user.stripeSubscriptionId)
+
+      const newSchedule = await stripe.subscriptionSchedules.create({
         from_subscription: req.user.stripeSubscriptionId,
       })
 
-      await stripe.subscriptionSchedules.update(schedule.id, {
+      await stripe.subscriptionSchedules.update(newSchedule.id, {
         end_behavior: 'release',
         phases: [
           {
             items: [{ price: currentPriceId, quantity: 1 }],
-            start_date: existingSub.current_period_start,
-            end_date: existingSub.current_period_end,
+            end_date: freshSub.current_period_end,
             proration_behavior: 'none',
           },
           {
             items: [{ price: priceId, quantity: 1 }],
             proration_behavior: 'none',
-            metadata: { userId: req.user.id, plan },
           },
         ],
         metadata: { userId: req.user.id, plan },

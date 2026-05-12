@@ -9,6 +9,7 @@ import {
   resetPassword,
   verifyCode,
   resendVerification,
+  deleteAccount,
 } from '../controllers/authController.js'
 import { protect } from '../middlewares/auth.js'
 
@@ -24,5 +25,6 @@ router.post('/resend-verification', resendVerification)
 router.get('/me', protect, getMe)
 router.post('/change-password', protect, changePassword)
 router.patch('/preferences', protect, updatePreferences)
+router.delete('/account', protect, deleteAccount)
 
 export default router

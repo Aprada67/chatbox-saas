@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { forgotPasswordApi, resetPasswordApi } from '../../api/auth';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
@@ -26,6 +27,7 @@ const resetSchema = z.object({
 });
 
 const ForgotPassword = () => {
+  const { t } = useSettings();
   const [step, setStep] = useState('email'); // 'email' | 'code' | 'done'
   const [email, setEmail] = useState('');
   const [digits, setDigits] = useState(() => Array(CODE_LENGTH).fill(''));
@@ -65,7 +67,7 @@ const ForgotPassword = () => {
       await forgotPasswordApi(email);
       setDigits(Array(CODE_LENGTH).fill(''));
       setCooldown(RESEND_COOLDOWN);
-      toast.success('Code resent. Check your inbox.');
+      toast.success(t('codeResent'));
       inputsRef.current[0]?.focus();
     } catch (err) {
       toast.error(err.message);
@@ -120,15 +122,15 @@ const ForgotPassword = () => {
 
   const onResetPassword = async ({ password }) => {
     if (!isCodeComplete) {
-      toast.error('Enter all 6 digits');
+      toast.error(t('enter6Digits'));
       return;
     }
     try {
       await resetPasswordApi({ email, code, password });
-      toast.success('Password updated successfully');
+      toast.success(t('passwordUpdatedSuccess'));
       setStep('done');
     } catch (err) {
-      toast.error(err.message || 'Incorrect or expired code');
+      toast.error(err.message || t('incorrectExpiredCode'));
       setDigits(Array(CODE_LENGTH).fill(''));
       inputsRef.current[0]?.focus();
     }

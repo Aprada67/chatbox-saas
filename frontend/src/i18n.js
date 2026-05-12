@@ -11,6 +11,8 @@ const translations = {
     settings: 'Settings',
     signOut: 'Sign out',
     loggedOut: 'Logged out successfully',
+    signOutConfirmTitle: 'Sign out?',
+    signOutConfirmDesc: 'You will be redirected to the login page.',
 
     // Dashboard stats
     confirmed: 'Confirmed',
@@ -97,6 +99,15 @@ const translations = {
     passMismatch: 'Passwords do not match',
     passUpdated: 'Password updated',
     prefsSaved: 'Preferences saved',
+    dangerZone: 'Danger zone',
+    deleteAccount: 'Delete account',
+    deleteAccountSubtitle: 'Permanently delete your account and all data',
+    deleteAccountConfirmTitle: 'Delete your account?',
+    deleteAccountConfirmDesc: 'This action is irreversible. All your data, chatbots and appointments will be permanently deleted.',
+    deleteAccountPasswordLabel: 'Enter your password to confirm',
+    deleteAccountConfirmBtn: 'Yes, delete my account',
+    accountDeleted: 'Account deleted',
+    incorrectPassword: 'Incorrect password',
 
     // ChatbotBuilder
     newChatbotTitle: 'New ServeBot',
@@ -111,8 +122,11 @@ const translations = {
     chatColor: 'Chat color',
     addService: 'Add',
     serviceName: 'Service name',
-    priceLabel: 'Price €',
+    priceLabel: 'Price (€)',
     minsLabel: 'Mins',
+    durationLabel: 'Duration (min)',
+    bgImageLabel: 'Background image',
+    bgImagePH: 'https://...',
     convFlow: 'Conversation flow',
     addStep: 'Add',
     stepLabel: (n) => `Step ${n}`,
@@ -248,6 +262,42 @@ const translations = {
     landing_footerPrivacy: 'Privacy',
     landing_footerTerms: 'Terms',
     landing_footerContact: 'Contact',
+
+    // Availability
+    addRange: 'Add range',
+
+    // Notifications UI
+    markAllRead: 'Mark all as read',
+    deleteAll: 'Clear all',
+    noNotifications: 'No notifications',
+
+    // Auth notifications
+    welcomeBack: 'Welcome back!',
+    enterYourEmail: 'Enter your email',
+    codeResent: 'Code resent. Check your inbox.',
+    unexpectedResponse: 'Unexpected server response',
+    errorCreatingAccount: 'Error creating account',
+    enter6Digits: 'Enter all 6 digits',
+    passwordUpdatedSuccess: 'Password updated successfully',
+    incorrectExpiredCode: 'Incorrect or expired code',
+    invalidToken: 'Invalid token',
+    missingEmailRegister: 'Missing email — please register again',
+    missingEmail: 'Missing email',
+    accountVerified: 'Account verified!',
+    errorResendingCode: 'Error resending the code',
+    errorStartingPayment: 'Error starting payment',
+
+    // Billing / chatbot notifications
+    chatbotDeleted: 'ServeBot deleted',
+    linkCopied: 'Link copied',
+    planUpdatedSuccess: 'Plan updated successfully!',
+    paymentCompletedReload: 'Payment completed! Reload the page if your plan does not update.',
+    paymentCancelled: 'Payment cancelled.',
+    errorFetchingPlanDetails: 'Error fetching plan details',
+    planChangeScheduled: 'Plan change scheduled',
+    planUpdated: 'Plan updated successfully',
+    errorProcessingPayment: 'Error processing payment',
+    errorOpeningPortal: 'Error opening billing portal',
   },
 
   es: {
@@ -261,6 +311,8 @@ const translations = {
     settings: 'Configuración',
     signOut: 'Cerrar sesión',
     loggedOut: 'Sesión cerrada correctamente',
+    signOutConfirmTitle: '¿Cerrar sesión?',
+    signOutConfirmDesc: 'Serás redirigido a la página de inicio de sesión.',
 
     confirmed: 'Confirmadas',
     pending: 'Pendientes',
@@ -342,6 +394,15 @@ const translations = {
     passMismatch: 'Las contraseñas no coinciden',
     passUpdated: 'Contraseña actualizada',
     prefsSaved: 'Preferencias guardadas',
+    dangerZone: 'Zona de peligro',
+    deleteAccount: 'Eliminar cuenta',
+    deleteAccountSubtitle: 'Elimina permanentemente tu cuenta y todos los datos',
+    deleteAccountConfirmTitle: '¿Eliminar tu cuenta?',
+    deleteAccountConfirmDesc: 'Esta acción es irreversible. Todos tus datos, chatbots y citas serán eliminados permanentemente.',
+    deleteAccountPasswordLabel: 'Ingresa tu contraseña para confirmar',
+    deleteAccountConfirmBtn: 'Sí, eliminar mi cuenta',
+    accountDeleted: 'Cuenta eliminada',
+    incorrectPassword: 'Contraseña incorrecta',
 
     newChatbotTitle: 'Nuevo ServeBot',
     editChatbotTitle: 'Editar ServeBot',
@@ -355,8 +416,11 @@ const translations = {
     chatColor: 'Color del chat',
     addService: 'Agregar',
     serviceName: 'Nombre del servicio',
-    priceLabel: 'Precio $',
+    priceLabel: 'Precio (€)',
     minsLabel: 'Mins',
+    durationLabel: 'Duración (min)',
+    bgImageLabel: 'Imagen de fondo',
+    bgImagePH: 'https://...',
     convFlow: 'Flujo de conversación',
     addStep: 'Agregar',
     stepLabel: (n) => `Paso ${n}`,
@@ -492,6 +556,42 @@ const translations = {
     landing_footerPrivacy: 'Privacidad',
     landing_footerTerms: 'Términos',
     landing_footerContact: 'Contacto',
+
+    // Disponibilidad
+    addRange: 'Añadir tramo',
+
+    // Notificaciones UI
+    markAllRead: 'Marcar todo como leído',
+    deleteAll: 'Borrar todo',
+    noNotifications: 'Sin notificaciones',
+
+    // Notificaciones auth
+    welcomeBack: '¡Bienvenido/a de nuevo!',
+    enterYourEmail: 'Introduce tu email',
+    codeResent: 'Código reenviado. Revisa tu bandeja.',
+    unexpectedResponse: 'Respuesta inesperada del servidor',
+    errorCreatingAccount: 'Error al crear la cuenta',
+    enter6Digits: 'Introduce los 6 dígitos',
+    passwordUpdatedSuccess: 'Contraseña actualizada correctamente',
+    incorrectExpiredCode: 'Código incorrecto o expirado',
+    invalidToken: 'Token inválido',
+    missingEmailRegister: 'Email no encontrado — regístrate de nuevo',
+    missingEmail: 'Email no encontrado',
+    accountVerified: '¡Cuenta verificada!',
+    errorResendingCode: 'Error al reenviar el código',
+    errorStartingPayment: 'Error al iniciar el pago',
+
+    // Notificaciones facturación / chatbots
+    chatbotDeleted: 'ServeBot eliminado',
+    linkCopied: 'Enlace copiado',
+    planUpdatedSuccess: '¡Plan actualizado correctamente!',
+    paymentCompletedReload: '¡Pago completado! Recarga la página si tu plan no se actualiza.',
+    paymentCancelled: 'Pago cancelado.',
+    errorFetchingPlanDetails: 'Error al obtener los detalles del plan',
+    planChangeScheduled: 'Cambio de plan programado',
+    planUpdated: 'Plan actualizado correctamente',
+    errorProcessingPayment: 'Error al procesar el pago',
+    errorOpeningPortal: 'Error al abrir el portal de facturación',
   },
 
   pt: {
@@ -505,6 +605,8 @@ const translations = {
     settings: 'Configurações',
     signOut: 'Sair',
     loggedOut: 'Sessão encerrada com sucesso',
+    signOutConfirmTitle: 'Sair?',
+    signOutConfirmDesc: 'Você será redirecionado para a página de login.',
 
     confirmed: 'Confirmadas',
     pending: 'Pendentes',
@@ -586,6 +688,15 @@ const translations = {
     passMismatch: 'As senhas não coincidem',
     passUpdated: 'Senha atualizada',
     prefsSaved: 'Preferências salvas',
+    dangerZone: 'Zona de perigo',
+    deleteAccount: 'Excluir conta',
+    deleteAccountSubtitle: 'Exclui permanentemente sua conta e todos os dados',
+    deleteAccountConfirmTitle: 'Excluir sua conta?',
+    deleteAccountConfirmDesc: 'Esta ação é irreversível. Todos os seus dados, chatbots e agendamentos serão excluídos permanentemente.',
+    deleteAccountPasswordLabel: 'Digite sua senha para confirmar',
+    deleteAccountConfirmBtn: 'Sim, excluir minha conta',
+    accountDeleted: 'Conta excluída',
+    incorrectPassword: 'Senha incorreta',
 
     newChatbotTitle: 'Novo ServeBot',
     editChatbotTitle: 'Editar ServeBot',
@@ -599,8 +710,11 @@ const translations = {
     chatColor: 'Cor do chat',
     addService: 'Adicionar',
     serviceName: 'Nome do serviço',
-    priceLabel: 'Preço $',
+    priceLabel: 'Preço (€)',
     minsLabel: 'Min',
+    durationLabel: 'Duração (min)',
+    bgImageLabel: 'Imagem de fundo',
+    bgImagePH: 'https://...',
     convFlow: 'Fluxo de conversa',
     addStep: 'Adicionar',
     stepLabel: (n) => `Etapa ${n}`,
@@ -736,6 +850,42 @@ const translations = {
     landing_footerPrivacy: 'Privacidade',
     landing_footerTerms: 'Termos',
     landing_footerContact: 'Contacto',
+
+    // Disponibilidade
+    addRange: 'Adicionar intervalo',
+
+    // Notificações UI
+    markAllRead: 'Marcar tudo como lido',
+    deleteAll: 'Apagar tudo',
+    noNotifications: 'Sem notificações',
+
+    // Notificações auth
+    welcomeBack: 'Bem-vindo(a) de volta!',
+    enterYourEmail: 'Insira o seu email',
+    codeResent: 'Código reenviado. Verifique a sua caixa de entrada.',
+    unexpectedResponse: 'Resposta inesperada do servidor',
+    errorCreatingAccount: 'Erro ao criar conta',
+    enter6Digits: 'Insira todos os 6 dígitos',
+    passwordUpdatedSuccess: 'Senha atualizada com sucesso',
+    incorrectExpiredCode: 'Código incorreto ou expirado',
+    invalidToken: 'Token inválido',
+    missingEmailRegister: 'Email não encontrado — registe-se novamente',
+    missingEmail: 'Email não encontrado',
+    accountVerified: 'Conta verificada!',
+    errorResendingCode: 'Erro ao reenviar o código',
+    errorStartingPayment: 'Erro ao iniciar o pagamento',
+
+    // Notificações faturação / chatbots
+    chatbotDeleted: 'ServeBot excluído',
+    linkCopied: 'Link copiado',
+    planUpdatedSuccess: 'Plano atualizado com sucesso!',
+    paymentCompletedReload: 'Pagamento concluído! Recarregue a página se o seu plano não atualizar.',
+    paymentCancelled: 'Pagamento cancelado.',
+    errorFetchingPlanDetails: 'Erro ao obter os detalhes do plano',
+    planChangeScheduled: 'Mudança de plano agendada',
+    planUpdated: 'Plano atualizado com sucesso',
+    errorProcessingPayment: 'Erro ao processar o pagamento',
+    errorOpeningPortal: 'Erro ao abrir o portal de faturamento',
   },
 
   fr: {
@@ -749,6 +899,8 @@ const translations = {
     settings: 'Paramètres',
     signOut: 'Se déconnecter',
     loggedOut: 'Déconnecté avec succès',
+    signOutConfirmTitle: 'Se déconnecter ?',
+    signOutConfirmDesc: 'Vous serez redirigé vers la page de connexion.',
 
     confirmed: 'Confirmés',
     pending: 'En attente',
@@ -830,6 +982,15 @@ const translations = {
     passMismatch: 'Les mots de passe ne correspondent pas',
     passUpdated: 'Mot de passe mis à jour',
     prefsSaved: 'Préférences enregistrées',
+    dangerZone: 'Zone de danger',
+    deleteAccount: 'Supprimer le compte',
+    deleteAccountSubtitle: 'Supprimer définitivement votre compte et toutes les données',
+    deleteAccountConfirmTitle: 'Supprimer votre compte ?',
+    deleteAccountConfirmDesc: 'Cette action est irréversible. Toutes vos données, chatbots et rendez-vous seront supprimés définitivement.',
+    deleteAccountPasswordLabel: 'Entrez votre mot de passe pour confirmer',
+    deleteAccountConfirmBtn: 'Oui, supprimer mon compte',
+    accountDeleted: 'Compte supprimé',
+    incorrectPassword: 'Mot de passe incorrect',
 
     newChatbotTitle: 'Nouveau ServeBot',
     editChatbotTitle: 'Modifier le ServeBot',
@@ -843,8 +1004,11 @@ const translations = {
     chatColor: 'Couleur du chat',
     addService: 'Ajouter',
     serviceName: 'Nom du service',
-    priceLabel: 'Prix $',
+    priceLabel: 'Prix (€)',
     minsLabel: 'Min',
+    durationLabel: 'Durée (min)',
+    bgImageLabel: "Image d'arrière-plan",
+    bgImagePH: 'https://...',
     convFlow: 'Flux de conversation',
     addStep: 'Ajouter',
     stepLabel: (n) => `Étape ${n}`,
@@ -980,6 +1144,42 @@ const translations = {
     landing_footerPrivacy: 'Confidentialité',
     landing_footerTerms: 'Conditions',
     landing_footerContact: 'Contact',
+
+    // Disponibilité
+    addRange: 'Ajouter plage',
+
+    // Notifications UI
+    markAllRead: 'Tout marquer comme lu',
+    deleteAll: 'Tout effacer',
+    noNotifications: 'Pas de notifications',
+
+    // Notifications auth
+    welcomeBack: 'Bon retour !',
+    enterYourEmail: 'Entrez votre email',
+    codeResent: 'Code renvoyé. Vérifiez votre boîte de réception.',
+    unexpectedResponse: 'Réponse inattendue du serveur',
+    errorCreatingAccount: 'Erreur lors de la création du compte',
+    enter6Digits: 'Entrez les 6 chiffres',
+    passwordUpdatedSuccess: 'Mot de passe mis à jour avec succès',
+    incorrectExpiredCode: 'Code incorrect ou expiré',
+    invalidToken: 'Jeton invalide',
+    missingEmailRegister: 'Email manquant — veuillez vous réinscrire',
+    missingEmail: 'Email manquant',
+    accountVerified: 'Compte vérifié !',
+    errorResendingCode: 'Erreur lors du renvoi du code',
+    errorStartingPayment: 'Erreur lors du démarrage du paiement',
+
+    // Notifications facturation / chatbots
+    chatbotDeleted: 'ServeBot supprimé',
+    linkCopied: 'Lien copié',
+    planUpdatedSuccess: 'Abonnement mis à jour avec succès !',
+    paymentCompletedReload: 'Paiement effectué ! Rechargez la page si votre abonnement ne se met pas à jour.',
+    paymentCancelled: 'Paiement annulé.',
+    errorFetchingPlanDetails: 'Erreur lors de la récupération des détails du plan',
+    planChangeScheduled: "Changement d'abonnement programmé",
+    planUpdated: 'Abonnement mis à jour avec succès',
+    errorProcessingPayment: 'Erreur lors du traitement du paiement',
+    errorOpeningPortal: "Erreur lors de l'ouverture du portail de facturation",
   },
 }
 

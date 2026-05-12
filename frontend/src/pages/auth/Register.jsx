@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { Check, ArrowLeft, Zap } from 'lucide-react';
 import { registerApi } from '../../api/auth';
 import { preCheckoutApi } from '../../api/stripe';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
@@ -79,6 +80,7 @@ const formSchema = z
 const Register = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { t } = useSettings();
 
   const sessionId = searchParams.get('session_id');
   const planFromUrl = searchParams.get('plan');
@@ -108,11 +110,11 @@ const Register = () => {
         window.location.assign(data.url);
         return;
       }
-      toast.error('Unexpected server response');
+      toast.error(t('unexpectedResponse'));
       setLoadingPlan(null);
     } catch (err) {
       toast.error(
-        err?.response?.data?.message || err?.message || 'Error starting payment',
+        err?.response?.data?.message || err?.message || t('errorStartingPayment'),
       );
       setLoadingPlan(null);
     }
@@ -129,7 +131,7 @@ const Register = () => {
       });
       navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err) {
-      toast.error(err.message || 'Error creating account');
+      toast.error(err.message || t('errorCreatingAccount'));
     }
   };
 

@@ -4,12 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Search, MessageSquare, Edit, X, Save } from 'lucide-react';
 import AdminLayout from './AdminLayout';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import { SkeletonAdminChatbotRow } from '../../components/ui/Skeleton';
 import api from '../../api/axios';
 
 const AdminChatbots = () => {
   const queryClient = useQueryClient();
+  const { t } = useSettings();
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState(null);
   const [editData, setEditData] = useState({});
@@ -44,7 +46,7 @@ const AdminChatbots = () => {
     mutationFn: ({ id, data }) => api.patch(`/admin/chatbots/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-chatbots']);
-      toast.success('ServeBot updated');
+      toast.success(t('chatbotUpdated'));
       setEditing(null);
     },
     onError: (err) => toast.error(err.message),

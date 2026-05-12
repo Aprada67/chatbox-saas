@@ -381,6 +381,44 @@ export const verifyCode = asyncHandler(async (req, res) => {
   })
 })
 
+// DELETE /api/auth/account — elimina la cuenta del usuario autenticado
+export const deleteAccount = asyncHandler(async (req, res) => {
+  const { password } = req.body
+
+  if (!password) {
+    throw new AppError('Password is required to delete your account', 400)
+  }
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, req.user.id))
+
+  const isValid = await bcrypt.compare(password, user.password)
+  if (!isValid) {
+    throw new AppError('Incorrect password', 401)
+  }
+
+  // Cancel Stripe subscription if active
+  if (user.stripeSubscriptionId) {
+    try {
+      await stripe.subscriptions.cancel(user.stripeSubscriptionId)
+    } catch (err) {
+      console.error('Error cancelling Stripe subscription on account delete:', err.message)
+    }
+  }
+
+  await db.delete(users).where(eq(users.id, user.id))
+
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  })
+
+  res.json({ success: true, message: 'Account deleted' })
+})
+
 // POST /api/auth/resend-verification — reenvía el código de verificación
 export const resendVerification = asyncHandler(async (req, res) => {
   const { email } = req.body

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Search, Shield, ShieldOff, ChevronDown } from 'lucide-react';
 import AdminLayout from './AdminLayout';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import { SkeletonUserRow } from '../../components/ui/Skeleton';
 import api from '../../api/axios';
@@ -17,6 +18,7 @@ const PLAN_COLORS = {
 
 const AdminUsers = () => {
   const queryClient = useQueryClient();
+  const { t } = useSettings();
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
@@ -44,7 +46,7 @@ const AdminUsers = () => {
       api.patch(`/admin/users/${id}/plan`, { plan }),
     onSuccess: () => {
       queryClient.invalidateQueries(['admin-users']);
-      toast.success('Plan updated');
+      toast.success(t('planUpdated'));
     },
     onError: (err) => toast.error(err.message),
   });

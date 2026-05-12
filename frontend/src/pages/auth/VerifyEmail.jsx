@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { verifyCodeApi, resendVerificationApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 
@@ -13,6 +14,7 @@ const RESEND_COOLDOWN = 60;
 const VerifyEmail = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useSettings();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') || '';
 
@@ -38,7 +40,7 @@ const VerifyEmail = () => {
   // If there is no email in the URL we cannot verify
   useEffect(() => {
     if (!email) {
-      toast.error('Missing email — please register again');
+      toast.error(t('missingEmailRegister'));
     }
   }, [email]);
 
@@ -111,21 +113,21 @@ const VerifyEmail = () => {
   const handleSubmit = async (e) => {
     if (e?.preventDefault) e.preventDefault();
     if (!email) {
-      toast.error('Missing email');
+      toast.error(t('missingEmail'));
       return;
     }
     if (!isComplete) {
-      toast.error('Enter all 6 digits');
+      toast.error(t('enter6Digits'));
       return;
     }
     setSubmitting(true);
     try {
       const { data } = await verifyCodeApi({ email, code });
       login(data.token, data.user);
-      toast.success('Account verified!');
+      toast.success(t('accountVerified'));
       navigate(data.user?.role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
-      toast.error(err.message || 'Incorrect or expired code');
+      toast.error(err.message || t('incorrectExpiredCode'));
       setDigits(Array(CODE_LENGTH).fill(''));
       focusInput(0);
     } finally {
@@ -138,10 +140,10 @@ const VerifyEmail = () => {
     setResending(true);
     try {
       await resendVerificationApi(email);
-      toast.success('Code resent. Check your inbox.');
+      toast.success(t('codeResent'));
       setCooldown(RESEND_COOLDOWN);
     } catch (err) {
-      toast.error(err.message || 'Error resending the code');
+      toast.error(err.message || t('errorResendingCode'));
     } finally {
       setResending(false);
     }

@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { loginApi, resendVerificationApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
+import { useSettings } from '../../context/SettingsContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
@@ -19,6 +20,7 @@ const schema = z.object({
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useSettings();
 
   const [showResend, setShowResend] = useState(false);
   const [resendEmail, setResendEmail] = useState('');
@@ -37,7 +39,7 @@ const Login = () => {
     try {
       const res = await loginApi(data);
       login(res.data.token, res.data.user);
-      toast.success('Welcome back!');
+      toast.success(t('welcomeBack'));
       const role = res.data.user.role;
       navigate(role === 'admin' ? '/admin' : '/dashboard');
     } catch (err) {
@@ -58,13 +60,13 @@ const Login = () => {
   const handleResend = async (e) => {
     e.preventDefault();
     if (!resendEmail) {
-      toast.error('Enter your email');
+      toast.error(t('enterYourEmail'));
       return;
     }
     setResending(true);
     try {
       await resendVerificationApi(resendEmail);
-      toast.success('Code resent. Check your inbox.');
+      toast.success(t('codeResent'));
       navigate(`/verify-email?email=${encodeURIComponent(resendEmail)}`);
     } catch (err) {
       toast.error(err.message);

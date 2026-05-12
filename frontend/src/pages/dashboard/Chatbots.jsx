@@ -53,7 +53,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
     mutationFn: deleteChatbotApi,
     onSuccess: () => {
       queryClient.invalidateQueries(['chatbots']);
-      toast.success('ServeBot deleted');
+      toast.success(t('chatbotDeleted'));
       setDeleting(null);
     },
     onError: (err) => {
@@ -65,7 +65,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
   // Copies the public link to clipboard
   const copySlug = (slug) => {
     navigator.clipboard.writeText(`${window.location.origin}/chat/${slug}`);
-    toast.success('Link copied');
+    toast.success(t('linkCopied'));
   };
 
   if (isLoading)
