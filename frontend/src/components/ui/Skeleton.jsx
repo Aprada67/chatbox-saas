@@ -9,7 +9,7 @@
 // ── Base shimmer block ────────────────────────────────────────────────────────
 const Skeleton = ({ width = '100%', height = '1rem', className = '', style = {} }) => (
   <div
-    className={`animate-pulse rounded-lg ${className}`}
+    className={`animate-pulse rounded ${className}`}
     style={{
       width,
       height,
@@ -37,13 +37,13 @@ export const SkeletonText = ({ lines = 2, className = '' }) => (
 // ── Stat / KPI card — icon square + title line + large value + subtitle ────────
 export const SkeletonStat = ({ className = '' }) => (
   <div
-    className={`rounded-2xl p-4 md:p-5 border flex flex-col gap-3 ${className}`}
+    className={`rounded p-4 md:p-5 border flex flex-col gap-3 ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     {/* Top row: title + icon */}
     <div className="flex items-center justify-between">
       <Skeleton width="45%" height="0.65rem" />
-      <Skeleton width="2rem" height="2rem" className="rounded-lg" style={{ borderRadius: '0.5rem' }} />
+      <Skeleton width="2rem" height="2rem" className="rounded" style={{ borderRadius: '0.5rem' }} />
     </div>
     {/* Value */}
     <Skeleton width="35%" height="1.75rem" />
@@ -55,7 +55,7 @@ export const SkeletonStat = ({ className = '' }) => (
 // ── Card block — a generic rounded card placeholder ───────────────────────────
 export const SkeletonCard = ({ height = '8rem', className = '' }) => (
   <div
-    className={`rounded-2xl border overflow-hidden ${className}`}
+    className={`rounded border overflow-hidden ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     <Skeleton
@@ -91,7 +91,7 @@ export const SkeletonAvatar = ({ size = '2.25rem', className = '' }) => (
   <Skeleton
     width={size}
     height={size}
-    className={`rounded-xl shrink-0 ${className}`}
+    className={`rounded shrink-0 ${className}`}
     style={{ borderRadius: '0.75rem', minWidth: size, minHeight: size }}
   />
 );
@@ -99,7 +99,7 @@ export const SkeletonAvatar = ({ size = '2.25rem', className = '' }) => (
 // ── Chatbot card row — icon + two text lines + badge + action buttons ─────────
 export const SkeletonChatbotCard = ({ className = '' }) => (
   <div
-    className={`rounded-2xl border p-4 md:p-5 ${className}`}
+    className={`rounded border p-4 md:p-5 ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     {/* Top row */}
@@ -116,9 +116,9 @@ export const SkeletonChatbotCard = ({ className = '' }) => (
       className="flex items-center gap-2 pt-3 border-t"
       style={{ borderColor: 'var(--border)' }}
     >
-      <Skeleton width="5rem" height="1.8rem" className="rounded-xl" style={{ borderRadius: '0.75rem' }} />
-      <Skeleton width="5rem" height="1.8rem" className="rounded-xl" style={{ borderRadius: '0.75rem' }} />
-      <Skeleton width="4rem" height="1.8rem" className="rounded-xl ml-auto" style={{ borderRadius: '0.75rem' }} />
+      <Skeleton width="5rem" height="1.8rem" className="rounded" style={{ borderRadius: '0.75rem' }} />
+      <Skeleton width="5rem" height="1.8rem" className="rounded" style={{ borderRadius: '0.75rem' }} />
+      <Skeleton width="4rem" height="1.8rem" className="rounded ml-auto" style={{ borderRadius: '0.75rem' }} />
     </div>
   </div>
 );
@@ -126,11 +126,11 @@ export const SkeletonChatbotCard = ({ className = '' }) => (
 // ── Appointment row — date block + service info + status badge ────────────────
 export const SkeletonAppointmentRow = ({ className = '' }) => (
   <div
-    className={`rounded-2xl border p-4 flex items-center gap-3 ${className}`}
+    className={`rounded border p-4 flex items-center gap-3 ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     {/* Compact date square */}
-    <Skeleton width="3rem" height="3.5rem" className="rounded-xl shrink-0" style={{ borderRadius: '0.75rem' }} />
+    <Skeleton width="3rem" height="3.5rem" className="rounded shrink-0" style={{ borderRadius: '0.75rem' }} />
     {/* Service text */}
     <div className="flex-1 flex flex-col gap-1.5 min-w-0">
       <Skeleton width="55%" height="0.75rem" />
@@ -144,7 +144,7 @@ export const SkeletonAppointmentRow = ({ className = '' }) => (
 // ── Plan / Billing card — name + price + feature list ────────────────────────
 export const SkeletonPlanCard = ({ features = 4, className = '' }) => (
   <div
-    className={`rounded-2xl border p-5 ${className}`}
+    className={`rounded border p-5 ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     {/* Plan name */}
@@ -161,14 +161,14 @@ export const SkeletonPlanCard = ({ features = 4, className = '' }) => (
       ))}
     </div>
     {/* Button */}
-    <Skeleton width="5rem" height="2rem" className="rounded-xl" style={{ borderRadius: '0.75rem' }} />
+    <Skeleton width="5rem" height="2rem" className="rounded" style={{ borderRadius: '0.75rem' }} />
   </div>
 );
 
 // ── Admin user row — avatar + name/email + plan badge ────────────────────────
 export const SkeletonUserRow = ({ className = '' }) => (
   <div
-    className={`rounded-2xl border p-4 flex items-center gap-3 ${className}`}
+    className={`rounded border p-4 flex items-center gap-3 ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     <SkeletonAvatar />
@@ -183,7 +183,7 @@ export const SkeletonUserRow = ({ className = '' }) => (
 // ── Admin chatbot row — same layout as AdminChatbots list items ───────────────
 export const SkeletonAdminChatbotRow = ({ className = '' }) => (
   <div
-    className={`rounded-2xl border p-4 ${className}`}
+    className={`rounded border p-4 ${className}`}
     style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
   >
     <div className="flex items-center justify-between gap-3">
@@ -196,7 +196,7 @@ export const SkeletonAdminChatbotRow = ({ className = '' }) => (
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <Skeleton width="3.5rem" height="1.4rem" className="rounded-full" style={{ borderRadius: '9999px' }} />
-        <Skeleton width="3.5rem" height="1.8rem" className="rounded-xl" style={{ borderRadius: '0.75rem' }} />
+        <Skeleton width="3.5rem" height="1.8rem" className="rounded" style={{ borderRadius: '0.75rem' }} />
       </div>
     </div>
   </div>

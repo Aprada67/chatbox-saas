@@ -207,7 +207,7 @@ const ForgotPassword = () => {
                       onChange={(e) => handleDigitChange(idx, e.target.value)}
                       onKeyDown={(e) => handleKeyDown(idx, e)}
                       onFocus={(e) => e.target.select()}
-                      className="w-11 h-13 text-center text-xl font-bold rounded-xl border outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) focus:border-(--accent) border-(--border)"
+                      className="w-11 h-13 text-center text-xl font-bold rounded border outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) focus:border-(--accent) border-(--border)"
                       style={{ caretColor: 'var(--accent)' }}
                     />
                   ))}

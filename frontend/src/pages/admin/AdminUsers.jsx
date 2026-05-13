@@ -66,10 +66,10 @@ const AdminUsers = () => {
       <AdminLayout title="Users">
         {/* Search + filter skeleton */}
         <div className="flex flex-col sm:flex-row gap-3 mb-5">
-          <div className="flex-1 h-10 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
-          <div className="w-28 h-10 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
+          <div className="flex-1 h-10 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
+          <div className="w-28 h-10 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
         </div>
-        <div className="w-24 h-3 animate-pulse rounded-lg mb-4" style={{ background: 'var(--bg-tertiary)' }} />
+        <div className="w-24 h-3 animate-pulse rounded mb-4" style={{ background: 'var(--bg-tertiary)' }} />
 
         {/* User row skeletons */}
         <div className="flex flex-col gap-3">
@@ -127,7 +127,7 @@ const AdminUsers = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ delay: i * 0.03 }}
-              className="rounded-2xl border overflow-hidden"
+              className="rounded border overflow-hidden"
               style={{
                 background: 'var(--bg-secondary)',
                 borderColor: 'var(--border)',
@@ -138,7 +138,7 @@ const AdminUsers = () => {
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Avatar with initial */}
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-semibold text-white"
+                    className="w-9 h-9 rounded flex items-center justify-center shrink-0 text-sm font-semibold text-white"
                     style={{
                       background: user.isActive
                         ? 'var(--accent)'
@@ -184,7 +184,7 @@ const AdminUsers = () => {
                     onClick={() =>
                       setExpandedId(expandedId === user.id ? null : user.id)
                     }
-                    className="w-7 h-7 flex items-center justify-center rounded-lg transition-all cursor-pointer"
+                    className="w-7 h-7 flex items-center justify-center rounded transition-all cursor-pointer"
                     style={{
                       color: 'var(--text-3)',
                       background: 'var(--bg-tertiary)',
@@ -312,7 +312,7 @@ const AdminUsers = () => {
         {/* Empty state */}
         {filtered.length === 0 && (
           <div
-            className="py-16 text-center rounded-2xl border"
+            className="py-16 text-center rounded border"
             style={{
               borderColor: 'var(--border)',
               background: 'var(--bg-secondary)',

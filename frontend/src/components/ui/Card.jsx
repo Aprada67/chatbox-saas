@@ -3,7 +3,7 @@ const Card = ({ children, className = '', ...props }) => {
     <div
       className={`
         bg-(--bg-secondary) border border-(--border)
-        rounded-2xl p-6 ${className}
+        rounded p-6 ${className}
       `}
       {...props}
     >

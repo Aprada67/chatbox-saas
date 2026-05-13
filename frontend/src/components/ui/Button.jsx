@@ -22,7 +22,7 @@ const Button = ({
       whileTap={{ scale: 0.97 }}
       className={`
         ${variants[variant]} ${sizes[size]}
-        rounded-xl font-medium border border-(--border)
+        rounded-md font-medium border border-(--border)
         transition-all duration-150 cursor-pointer
         disabled:opacity-50 disabled:cursor-not-allowed
         flex items-center justify-center gap-2

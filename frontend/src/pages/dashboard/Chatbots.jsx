@@ -74,10 +74,10 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
         {/* Header skeleton */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex flex-col gap-2">
-            <div className="w-32 h-4 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-            <div className="w-24 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-32 h-4 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-24 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
           </div>
-          <div className="w-28 h-9 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)' }} />
+          <div className="w-28 h-9 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
         </div>
         {/* Chatbot card skeletons — show up to 2 placeholder cards */}
         <div className="flex flex-col gap-3">
@@ -115,7 +115,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center justify-center py-16 rounded-2xl border"
+          className="flex flex-col items-center justify-center py-16 rounded border"
           style={{
             borderColor: 'var(--border)',
             background: 'var(--bg-secondary)',
@@ -153,7 +153,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, x: -12 }}
                 transition={{ delay: i * 0.05 }}
-                className="rounded-2xl border p-4 md:p-5"
+                className="rounded border p-4 md:p-5"
                 style={{
                   background: 'var(--bg-secondary)',
                   borderColor: 'var(--border)',
@@ -162,7 +162,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
                 {/* Top row — info and badge */}
                 <div className="flex items-center gap-3 mb-3">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    className="w-10 h-10 rounded flex items-center justify-center shrink-0"
                     style={{
                       background: bot.color + '22',
                       border: `1.5px solid ${bot.color}`,
@@ -264,7 +264,7 @@ const Chatbots = ({ onCreateClick, onEditClick }) => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="mt-4 px-4 py-3 rounded-xl text-xs"
+          className="mt-4 px-4 py-3 rounded text-xs"
           style={{
             background: 'var(--bg-secondary)',
             color: 'var(--text-3)',

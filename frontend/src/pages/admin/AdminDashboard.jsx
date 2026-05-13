@@ -27,21 +27,21 @@ const AdminDashboard = () => {
 
         {/* Plan distribution skeleton */}
         <div
-          className="rounded-2xl border overflow-hidden"
+          className="rounded border overflow-hidden"
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
         >
           <div
             className="px-5 py-4 border-b"
             style={{ borderColor: 'var(--border)' }}
           >
-            <div className="w-32 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-32 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
           </div>
           <div className="p-5 flex flex-col gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-                  <div className="w-20 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+                  <div className="w-12 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+                  <div className="w-20 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
                 </div>
                 {/* Progress bar skeleton */}
                 <div
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
 
       {/* Distribución de planes */}
       <div
-        className="rounded-2xl border overflow-hidden"
+        className="rounded border overflow-hidden"
         style={{
           background: 'var(--bg-secondary)',
           borderColor: 'var(--border)',

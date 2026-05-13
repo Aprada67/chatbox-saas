@@ -57,9 +57,9 @@ const AdminChatbots = () => {
       <AdminLayout title="ServeBots">
         {/* Search bar skeleton */}
         <div className="relative mb-5">
-          <div className="w-full h-10 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
+          <div className="w-full h-10 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)' }} />
         </div>
-        <div className="w-32 h-3 animate-pulse rounded-lg mb-4" style={{ background: 'var(--bg-tertiary)' }} />
+        <div className="w-32 h-3 animate-pulse rounded mb-4" style={{ background: 'var(--bg-tertiary)' }} />
 
         {/* Chatbot row skeletons */}
         <div className="flex flex-col gap-3">
@@ -99,7 +99,7 @@ const AdminChatbots = () => {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.03 }}
-            className="rounded-2xl border p-4"
+            className="rounded border p-4"
             style={{
               background: 'var(--bg-secondary)',
               borderColor: 'var(--border)',
@@ -110,7 +110,7 @@ const AdminChatbots = () => {
               <div className="flex items-center gap-3 min-w-0">
                 {/* Chatbot icon with its color */}
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                  className="w-9 h-9 rounded flex items-center justify-center shrink-0"
                   style={{
                     background: (bot.color || '#3b82f6') + '22',
                     border: `1.5px solid ${bot.color || '#3b82f6'}`,
@@ -269,7 +269,7 @@ const AdminChatbots = () => {
         {/* Empty state */}
         {filtered.length === 0 && (
           <div
-            className="py-16 text-center rounded-2xl border"
+            className="py-16 text-center rounded border"
             style={{
               borderColor: 'var(--border)',
               background: 'var(--bg-secondary)',

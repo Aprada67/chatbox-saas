@@ -68,15 +68,15 @@ const Analytics = () => {
 
         {/* Chart area skeleton */}
         <div
-          className="rounded-2xl border overflow-hidden mb-6"
+          className="rounded border overflow-hidden mb-6"
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
         >
           <div
             className="px-4 md:px-5 py-4 border-b flex items-center justify-between"
             style={{ borderColor: 'var(--border)' }}
           >
-            <div className="w-24 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-            <div className="w-16 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-24 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-16 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
           </div>
           <div className="px-4 md:px-5 py-5">
             <SkeletonChart />
@@ -95,14 +95,14 @@ const Analytics = () => {
 
         {/* Top services skeleton */}
         <div
-          className="rounded-2xl border overflow-hidden"
+          className="rounded border overflow-hidden"
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
         >
           <div
             className="px-4 md:px-5 py-4 border-b"
             style={{ borderColor: 'var(--border)' }}
           >
-            <div className="w-24 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-24 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
           </div>
           <SkeletonTable rows={4} />
         </div>
@@ -116,7 +116,7 @@ const Analytics = () => {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-5 px-4 py-3 rounded-xl text-sm flex items-center justify-between gap-3"
+          className="mb-5 px-4 py-3 rounded text-sm flex items-center justify-between gap-3"
           style={{
             background: 'var(--accent-bg)',
             color: 'var(--accent)',
@@ -129,7 +129,7 @@ const Analytics = () => {
           </div>
           <Link
             to="/dashboard/billing"
-            className="shrink-0 inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded-lg"
+            className="shrink-0 inline-flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded"
             style={{
               background: 'var(--accent)',
               color: 'white',
@@ -177,7 +177,7 @@ const Analytics = () => {
         <>
           {/* Bar chart — last 30 days */}
           <div
-            className="rounded-2xl border overflow-hidden mb-6"
+            className="rounded border overflow-hidden mb-6"
             style={{
               background: 'var(--bg-secondary)',
               borderColor: 'var(--border)',
@@ -251,7 +251,7 @@ const Analytics = () => {
 
           {/* Top services table */}
           <div
-            className="rounded-2xl border overflow-hidden"
+            className="rounded border overflow-hidden"
             style={{
               background: 'var(--bg-secondary)',
               borderColor: 'var(--border)',

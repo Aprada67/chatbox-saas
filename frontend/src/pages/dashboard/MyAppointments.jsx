@@ -72,19 +72,19 @@ const MyAppointments = () => {
       <DashboardLayout title={t('appointments')}>
         {/* Header skeleton */}
         <div className="mb-5">
-          <div className="w-36 h-4 animate-pulse rounded-lg mb-2" style={{ background: 'var(--bg-tertiary)' }} />
-          <div className="w-16 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+          <div className="w-36 h-4 animate-pulse rounded mb-2" style={{ background: 'var(--bg-tertiary)' }} />
+          <div className="w-16 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
         </div>
 
         {/* Filter tabs skeleton */}
         <div
-          className="flex gap-1 mb-5 p-1 rounded-xl"
+          className="flex gap-1 mb-5 p-1 rounded"
           style={{ background: 'var(--bg-secondary)', border: '0.5px solid var(--border)' }}
         >
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="flex-1 h-8 animate-pulse rounded-lg"
+              className="flex-1 h-8 animate-pulse rounded"
               style={{ background: 'var(--bg-tertiary)' }}
             />
           ))}
@@ -116,7 +116,7 @@ const MyAppointments = () => {
 
       {/* Filter tabs */}
       <div
-        className="flex gap-1 mb-5 p-1 rounded-xl overflow-x-auto"
+        className="flex gap-1 mb-5 p-1 rounded overflow-x-auto"
         style={{
           background: 'var(--bg-secondary)',
           border: '0.5px solid var(--border)',
@@ -132,7 +132,7 @@ const MyAppointments = () => {
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className="flex-1 py-2 rounded-lg text-xs font-medium transition-all whitespace-nowrap flex items-center justify-center gap-1.5 cursor-pointer"
+              className="flex-1 py-2 rounded text-xs font-medium transition-all whitespace-nowrap flex items-center justify-center gap-1.5 cursor-pointer"
               style={{
                 background: activeTab === id ? 'var(--accent)' : 'transparent',
                 color: activeTab === id ? '#fff' : 'var(--text-3)',
@@ -163,7 +163,7 @@ const MyAppointments = () => {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center justify-center py-16 rounded-2xl border"
+          className="flex flex-col items-center justify-center py-16 rounded border"
           style={{
             borderColor: 'var(--border)',
             background: 'var(--bg-secondary)',
@@ -204,7 +204,7 @@ const MyAppointments = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ delay: i * 0.04 }}
-                  className="rounded-2xl border overflow-hidden"
+                  className="rounded border overflow-hidden"
                   style={{
                     background: 'var(--bg-secondary)',
                     borderColor: 'var(--border)',
@@ -217,7 +217,7 @@ const MyAppointments = () => {
                   >
                     {/* Compact date */}
                     <div
-                      className="w-12 flex flex-col items-center shrink-0 rounded-xl py-2"
+                      className="w-12 flex flex-col items-center shrink-0 rounded py-2"
                       style={{ background: 'var(--bg-tertiary)' }}
                     >
                       <span

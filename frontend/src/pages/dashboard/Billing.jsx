@@ -183,16 +183,16 @@ const Billing = () => {
         <div className="max-w-2xl mx-auto flex flex-col gap-5">
           {/* Current plan banner skeleton */}
           <div
-            className="rounded-2xl border p-5"
+            className="rounded border p-5"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
           >
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-2">
-                <div className="w-20 h-2.5 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-                <div className="w-16 h-6 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-                <div className="w-32 h-2.5 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+                <div className="w-20 h-2.5 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+                <div className="w-16 h-6 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+                <div className="w-32 h-2.5 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
               </div>
-              <div className="w-32 h-9 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-32 h-9 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
             </div>
           </div>
 
@@ -224,7 +224,7 @@ const Billing = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="rounded-2xl border p-6 w-full max-w-sm"
+            className="rounded border p-6 w-full max-w-sm"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -237,7 +237,7 @@ const Billing = () => {
             </h3>
 
             <div
-              className="rounded-xl p-4 my-4 text-center"
+              className="rounded p-4 my-4 text-center"
               style={{ background: 'var(--bg-tertiary)' }}
             >
               <>
@@ -279,7 +279,7 @@ const Billing = () => {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border p-5"
+          className="rounded border p-5"
           style={{
             background: 'var(--bg-secondary)',
             borderColor: 'var(--border)',
@@ -337,7 +337,7 @@ const Billing = () => {
 
           {pendingChange && (
             <div
-              className="mt-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs"
+              className="mt-3 flex items-center gap-2 rounded px-3 py-2 text-xs"
               style={{
                 background: 'var(--accent-bg)',
                 color: 'var(--accent)',
@@ -378,7 +378,7 @@ const Billing = () => {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07 }}
-              className="rounded-2xl border p-5 relative"
+              className="rounded border p-5 relative"
               style={{
                 background: isCurrent
                   ? 'var(--accent-bg)'
@@ -390,7 +390,7 @@ const Billing = () => {
               {/* Savings badge */}
               {plan.savings && !isCurrent && (
                 <div
-                  className="absolute top-4 right-4 px-2.5 py-1 rounded-lg text-[10px] font-semibold"
+                  className="absolute top-4 right-4 px-2.5 py-1 rounded text-[10px] font-semibold"
                   style={{
                     background: 'var(--success-bg)',
                     color: 'var(--success)',

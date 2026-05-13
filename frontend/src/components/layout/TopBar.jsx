@@ -85,7 +85,7 @@ const NotificationBell = () => {
       <motion.button
         whileTap={{ scale: 0.9 }}
         onClick={() => setOpen((p) => !p)}
-        className="relative w-8 h-8 flex items-center justify-center rounded-lg cursor-pointer"
+        className="relative w-8 h-8 flex items-center justify-center rounded cursor-pointer"
         style={{ color: 'var(--text-3)', background: 'var(--bg-tertiary)' }}
       >
         <Bell size={15} />
@@ -106,7 +106,7 @@ const NotificationBell = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-10 w-80 rounded-2xl border shadow-xl z-50 overflow-hidden"
+            className="absolute right-0 top-10 w-80 rounded border shadow-xl z-50 overflow-hidden"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
           >
             {/* Header */}
@@ -236,7 +236,7 @@ const TopBar = ({ title }) => {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={toggleTheme}
-          className="w-8 h-8 flex items-center justify-center rounded-lg transition-all cursor-pointer"
+          className="w-8 h-8 flex items-center justify-center rounded transition-all cursor-pointer"
           style={{ color: 'var(--text-3)', background: 'var(--bg-tertiary)' }}
         >
           {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}

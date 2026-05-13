@@ -191,7 +191,7 @@ const VerifyEmail = () => {
                   onKeyDown={(e) => handleKeyDown(idx, e)}
                   onFocus={(e) => e.target.select()}
                   className="
-                    w-12 h-14 text-center text-2xl font-bold rounded-xl border outline-none transition-colors
+                    w-12 h-14 text-center text-2xl font-bold rounded border outline-none transition-colors
                     bg-(--bg-tertiary) text-(--text-1)
                     focus:border-(--accent)
                     border-(--border)

@@ -175,7 +175,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
               {t('chatbotLang')}
             </label>
             <select
-              className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none"
+              className="w-full rounded border px-3 py-2.5 text-sm outline-none"
               style={{
                 background: 'var(--bg-tertiary)',
                 borderColor: 'var(--border)',
@@ -203,7 +203,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
             <input
               type="text"
               placeholder={t('bgImagePH')}
-              className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--accent) border-(--border)"
+              className="w-full rounded border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--accent) border-(--border)"
               {...register('bgImage')}
             />
           </div>
@@ -238,7 +238,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
         </div>
         {/* Color preview */}
         <div
-          className="mt-4 rounded-xl p-3 flex items-center gap-2"
+          className="mt-4 rounded p-3 flex items-center gap-2"
           style={{ background: color + '18', border: `1px solid ${color}44` }}
         >
           <div
@@ -275,7 +275,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="rounded-xl border p-3 flex flex-col gap-2"
+              className="rounded border p-3 flex flex-col gap-2"
               style={{
                 borderColor: 'var(--border)',
                 background: 'var(--bg-tertiary)',
@@ -285,7 +285,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
                 placeholder={t('serviceName')}
                 value={svc.name}
                 onChange={(e) => updateService(svc.id, 'name', e.target.value)}
-                className="w-full rounded-xl border px-3 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--accent) border-(--border)"
+                className="w-full rounded border px-3 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--accent) border-(--border)"
               />
               <div className="flex gap-2 items-end">
                 {/* Price */}
@@ -311,7 +311,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
                       onChange={(e) =>
                         updateService(svc.id, 'price', e.target.value)
                       }
-                      className="w-full rounded-xl border pl-6 pr-2.5 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) focus:border-(--accent) border-(--border)"
+                      className="w-full rounded border pl-6 pr-2.5 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) focus:border-(--accent) border-(--border)"
                     />
                   </div>
                 </div>
@@ -331,7 +331,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
                       onChange={(e) =>
                         updateService(svc.id, 'durationMins', e.target.value)
                       }
-                      className="w-full rounded-xl border pl-2.5 pr-9 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) focus:border-(--accent) border-(--border)"
+                      className="w-full rounded border pl-2.5 pr-9 py-2 text-sm outline-none transition-colors bg-(--bg-secondary) text-(--text-1) focus:border-(--accent) border-(--border)"
                     />
                     <span
                       className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-semibold pointer-events-none select-none"
@@ -345,7 +345,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
                   <button
                     type="button"
                     onClick={() => removeService(svc.id)}
-                    className="w-9 h-9 flex items-center justify-center rounded-lg shrink-0 cursor-pointer mb-0.5"
+                    className="w-9 h-9 flex items-center justify-center rounded shrink-0 cursor-pointer mb-0.5"
                     style={{
                       color: 'var(--error)',
                       background: 'var(--error-bg)',
@@ -384,7 +384,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="rounded-xl border p-3 flex flex-col gap-2"
+              className="rounded border p-3 flex flex-col gap-2"
               style={{
                 borderColor: 'var(--border)',
                 background: 'var(--bg-tertiary)',
@@ -469,7 +469,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
           {Array.from({ length: 3 }).map((_, col) => (
             <div
               key={col}
-              className="rounded-2xl border p-6 flex flex-col gap-4"
+              className="rounded border p-6 flex flex-col gap-4"
               style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             >
               {/* Card title */}
@@ -478,17 +478,17 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
               {Array.from({ length: col === 0 ? 3 : 2 }).map((_, j) => (
                 <div key={j} className="flex flex-col gap-1.5">
                   <Skeleton width="30%" height="0.65rem" />
-                  <Skeleton width="100%" height="2.4rem" className="rounded-xl" style={{ borderRadius: '0.75rem' }} />
+                  <Skeleton width="100%" height="2.4rem" className="rounded" style={{ borderRadius: '0.75rem' }} />
                 </div>
               ))}
               {/* Extra rows for services / flow panels */}
               {col > 0 && (
                 <div
-                  className="rounded-xl border p-3 flex flex-col gap-2"
+                  className="rounded border p-3 flex flex-col gap-2"
                   style={{ borderColor: 'var(--border)', background: 'var(--bg-tertiary)' }}
                 >
                   <Skeleton width="60%" height="0.75rem" />
-                  <Skeleton width="80%" height="2rem" className="rounded-lg" style={{ borderRadius: '0.5rem' }} />
+                  <Skeleton width="80%" height="2rem" className="rounded" style={{ borderRadius: '0.5rem' }} />
                 </div>
               )}
             </div>
@@ -513,7 +513,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
 
       {/* Navigation tabs — mobile only */}
       <div
-        className="flex lg:hidden gap-1 mb-5 p-1 rounded-xl"
+        className="flex lg:hidden gap-1 mb-5 p-1 rounded"
         style={{
           background: 'var(--bg-secondary)',
           border: '0.5px solid var(--border)',
@@ -523,7 +523,7 @@ const ChatbotBuilder = ({ chatbot, onBack, isLoadingChatbot = false }) => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className="flex-1 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer"
+            className="flex-1 py-2 rounded text-xs font-medium transition-all cursor-pointer"
             style={{
               background:
                 activeTab === tab.id ? 'var(--accent)' : 'transparent',

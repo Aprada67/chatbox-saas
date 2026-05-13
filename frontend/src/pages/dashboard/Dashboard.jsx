@@ -83,7 +83,7 @@ const Dashboard = () => {
 
         {/* Upcoming appointments skeleton */}
         <div
-          className="rounded-2xl border overflow-hidden"
+          className="rounded border overflow-hidden"
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
         >
           {/* Header row */}
@@ -91,8 +91,8 @@ const Dashboard = () => {
             className="px-4 md:px-5 py-4 border-b flex items-center justify-between"
             style={{ borderColor: 'var(--border)' }}
           >
-            <div className="w-32 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-            <div className="w-16 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-32 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-16 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
           </div>
           <SkeletonTable rows={4} />
         </div>
@@ -106,7 +106,7 @@ const Dashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-5 px-4 py-3 rounded-xl text-sm flex items-center gap-2"
+          className="mb-5 px-4 py-3 rounded text-sm flex items-center gap-2"
           style={{
             background: 'var(--accent-bg)',
             color: 'var(--accent)',
@@ -159,7 +159,7 @@ const Dashboard = () => {
 
       {/* Upcoming appointments table */}
       <div
-        className="rounded-2xl border overflow-hidden"
+        className="rounded border overflow-hidden"
         style={{
           background: 'var(--bg-secondary)',
           borderColor: 'var(--border)',

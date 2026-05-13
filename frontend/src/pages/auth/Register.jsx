@@ -13,15 +13,15 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card from '../../components/ui/Card';
 
-const PLANS = [
+const getPlans = (t) => [
   {
     id: 'trial',
     name: 'Trial',
     price: 'Free',
     period: '7 days',
     color: 'var(--text-3)',
-    cta: 'Try free for 7 days',
-    note: 'Card required · cancel anytime',
+    cta: t('registerTrialCta'),
+    note: t('registerCardRequired'),
     features: [
       '1 ServeBot',
       'Online bookings 24/7',
@@ -37,13 +37,12 @@ const PLANS = [
     period: '/month',
     color: 'var(--accent)',
     popular: true,
-    cta: 'Choose Pro',
-    note: 'Billed monthly · cancel anytime',
+    cta: t('registerProCta'),
+    note: t('registerBilledMonthly'),
     features: [
       '1 ServeBot',
       'Everything in Trial',
       'Custom colors & branding',
-      'WhatsApp reminders',
       'Priority support',
     ],
   },
@@ -51,11 +50,11 @@ const PLANS = [
     id: 'premium',
     name: 'Premium',
     price: '€54.99',
-    oldPrice: '€79,99',
+    oldPrice: '€79.99',
     period: '/month',
     color: 'var(--success)',
-    cta: 'Choose Premium',
-    note: 'Billed monthly · cancel anytime',
+    cta: t('registerPremiumCta'),
+    note: t('registerBilledMonthly'),
     features: [
       'Up to 2 ServeBots',
       'Everything in Pro',
@@ -90,6 +89,7 @@ const Register = () => {
   const [step, setStep] = useState(initialStep);
   const [loadingPlan, setLoadingPlan] = useState(null);
 
+  const PLANS = getPlans(t);
   const selectedPlan = planFromUrl || 'trial';
   const planMeta = PLANS.find((p) => p.id === selectedPlan) || PLANS[0];
 
@@ -150,10 +150,10 @@ const Register = () => {
           <>
             <div className="text-center mb-8">
               <h1 className="text-3xl font-semibold text-(--text-1) tracking-tight">
-                Choose your plan
+                {t('registerChoosePlan')}
               </h1>
               <p className="text-sm text-(--text-3) mt-2">
-                Start free or try Pro/Premium for 7 days at no cost
+                {t('registerChoosePlanSub')}
               </p>
             </div>
 
@@ -164,7 +164,7 @@ const Register = () => {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07 }}
-                  className="rounded-2xl border p-5 relative flex flex-col"
+                  className="rounded border p-5 relative flex flex-col"
                   style={{
                     background: 'var(--bg-secondary)',
                     borderColor: plan.popular ? 'var(--accent)' : 'var(--border)',
@@ -250,9 +250,9 @@ const Register = () => {
             </div>
 
             <p className="text-center text-sm text-(--text-3) mt-8">
-              Already have an account?{' '}
+              {t('registerAlreadyAccount')}{' '}
               <Link to="/login" className="text-(--accent) link-underline">
-                Log in
+                {t('logIn')}
               </Link>
             </p>
           </>
@@ -262,17 +262,17 @@ const Register = () => {
           <>
             <div className="text-center mb-8">
               <h1 className="text-2xl font-semibold text-(--text-1) tracking-tight">
-                Create your account
+                {t('registerCreateAccount')}
               </h1>
               <p className="text-sm text-(--text-3) mt-2">
-                Last step to activate your account
+                {t('registerLastStep')}
               </p>
             </div>
 
             <Card>
               {/* Plan badge */}
               <div
-                className="flex items-center justify-between gap-3 mb-5 px-3 py-2.5 rounded-xl border"
+                className="flex items-center justify-between gap-3 mb-5 px-3 py-2.5 rounded border"
                 style={{
                   background: 'var(--accent-bg)',
                   borderColor: 'var(--accent)',
@@ -283,14 +283,14 @@ const Register = () => {
                     className="text-[10px] font-bold uppercase tracking-widest"
                     style={{ color: 'var(--accent)' }}
                   >
-                    Selected plan
+                    {t('registerSelectedPlan')}
                   </span>
                   <span
                     className="text-sm font-semibold"
                     style={{ color: 'var(--text-1)' }}
                   >
                     {planMeta.name}
-                    {sessionId && planMeta.id === 'trial' ? ' · 7 days free' : ''}
+                    {sessionId && planMeta.id === 'trial' ? ` ${t('registerTrialBadge')}` : ''}
                   </span>
                 </div>
                 {!sessionId && (
@@ -301,7 +301,7 @@ const Register = () => {
                     style={{ color: 'var(--accent)' }}
                   >
                     <ArrowLeft size={12} />
-                    Change
+                    {t('registerChangePlan')}
                   </button>
                 )}
               </div>
@@ -311,28 +311,28 @@ const Register = () => {
                 className="flex flex-col gap-4"
               >
                 <Input
-                  label="Full name"
+                  label={t('registerFullName')}
                   type="text"
-                  placeholder="Your name"
+                  placeholder={t('registerFullNamePH')}
                   error={errors.name?.message}
                   {...register('name')}
                 />
                 <Input
-                  label="Email"
+                  label={t('registerEmailLabel')}
                   type="email"
-                  placeholder="you@email.com"
+                  placeholder={t('registerEmailPH')}
                   error={errors.email?.message}
                   {...register('email')}
                 />
                 <Input
-                  label="Password"
+                  label={t('registerPasswordLabel')}
                   type="password"
                   placeholder="••••••••"
                   error={errors.password?.message}
                   {...register('password')}
                 />
                 <Input
-                  label="Confirm password"
+                  label={t('registerConfirmLabel')}
                   type="password"
                   placeholder="••••••••"
                   error={errors.confirm?.message}
@@ -344,14 +344,14 @@ const Register = () => {
                   loading={isSubmitting}
                   className="mt-2 w-full"
                 >
-                  Create account
+                  {t('registerCreateBtn')}
                 </Button>
               </form>
 
               <p className="text-center text-sm text-(--text-3) mt-5">
-                Already have an account?{' '}
+                {t('registerAlreadyAccount')}{' '}
                 <Link to="/login" className="text-(--accent) link-underline">
-                  Log in
+                  {t('logIn')}
                 </Link>
               </p>
             </Card>

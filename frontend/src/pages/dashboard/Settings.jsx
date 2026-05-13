@@ -56,7 +56,7 @@ const SettingRow = ({ icon: Icon, title, subtitle, children }) => (
   >
     <div className="flex items-center gap-3">
       <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        className="w-8 h-8 rounded flex items-center justify-center shrink-0"
         style={{ background: 'var(--bg-tertiary)' }}
       >
         <Icon size={15} style={{ color: 'var(--text-3)' }} />
@@ -453,12 +453,12 @@ const Settings = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 12 }}
               transition={{ duration: 0.15 }}
-              className="w-full max-w-sm rounded-2xl border shadow-2xl p-6 flex flex-col gap-4"
+              className="w-full max-w-sm rounded border shadow-2xl p-6 flex flex-col gap-4"
               style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  className="w-10 h-10 rounded flex items-center justify-center shrink-0"
                   style={{ background: 'var(--error-bg)', color: 'var(--error)' }}
                 >
                   <LogOut size={18} />
@@ -506,12 +506,12 @@ const Settings = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 12 }}
               transition={{ duration: 0.15 }}
-              className="w-full max-w-md rounded-2xl border shadow-2xl p-6 flex flex-col gap-4"
+              className="w-full max-w-md rounded border shadow-2xl p-6 flex flex-col gap-4"
               style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  className="w-10 h-10 rounded flex items-center justify-center shrink-0"
                   style={{ background: 'var(--error-bg)', color: 'var(--error)' }}
                 >
                   <AlertTriangle size={18} />
@@ -535,7 +535,7 @@ const Settings = () => {
                   value={deletePassword}
                   onChange={(e) => setDeletePassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleDeleteAccount()}
-                  className="w-full rounded-xl border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--error) border-(--border)"
+                  className="w-full rounded border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--error) border-(--border)"
                   autoFocus
                 />
               </div>

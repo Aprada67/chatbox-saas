@@ -190,7 +190,7 @@ const Sidebar = () => {
                     >
                       <motion.div
                         whileTap={{ scale: 0.97 }}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium"
+                        className="flex items-center gap-3 px-4 py-3 rounded text-sm font-medium"
                         style={{
                           background: active
                             ? 'var(--accent-bg)'
@@ -207,7 +207,7 @@ const Sidebar = () => {
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setShowLogoutModal(true)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm mt-2 cursor-pointer"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded text-sm mt-2 cursor-pointer"
                   style={{ color: 'var(--error)' }}
                 >
                   <LogOut size={18} />
@@ -235,12 +235,12 @@ const Sidebar = () => {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 12 }}
               transition={{ duration: 0.15 }}
-              className="w-full max-w-sm rounded-2xl border shadow-2xl p-6 flex flex-col gap-4"
+              className="w-full max-w-sm rounded border shadow-2xl p-6 flex flex-col gap-4"
               style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                  className="w-10 h-10 rounded flex items-center justify-center shrink-0"
                   style={{ background: 'var(--error-bg)', color: 'var(--error)' }}
                 >
                   <LogOut size={18} />
@@ -257,14 +257,14 @@ const Sidebar = () => {
               <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => setShowLogoutModal(false)}
-                  className="px-3 py-1.5 rounded-lg text-sm cursor-pointer transition-colors"
+                  className="px-3 py-1.5 rounded text-sm cursor-pointer transition-colors"
                   style={{ background: 'var(--bg-tertiary)', color: 'var(--text-2)' }}
                 >
                   {t('cancel')}
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded text-sm font-medium cursor-pointer flex items-center gap-1.5"
                   style={{ background: 'var(--error)', color: 'white' }}
                 >
                   <LogOut size={14} />
@@ -290,7 +290,7 @@ const Sidebar = () => {
         >
           <Link to="/dashboard" className="flex items-center gap-2.5 cursor-pointer">
             <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              className="w-7 h-7 rounded flex items-center justify-center"
               style={{ background: 'var(--accent)' }}
             >
               <MessageSquare size={14} color="white" />
@@ -311,7 +311,7 @@ const Sidebar = () => {
               <Link key={item.path} to={item.path}>
                 <motion.div
                   whileHover={{ x: 2 }}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-all cursor-pointer"
                   style={{
                     background: active ? 'var(--accent-bg)' : 'transparent',
                     color: active ? 'var(--accent)' : 'var(--text-3)',
@@ -346,7 +346,7 @@ const Sidebar = () => {
           <motion.button
             whileHover={{ x: 2 }}
             onClick={() => setShowLogoutModal(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-all cursor-pointer"
             style={{ color: 'var(--text-3)' }}
           >
             <LogOut size={16} />

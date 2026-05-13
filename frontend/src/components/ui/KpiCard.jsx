@@ -6,7 +6,7 @@ const KpiCard = ({ title, value, subtitle, icon: Icon, color = 'var(--accent)' }
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1,  y: 0 }}
-      className="rounded-2xl p-4 md:p-5 border flex flex-col gap-3"
+      className="rounded p-4 md:p-5 border flex flex-col gap-3"
       style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
     >
       <div className="flex items-center justify-between">
@@ -17,7 +17,7 @@ const KpiCard = ({ title, value, subtitle, icon: Icon, color = 'var(--accent)' }
         </span>
         {/* Ícono representativo */}
         {Icon && (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+          <div className="w-8 h-8 rounded flex items-center justify-center"
                style={{ background: 'var(--bg-tertiary)' }}>
             <Icon size={15} style={{ color }} />
           </div>

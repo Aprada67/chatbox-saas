@@ -20,8 +20,10 @@ import {
   Users,
   TrendingUp,
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext';
 import { useSettings } from '../context/SettingsContext';
+import { preCheckoutApi } from '../api/stripe';
 
 const fadeUp = {
   initial: { opacity: 0, y: 28 },
@@ -34,6 +36,23 @@ const Landing = () => {
   const { theme, toggleTheme } = useTheme();
   const { t } = useSettings();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState(null);
+
+  const handlePickPlan = async (planId) => {
+    try {
+      setLoadingPlan(planId);
+      const { data } = await preCheckoutApi(planId);
+      if (data?.url) {
+        window.location.assign(data.url);
+        return;
+      }
+      toast.error('Unexpected response');
+    } catch (err) {
+      toast.error(err?.message || 'Error starting payment');
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   const NAV_LINKS = [
     { label: t('landing_navFeatures'), href: '#features' },
@@ -210,7 +229,7 @@ const Landing = () => {
           {/* Logo */}
           <div className="flex items-center gap-2.5 cursor-pointer">
             <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm"
+              className="w-8 h-8 rounded flex items-center justify-center shadow-sm"
               style={{ background: 'var(--accent)' }}
             >
               <MessageSquare size={15} color="white" />
@@ -229,7 +248,7 @@ const Landing = () => {
               <a
                 key={item.label}
                 href={item.href}
-                className="text-sm px-3 py-2 rounded-lg transition-all cursor-pointer"
+                className="text-sm px-3 py-2 rounded transition-all cursor-pointer"
                 style={{ color: 'var(--text-3)' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = 'var(--text-1)';
@@ -250,7 +269,7 @@ const Landing = () => {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={toggleTheme}
-              className="w-9 h-9 flex items-center justify-center rounded-xl cursor-pointer transition-all"
+              className="w-9 h-9 flex items-center justify-center rounded cursor-pointer transition-all"
               style={{
                 color: 'var(--text-3)',
                 background: 'var(--bg-tertiary)',
@@ -262,7 +281,7 @@ const Landing = () => {
 
             <Link
               to="/login"
-              className="hidden md:block text-sm px-4 py-2 rounded-xl transition-all cursor-pointer font-medium"
+              className="hidden md:block text-sm px-4 py-2 rounded transition-all cursor-pointer font-medium"
               style={{ color: 'var(--text-2)' }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.background = 'var(--bg-tertiary)')
@@ -277,7 +296,7 @@ const Landing = () => {
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                className="hidden md:flex items-center gap-1.5 text-sm px-4 py-2 rounded-xl font-medium cursor-pointer shadow-sm"
+                className="hidden md:flex items-center gap-1.5 text-sm px-4 py-2 rounded font-medium cursor-pointer shadow-sm"
                 style={{ background: 'var(--accent)', color: '#fff' }}
               >
                 {t('landing_getStartedFree')} <ChevronRight size={13} />
@@ -285,7 +304,7 @@ const Landing = () => {
             </Link>
 
             <button
-              className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl cursor-pointer"
+              className="md:hidden w-9 h-9 flex items-center justify-center rounded cursor-pointer"
               style={{
                 color: 'var(--text-3)',
                 background: 'var(--bg-tertiary)',
@@ -316,7 +335,7 @@ const Landing = () => {
                     key={item.label}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className="text-sm py-2.5 px-3 rounded-xl cursor-pointer"
+                    className="text-sm py-2.5 px-3 rounded cursor-pointer"
                     style={{ color: 'var(--text-2)' }}
                   >
                     {item.label}
@@ -329,7 +348,7 @@ const Landing = () => {
                   <Link
                     to="/login"
                     onClick={() => setMenuOpen(false)}
-                    className="text-sm py-2.5 px-4 rounded-xl text-center border cursor-pointer"
+                    className="text-sm py-2.5 px-4 rounded text-center border cursor-pointer"
                     style={{
                       color: 'var(--text-2)',
                       borderColor: 'var(--border)',
@@ -340,7 +359,7 @@ const Landing = () => {
                   <Link
                     to="/register"
                     onClick={() => setMenuOpen(false)}
-                    className="text-sm py-2.5 px-4 rounded-xl text-center font-medium cursor-pointer"
+                    className="text-sm py-2.5 px-4 rounded text-center font-medium cursor-pointer"
                     style={{ background: 'var(--accent)', color: '#fff' }}
                   >
                     {t('landing_getStartedFree')}
@@ -392,7 +411,7 @@ const Landing = () => {
                 <motion.div
                   whileHover={{ scale: 1.03, y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-semibold cursor-pointer shadow-lg"
+                  className="flex items-center gap-2 px-7 py-3.5 rounded text-sm font-semibold cursor-pointer shadow-lg"
                   style={{
                     background: 'var(--accent)',
                     color: '#fff',
@@ -408,7 +427,7 @@ const Landing = () => {
                 <motion.div
                   whileHover={{ scale: 1.03, y: -1 }}
                   whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 px-7 py-3.5 rounded-2xl text-sm font-semibold border cursor-pointer"
+                  className="flex items-center gap-2 px-7 py-3.5 rounded text-sm font-semibold border cursor-pointer"
                   style={{
                     color: 'var(--text-2)',
                     borderColor: 'var(--border)',
@@ -442,7 +461,7 @@ const Landing = () => {
               viewport={{ once: true }}
               transition={{ delay: 0.1 + i * 0.06 }}
               whileHover={{ y: -2 }}
-              className="rounded-2xl border p-4 flex flex-col items-center gap-1.5 cursor-default"
+              className="rounded border p-4 flex flex-col items-center gap-1.5 cursor-default"
               style={{
                 background: 'var(--bg-secondary)',
                 borderColor: 'var(--border)',
@@ -478,7 +497,7 @@ const Landing = () => {
               y: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
             },
           }}
-          className="mt-16 max-w-sm mx-auto rounded-3xl border overflow-hidden"
+          className="mt-16 max-w-sm mx-auto rounded border overflow-hidden"
           style={{
             background: '#111827',
             borderColor: '#2a3147',
@@ -491,7 +510,7 @@ const Landing = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.7 }}
-            className="absolute -right-2 top-8 flex items-center gap-2 px-3 py-2 rounded-xl text-xs shadow-xl"
+            className="absolute -right-2 top-8 flex items-center gap-2 px-3 py-2 rounded text-xs shadow-xl"
             style={{ background: '#1D9E75', color: '#fff', zIndex: 10 }}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-white" />
@@ -539,7 +558,7 @@ const Landing = () => {
                 }
               >
                 <div
-                  className="max-w-xs px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed"
+                  className="max-w-xs px-3.5 py-2.5 rounded text-xs leading-relaxed"
                   style={
                     msg.from === 'bot'
                       ? {
@@ -572,7 +591,7 @@ const Landing = () => {
                 <motion.div
                   key={day}
                   whileHover={{ scale: 1.05, borderColor: 'var(--accent)' }}
-                  className="px-3 py-1.5 rounded-xl text-xs border cursor-pointer transition-all"
+                  className="px-3 py-1.5 rounded text-xs border cursor-pointer transition-all"
                   style={{
                     background: '#1e2436',
                     borderColor: '#2a3147',
@@ -616,14 +635,14 @@ const Landing = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
               whileHover={{ y: -4, borderColor: 'var(--accent)' }}
-              className="rounded-2xl border p-6 flex flex-col gap-4 cursor-default transition-colors"
+              className="rounded border p-6 flex flex-col gap-4 cursor-default transition-colors"
               style={{
                 background: 'var(--bg-secondary)',
                 borderColor: 'var(--border)',
               }}
             >
               <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center"
+                className="w-11 h-11 rounded flex items-center justify-center"
                 style={{ background: 'var(--accent-bg)' }}
               >
                 <f.icon size={20} style={{ color: 'var(--accent)' }} />
@@ -677,7 +696,7 @@ const Landing = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.12 }}
                 whileHover={{ y: -3 }}
-                className="rounded-2xl border p-6 flex flex-col gap-4 cursor-default"
+                className="rounded border p-6 flex flex-col gap-4 cursor-default"
                 style={{
                   background: 'var(--bg-primary)',
                   borderColor: 'var(--border)',
@@ -738,7 +757,7 @@ const Landing = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               whileHover={{ y: plan.popular ? -4 : -3 }}
-              className="rounded-2xl border p-7 flex flex-col relative cursor-default"
+              className="rounded border p-7 flex flex-col relative cursor-default"
               style={{
                 background: plan.popular
                   ? 'var(--accent-bg)'
@@ -762,7 +781,7 @@ const Landing = () => {
               {/* Savings badge */}
               {plan.savings && (
                 <div
-                  className="absolute top-5 right-5 px-2.5 py-1 rounded-lg text-[10px] font-semibold"
+                  className="absolute top-5 right-5 px-2.5 py-1 rounded text-[10px] font-semibold"
                   style={{
                     background: 'var(--success-bg)',
                     color: 'var(--success)',
@@ -833,20 +852,20 @@ const Landing = () => {
               </div>
 
               {/* CTA del plan */}
-              <Link to="/register">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-center cursor-pointer transition-all"
-                  style={{
-                    background: plan.popular ? 'var(--accent)' : 'transparent',
-                    color: plan.popular ? '#fff' : 'var(--text-2)',
-                    border: plan.popular ? 'none' : '1.5px solid var(--border)',
-                  }}
-                >
-                  {plan.cta}
-                </motion.div>
-              </Link>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handlePickPlan(plan.id)}
+                disabled={loadingPlan === plan.id}
+                className="w-full py-3 rounded text-sm font-semibold text-center cursor-pointer transition-all disabled:opacity-60"
+                style={{
+                  background: plan.popular ? 'var(--accent)' : 'transparent',
+                  color: plan.popular ? '#fff' : 'var(--text-2)',
+                  border: plan.popular ? 'none' : '1.5px solid var(--border)',
+                }}
+              >
+                {loadingPlan === plan.id ? '...' : plan.cta}
+              </motion.button>
             </motion.div>
           ))}
         </div>
@@ -886,7 +905,7 @@ const Landing = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ y: -4 }}
-                className="rounded-2xl border p-6 flex flex-col gap-5 cursor-default"
+                className="rounded border p-6 flex flex-col gap-5 cursor-default"
                 style={{
                   background: 'var(--bg-primary)',
                   borderColor: 'var(--border)',
@@ -941,7 +960,7 @@ const Landing = () => {
         <motion.div
           {...fadeUp}
           whileHover={{ scale: 1.005 }}
-          className="relative rounded-3xl p-10 md:p-16 text-center border overflow-hidden cursor-default"
+          className="relative rounded p-10 md:p-16 text-center border overflow-hidden cursor-default"
           style={{
             background: 'var(--accent-bg)',
             borderColor: 'var(--accent)',
@@ -978,7 +997,7 @@ const Landing = () => {
             <motion.div
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              className="inline-flex items-center gap-2.5 px-9 py-4 rounded-2xl text-sm font-bold cursor-pointer shadow-xl relative"
+              className="inline-flex items-center gap-2.5 px-9 py-4 rounded text-sm font-bold cursor-pointer shadow-xl relative"
               style={{
                 background: 'var(--accent)',
                 color: '#fff',
@@ -1004,7 +1023,7 @@ const Landing = () => {
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
             <div
-              className="w-7 h-7 rounded-xl flex items-center justify-center"
+              className="w-7 h-7 rounded flex items-center justify-center"
               style={{ background: 'var(--accent)' }}
             >
               <MessageSquare size={13} color="white" />

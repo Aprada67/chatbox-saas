@@ -124,7 +124,7 @@ const Login = () => {
 
           {showResend && (
             <div
-              className="mt-4 p-3 rounded-xl border"
+              className="mt-4 p-3 rounded border"
               style={{
                 borderColor: 'var(--border)',
                 background: 'var(--bg-tertiary)',

@@ -153,10 +153,10 @@ const CalendarPage = () => {
         {/* Header row skeleton */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex flex-col gap-2">
-            <div className="w-32 h-4 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-            <div className="w-20 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-32 h-4 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-20 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
           </div>
-          <div className="w-28 h-9 animate-pulse rounded-xl" style={{ background: 'var(--bg-tertiary)' }} />
+          <div className="w-28 h-9 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
         </div>
 
         {/* Status legend skeleton */}
@@ -164,14 +164,14 @@ const CalendarPage = () => {
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ background: 'var(--bg-tertiary)' }} />
-              <div className="w-14 h-3 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-14 h-3 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
             </div>
           ))}
         </div>
 
         {/* Calendar area skeleton */}
         <div
-          className="rounded-2xl border overflow-hidden"
+          className="rounded border overflow-hidden"
           style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)' }}
         >
           {/* Toolbar row */}
@@ -180,13 +180,13 @@ const CalendarPage = () => {
             style={{ borderColor: 'var(--border)' }}
           >
             <div className="flex gap-2">
-              <div className="w-8 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-              <div className="w-8 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-8 h-7 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-8 h-7 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
             </div>
-            <div className="w-28 h-4 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+            <div className="w-28 h-4 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
             <div className="flex gap-2">
-              <div className="w-16 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
-              <div className="w-16 h-7 animate-pulse rounded-lg" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-16 h-7 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
+              <div className="w-16 h-7 animate-pulse rounded" style={{ background: 'var(--bg-tertiary)' }} />
             </div>
           </div>
           {/* Day-of-week headers */}
@@ -258,7 +258,7 @@ const CalendarPage = () => {
             <button
               key={bot.id}
               onClick={() => handleSelectChatbot(bot.id)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded text-xs font-medium border transition-all cursor-pointer"
               style={{
                 background: chatbotId === bot.id ? 'var(--accent-bg)' : 'var(--bg-secondary)',
                 borderColor: chatbotId === bot.id ? 'var(--accent)' : 'var(--border)',
@@ -392,7 +392,7 @@ const CalendarPage = () => {
               exit={{ y: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full sm:max-w-sm rounded-t-3xl sm:rounded-2xl p-6 border"
+              className="w-full sm:max-w-sm rounded-t-3xl sm:rounded p-6 border"
               style={{
                 background: 'var(--bg-secondary)',
                 borderColor: 'var(--border)',
@@ -560,7 +560,7 @@ const CalendarPage = () => {
                   return (
                     <div
                       key={day.value}
-                      className="rounded-xl border p-3 transition-all"
+                      className="rounded border p-3 transition-all"
                       style={{
                         borderColor: active ? 'var(--accent)' : 'var(--border)',
                         background: active

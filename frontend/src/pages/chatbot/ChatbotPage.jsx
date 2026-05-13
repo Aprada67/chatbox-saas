@@ -501,7 +501,7 @@ const ChatbotPage = () => {
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="w-full max-w-sm rounded-3xl p-8 text-center border"
+          className="w-full max-w-sm rounded p-8 text-center border"
           style={{ background: '#161b27', borderColor: '#2a3147' }}
         >
           <motion.div
@@ -519,7 +519,7 @@ const ChatbotPage = () => {
           <p className="text-sm mb-6" style={{ color: '#94a3b8' }}>
             We'll send you a reminder before your appointment.
           </p>
-          <div className="rounded-2xl p-4 text-left flex flex-col gap-2" style={{ background: '#1e2436', border: '0.5px solid #2a3147' }}>
+          <div className="rounded p-4 text-left flex flex-col gap-2" style={{ background: '#1e2436', border: '0.5px solid #2a3147' }}>
             {[
               { label: 'Name', value: booking.name },
               { label: 'Service', value: booking.service?.name },
@@ -580,7 +580,7 @@ const ChatbotPage = () => {
               className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className="max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed"
+                className="max-w-[80%] px-4 py-2.5 rounded text-sm leading-relaxed"
                 style={
                   msg.from === 'bot'
                     ? { background: accent, color: '#fff', borderBottomLeftRadius: '4px' }
@@ -596,7 +596,7 @@ const ChatbotPage = () => {
         {/* Typing indicator */}
         {isTyping && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
-            <div className="px-4 py-3 rounded-2xl flex gap-1" style={{ background: accent, borderBottomLeftRadius: '4px' }}>
+            <div className="px-4 py-3 rounded flex gap-1" style={{ background: accent, borderBottomLeftRadius: '4px' }}>
               {[0, 1, 2].map((i) => (
                 <motion.div
                   key={i}
@@ -615,7 +615,7 @@ const ChatbotPage = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { userMsg(t.schedule); askName(); }}
-              className="w-full text-left px-4 py-3.5 rounded-xl border text-sm font-medium cursor-pointer"
+              className="w-full text-left px-4 py-3.5 rounded border text-sm font-medium cursor-pointer"
               style={{ background: accent + '18', borderColor: accent + '66', color: accent }}
             >
               {t.schedule}
@@ -623,7 +623,7 @@ const ChatbotPage = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => { userMsg(t.cancelAction); askCancelEmail(); }}
-              className="w-full text-left px-4 py-3.5 rounded-xl border text-sm font-medium cursor-pointer"
+              className="w-full text-left px-4 py-3.5 rounded border text-sm font-medium cursor-pointer"
               style={{ background: '#1e2436', borderColor: '#2a3147', color: '#94a3b8' }}
             >
               {t.cancelAction}
@@ -647,7 +647,7 @@ const ChatbotPage = () => {
                   userMsg(`${svc.name} — €${svc.price}`);
                   askDay(svc); // pass svc directly — no stale closure
                 }}
-                className="shrink-0 rounded-2xl p-4 text-left border cursor-pointer"
+                className="shrink-0 rounded p-4 text-left border cursor-pointer"
                 style={{ background: '#161b27', borderColor: '#2a3147', minWidth: '130px' }}
               >
                 <p className="text-sm font-medium mb-1" style={{ color: '#e8edf5' }}>{svc.name}</p>
@@ -681,7 +681,7 @@ const ChatbotPage = () => {
                     userMsg(formatDate(date));
                     askTime(date, svc);
                   }}
-                  className="shrink-0 flex flex-col items-center rounded-2xl border py-3 px-4 gap-0.5 transition-opacity"
+                  className="shrink-0 flex flex-col items-center rounded border py-3 px-4 gap-0.5 transition-opacity"
                   style={{
                     minWidth: '62px',
                     background: unavail ? 'transparent' : '#161b27',
@@ -731,7 +731,7 @@ const ChatbotPage = () => {
                   userMsg(time);
                   confirmBooking(snap);
                 }}
-                className="py-2.5 rounded-xl text-sm font-medium border"
+                className="py-2.5 rounded text-sm font-medium border"
                 style={{
                   background: avail ? '#161b27' : '#0d1117',
                   borderColor: avail ? '#2a3147' : '#e24b4b33',
@@ -753,7 +753,7 @@ const ChatbotPage = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={restart}
-              className="w-full px-4 py-3.5 rounded-xl border text-sm font-medium cursor-pointer"
+              className="w-full px-4 py-3.5 rounded border text-sm font-medium cursor-pointer"
               style={{ background: accent + '18', borderColor: accent + '66', color: accent }}
             >
               {t.anotherBooking}
@@ -761,7 +761,7 @@ const ChatbotPage = () => {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => setDone(true)}
-              className="w-full px-4 py-3.5 rounded-xl border text-sm font-medium cursor-pointer"
+              className="w-full px-4 py-3.5 rounded border text-sm font-medium cursor-pointer"
               style={{ background: '#1e2436', borderColor: '#2a3147', color: '#94a3b8' }}
             >
               {t.exit}
@@ -777,7 +777,7 @@ const ChatbotPage = () => {
               const isConfirming = confirmCancel === apt.id;
               const isCancelling = cancellingId === apt.id;
               return (
-                <div key={apt.id} className="rounded-2xl border overflow-hidden" style={{ background: '#161b27', borderColor: '#2a3147' }}>
+                <div key={apt.id} className="rounded border overflow-hidden" style={{ background: '#161b27', borderColor: '#2a3147' }}>
                   <div className="p-4">
                     <p className="text-sm font-medium" style={{ color: '#e8edf5' }}>{apt.service}</p>
                     <p className="text-xs mt-0.5" style={{ color: '#5a6a82' }}>
@@ -794,7 +794,7 @@ const ChatbotPage = () => {
                           whileTap={{ scale: 0.95 }}
                           disabled={isCancelling}
                           onClick={() => executeCancel(apt, booking.email)}
-                          className="px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 cursor-pointer"
+                          className="px-3 py-1.5 rounded text-xs font-medium shrink-0 cursor-pointer"
                           style={{ background: '#e24b4b22', color: '#e24b4b', border: '1px solid #e24b4b44' }}
                         >
                           {isCancelling ? '...' : t.cancelYes}
@@ -802,7 +802,7 @@ const ChatbotPage = () => {
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setConfirmCancel(null)}
-                          className="px-3 py-1.5 rounded-lg text-xs cursor-pointer"
+                          className="px-3 py-1.5 rounded text-xs cursor-pointer"
                           style={{ background: '#1e2436', color: '#94a3b8', border: '1px solid #2a3147' }}
                         >
                           {t.cancelNo}
@@ -812,7 +812,7 @@ const ChatbotPage = () => {
                       <motion.button
                         whileTap={{ scale: 0.97 }}
                         onClick={() => setConfirmCancel(apt.id)}
-                        className="w-full py-2 rounded-xl text-xs font-medium border cursor-pointer"
+                        className="w-full py-2 rounded text-xs font-medium border cursor-pointer"
                         style={{ background: '#e24b4b18', borderColor: '#e24b4b44', color: '#e24b4b' }}
                       >
                         {t.cancelAction}
@@ -832,7 +832,7 @@ const ChatbotPage = () => {
             animate={{ opacity: 1, y: 0 }}
             whileTap={{ scale: 0.97 }}
             onClick={restart}
-            className="w-full px-4 py-3.5 rounded-xl border text-sm font-medium cursor-pointer"
+            className="w-full px-4 py-3.5 rounded border text-sm font-medium cursor-pointer"
             style={{ background: accent + '18', borderColor: accent + '66', color: accent }}
           >
             {t.backToMenu}
@@ -846,7 +846,7 @@ const ChatbotPage = () => {
             animate={{ opacity: 1 }}
             whileTap={{ scale: 0.97 }}
             onClick={goBack}
-            className="self-start px-3 py-1.5 rounded-lg text-xs border cursor-pointer"
+            className="self-start px-3 py-1.5 rounded text-xs border cursor-pointer"
             style={{ background: 'transparent', borderColor: '#2a3147', color: '#5a6a82' }}
           >
             {t.back}
@@ -874,14 +874,14 @@ const ChatbotPage = () => {
                 : 'Your email...'
               }
               autoFocus
-              className="flex-1 rounded-xl px-4 py-3 text-sm outline-none border"
+              className="flex-1 rounded px-4 py-3 text-sm outline-none border"
               style={{ background: '#161b27', borderColor: '#2a3147', color: '#e8edf5' }}
             />
             {step === 'phone' && (
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSkip}
-                className="px-3 rounded-xl text-xs border cursor-pointer"
+                className="px-3 rounded text-xs border cursor-pointer"
                 style={{ background: '#161b27', borderColor: '#2a3147', color: '#5a6a82' }}
               >
                 {t.skip}
@@ -891,7 +891,7 @@ const ChatbotPage = () => {
               whileTap={{ scale: 0.95 }}
               onClick={handleSend}
               disabled={!inputVal.trim()}
-              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 cursor-pointer"
+              className="w-11 h-11 rounded flex items-center justify-center shrink-0 cursor-pointer"
               style={{ background: inputVal.trim() ? accent : '#1e2436', opacity: inputVal.trim() ? 1 : 0.5 }}
             >
               <Send size={16} color="white" />
