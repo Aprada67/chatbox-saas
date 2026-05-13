@@ -7,9 +7,10 @@ export const appointmentStatusEnum = pgEnum('appointment_status', ['pending', 'c
 //Define la tabla de usuarios
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
+  clerkId: varchar('clerk_id', { length: 100 }).unique(),
   name: varchar('name', { length: 100 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
-  password: text('password').notNull(),
+  password: text('password'),
   role: roleEnum('role').default('user').notNull(),
   plan: planEnum('plan').default('trial'),
   isActive: boolean('is_active').default(true).notNull(),
@@ -19,11 +20,6 @@ export const users = pgTable('users', {
   timezone: varchar('timezone', { length: 100 }).default('UTC').notNull(),
   stripeCustomerId: varchar('stripe_customer_id', { length: 100 }),
   stripeSubscriptionId: varchar('stripe_subscription_id', { length: 100 }),
-  resetPasswordToken: varchar('reset_password_token', { length: 255 }),
-  resetPasswordExpires: timestamp('reset_password_expires'),
-  emailVerified: boolean('email_verified').default(false).notNull(),
-  emailVerificationCode: varchar('email_verification_code', { length: 6 }),
-  emailVerificationExpires: timestamp('email_verification_expires'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

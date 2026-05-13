@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
+import { useUser, useClerk } from '@clerk/clerk-react';
 import { toast } from 'react-hot-toast';
 import { Moon, Sun, Globe, Clock, Bell, Shield, LogOut, Trash2, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
@@ -94,7 +95,9 @@ const Toggle = ({ value, onChange }) => (
 
 const Settings = () => {
   const { theme, toggleTheme } = useTheme();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { user: clerkUser } = useUser();
+  const { signOut } = useClerk();
   const {
     timezone: ctxTz,
     setTimezone: setCtxTz,
@@ -116,7 +119,6 @@ const Settings = () => {
   const [savingPrefs, setSavingPrefs] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletePassword, setDeletePassword] = useState('');
   const [deletingAccount, setDeletingAccount] = useState(false);
 
   const savePreferences = async () => {
@@ -148,39 +150,34 @@ const Settings = () => {
 
   const handleChangePassword = async () => {
     if (passwords.newPass.length < 8) {
-      toast.error(t('passMin8'));
-      return;
+      return toast.error(t('passMin8'));
     }
     if (passwords.newPass !== passwords.confirm) {
-      toast.error(t('passMismatch'));
-      return;
+      return toast.error(t('passMismatch'));
     }
     try {
       setChangingPass(true);
-      await api.post('/auth/change-password', {
+      await clerkUser.updatePassword({
         currentPassword: passwords.current,
         newPassword: passwords.newPass,
       });
       toast.success(t('passUpdated'));
       setPasswords({ current: '', newPass: '', confirm: '' });
     } catch (err) {
-      toast.error(err.message);
+      toast.error(err.errors?.[0]?.message || t('passUpdated'));
     } finally {
       setChangingPass(false);
     }
   };
 
   const handleDeleteAccount = async () => {
-    if (!deletePassword) return;
     try {
       setDeletingAccount(true);
-      await deleteAccountApi(deletePassword);
+      await deleteAccountApi();
       toast.success(t('accountDeleted'));
-      logout();
-      window.location.href = '/login';
+      window.location.href = '/';
     } catch (err) {
-      toast.error(err?.response?.data?.message || t('incorrectPassword'));
-      setDeletePassword('');
+      toast.error(err?.message || t('errorDeletingAccount'));
     } finally {
       setDeletingAccount(false);
     }
@@ -479,7 +476,7 @@ const Settings = () => {
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => { logout(); window.location.href = '/login'; }}
+                  onClick={() => { signOut(); window.location.href = '/login'; }}
                 >
                   <LogOut size={14} />
                   {t('signOut')}
@@ -526,25 +523,11 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium" style={{ color: 'var(--text-2)' }}>
-                  {t('deleteAccountPasswordLabel')}
-                </label>
-                <input
-                  type="password"
-                  value={deletePassword}
-                  onChange={(e) => setDeletePassword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleDeleteAccount()}
-                  className="w-full rounded border px-3 py-2.5 text-sm outline-none transition-colors bg-(--bg-tertiary) text-(--text-1) placeholder:text-(--text-3) focus:border-(--error) border-(--border)"
-                  autoFocus
-                />
-              </div>
-
               <div className="flex gap-2 justify-end">
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => { setShowDeleteModal(false); setDeletePassword(''); }}
+                  onClick={() => setShowDeleteModal(false)}
                 >
                   {t('cancel')}
                 </Button>
@@ -553,7 +536,6 @@ const Settings = () => {
                   size="sm"
                   loading={deletingAccount}
                   onClick={handleDeleteAccount}
-                  disabled={!deletePassword}
                 >
                   <Trash2 size={14} />
                   {t('deleteAccountConfirmBtn')}

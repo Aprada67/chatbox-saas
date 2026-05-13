@@ -1,42 +1,82 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from 'react';
-import { getMeApi } from '../api/auth';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-react';
+import api from '../api/axios';
+
+const CACHE_KEY = 'srv_user';
+
+const readCache = () => {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY)) } catch { return null }
+};
 
 const AuthContext = createContext();
 
-// El AuthProvider se encargará de manejar el estado de autenticación del usuario y proporcionarlo a toda la aplicación
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(() => !!localStorage.getItem('token'));
+export const AppUserProvider = ({ children }) => {
+  const { isSignedIn, isLoaded, getToken } = useClerkAuth();
+  const { user: clerkUser } = useUser();
 
+  // Seed from cache so pages render instantly on subsequent loads
+  const [dbUser, setDbUser] = useState(() => readCache());
+  const [loading, setLoading] = useState(true);
+  const interceptorRef = useRef(null);
+
+  // Always keep latest getToken in a ref so the interceptor never closes over a stale version
+  const getTokenRef = useRef(getToken);
+  useEffect(() => { getTokenRef.current = getToken; }, [getToken]);
+
+  // One-time interceptor setup — reads token via ref on every request
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    getMeApi()
-      .then((res) => setUser(res.data.user))
-      .catch(() => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      })
-      .finally(() => setLoading(false));
+    interceptorRef.current = api.interceptors.request.use(async (config) => {
+      if (getTokenRef.current) {
+        const token = await getTokenRef.current();
+        if (token) config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
+    return () => {
+      if (interceptorRef.current !== null) {
+        api.interceptors.request.eject(interceptorRef.current);
+        interceptorRef.current = null;
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-  };
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      localStorage.removeItem(CACHE_KEY);
+      setDbUser(null);
+      setLoading(false);
+      return;
+    }
+    api.get('/auth/me')
+      .then((res) => {
+        setDbUser(res.data.user);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(res.data.user));
+      })
+      .catch(() => {
+        // Keep cached data visible while offline/slow; don't blank the UI
+      })
+      .finally(() => setLoading(false));
+  }, [isLoaded, isSignedIn]);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setUser(null);
-  };
+  const refreshUser = () =>
+    api.get('/auth/me').then((res) => {
+      setDbUser(res.data.user);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(res.data.user));
+    }).catch(() => {});
 
-  const refreshUser = () => getMeApi().then((res) => setUser(res.data.user)).catch(() => {});
+  const user = dbUser
+    ? {
+        ...dbUser,
+        name: clerkUser?.fullName || dbUser.name,
+        email: clerkUser?.primaryEmailAddress?.emailAddress || dbUser.email,
+      }
+    : null;
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading: !isLoaded || loading, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

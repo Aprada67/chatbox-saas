@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useClerk, useAuth as useClerkAuth } from '@clerk/clerk-react';
 import { useSettings } from '../../context/SettingsContext';
 import { toast } from 'react-hot-toast';
 
@@ -70,7 +71,10 @@ const navItems = [
 ];
 
 const Sidebar = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { signOut } = useClerk();
+  const { isSignedIn } = useClerkAuth();
+  const effectiveRole = user?.role || (isSignedIn ? 'client' : null);
   const { t } = useSettings();
   const location = useLocation();
   const navigate = useNavigate();
@@ -79,12 +83,12 @@ const Sidebar = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    signOut();
     toast.success(t('loggedOut'));
     navigate('/login');
   };
 
-  const filtered = navItems.filter((i) => i.roles.includes(user?.role));
+  const filtered = navItems.filter((i) => effectiveRole && i.roles.includes(effectiveRole));
 
   return (
     <>

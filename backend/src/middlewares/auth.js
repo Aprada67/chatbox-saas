@@ -1,69 +1,74 @@
-import jwt from 'jsonwebtoken'
+import { createClerkClient } from '@clerk/backend'
 import { AppError, asyncHandler } from './errorHandler.js'
 import { db } from '../config/db.js'
 import { users } from '../models/schema.js'
 import { eq } from 'drizzle-orm'
 
+const clerkClient = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY })
+
+const generateTrialEndDate = () => {
+  const d = new Date()
+  d.setDate(d.getDate() + 7)
+  return d
+}
+
 export const protect = asyncHandler(async (req, res, next) => {
-  let token
+  const token = req.headers.authorization?.split(' ')[1]
+  if (!token) throw new AppError('Not authorized', 401)
 
-  if (req.headers.authorization?.startsWith('Bearer ')) {
-    token = req.headers.authorization.split(' ')[1]
-  }
-
-  if (!token) {
-    throw new AppError('Not authorized - Token required', 401)
-  }
-
-  let decoded
+  let clerkUserId
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET)
+    const payload = await clerkClient.verifyToken(token)
+    clerkUserId = payload.sub
   } catch (err) {
-    throw new AppError('Token inválido o expirado', 401)
+    console.error('[auth] Token verification failed:', err.message)
+    throw new AppError('Invalid or expired token', 401)
   }
 
-  const [user] = await db
-    .select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      role: users.role,
-      plan: users.plan,
-      isActive: users.isActive,
-      emailVerified: users.emailVerified,
-      trialEndsAt: users.trialEndsAt,
-      stripeCustomerId: users.stripeCustomerId,
-      stripeSubscriptionId: users.stripeSubscriptionId,
-    })
-    .from(users)
-    .where(eq(users.id, decoded.id))
+  let [user] = await db.select().from(users).where(eq(users.clerkId, clerkUserId))
 
   if (!user) {
-    throw new AppError('El usuario de este token ya no existe', 401)
+    const clerkUser = await clerkClient.users.getUser(clerkUserId)
+    const email = clerkUser.emailAddresses[0]?.emailAddress || ''
+    const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || email
+
+    // Check if a pre-Clerk account exists with the same email and link it
+    const [existing] = await db.select().from(users).where(eq(users.email, email))
+
+    if (existing) {
+      ;[user] = await db
+        .update(users)
+        .set({ clerkId: clerkUserId, updatedAt: new Date() })
+        .where(eq(users.id, existing.id))
+        .returning()
+    } else {
+      ;[user] = await db.insert(users).values({
+        clerkId: clerkUserId,
+        name,
+        email,
+        role: 'client',
+        plan: 'trial',
+        isActive: true,
+        trialEndsAt: generateTrialEndDate(),
+      }).returning()
+    }
   }
 
-  if (!user.isActive) {
-    throw new AppError('Cuenta desactivada — contacta al administrador', 403)
-  }
+  if (!user.isActive) throw new AppError('Account deactivated', 403)
 
   req.user = user
   next()
 })
 
-// Igual que protect pero no bloquea si no hay token — solo popula req.user si el token es válido
 export const optionalAuth = async (req, res, next) => {
-  const header = req.headers.authorization
-  if (!header?.startsWith('Bearer ')) return next()
-  const token = header.split(' ')[1]
+  const token = req.headers.authorization?.split(' ')[1]
+  if (!token) return next()
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const [user] = await db
-      .select({ id: users.id, name: users.name, email: users.email, role: users.role, plan: users.plan, isActive: users.isActive })
-      .from(users)
-      .where(eq(users.id, decoded.id))
+    const payload = await clerkClient.verifyToken(token)
+    const [user] = await db.select().from(users).where(eq(users.clerkId, payload.sub))
     if (user?.isActive) req.user = user
   } catch {
-    // token inválido — continuamos sin req.user
+    // invalid token — continue without req.user
   }
   next()
 }

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Calendar, MessageSquare, Clock, CheckCircle } from 'lucide-react';
@@ -6,6 +7,7 @@ import KpiCard from '../../components/ui/KpiCard';
 import { SkeletonStat, SkeletonTable } from '../../components/ui/Skeleton';
 import { getMyChatbotsApi } from '../../api/chatbot';
 import { getChatbotAppointmentsApi } from '../../api/appointments';
+import { activateStripeSessionApi } from '../../api/auth';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
 
@@ -29,8 +31,18 @@ const StatusBadge = ({ status, t }) => {
 };
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const { t, formatDate, formatTime } = useSettings();
+
+  useEffect(() => {
+    const pending = localStorage.getItem('pendingStripeSession');
+    if (!pending) return;
+    const { sessionId } = JSON.parse(pending);
+    localStorage.removeItem('pendingStripeSession');
+    activateStripeSessionApi(sessionId)
+      .then(() => refreshUser())
+      .catch(() => {});
+  }, []);
 
   // Fetches the authenticated client's chatbots
   const { data: chatbotsData, isLoading: chatbotsLoading } = useQuery({

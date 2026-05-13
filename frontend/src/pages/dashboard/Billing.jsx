@@ -65,7 +65,7 @@ const PLANS = [
 ];
 
 const Billing = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
   const { t } = useSettings();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -74,6 +74,12 @@ const Billing = () => {
   const [syncing, setSyncing] = useState(false);
   const [pendingChange, setPendingChange] = useState(null);
   const [confirm, setConfirm] = useState(null); // { plan, amount, currency, isProration, periodEnd }
+
+  // Refresh user on mount to always show the current plan from the server
+  useEffect(() => {
+    refreshUser();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Handles Stripe redirect after payment
   const payment = searchParams.get('payment');
@@ -176,8 +182,8 @@ const Billing = () => {
 
   const hasPaidPlan = ['pro', 'premium'].includes(user?.plan);
 
-  // Show skeleton when auth user data is still being loaded or plan is syncing
-  if (!user || syncing)
+  // Show skeleton only while loading for the first time or syncing
+  if ((loading && !user) || syncing)
     return (
       <DashboardLayout title="Billing">
         <div className="max-w-2xl mx-auto flex flex-col gap-5">
@@ -297,7 +303,7 @@ const Billing = () => {
                 className="text-xl font-black capitalize"
                 style={{ color: 'var(--text-1)' }}
               >
-                {user?.plan}
+                {user?.plan ?? '—'}
               </p>
               {user?.plan === 'trial' && trialDaysLeft !== null && (
                 <div className="flex items-center gap-1.5 mt-1">

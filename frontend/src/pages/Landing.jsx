@@ -38,6 +38,26 @@ const Landing = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(null);
 
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const offset = 72;
+    const target = el.getBoundingClientRect().top + window.scrollY - offset;
+    const start = window.scrollY;
+    const distance = target - start;
+    const duration = Math.min(950, 350 + Math.abs(distance) * 0.25);
+    let startTime = null;
+    const ease = (t) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const step = (ts) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      window.scrollTo(0, start + distance * ease(progress));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+
   const handlePickPlan = async (planId) => {
     try {
       setLoadingPlan(planId);
@@ -245,10 +265,10 @@ const Landing = () => {
           {/* Links desktop */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((item) => (
-              <a
+              <button
                 key={item.label}
-                href={item.href}
-                className="text-sm px-3 py-2 rounded transition-all cursor-pointer"
+                onClick={() => scrollToSection(item.href.slice(1))}
+                className="text-sm px-3 py-2 rounded transition-all cursor-pointer bg-transparent border-0"
                 style={{ color: 'var(--text-3)' }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = 'var(--text-1)';
@@ -260,7 +280,7 @@ const Landing = () => {
                 }}
               >
                 {item.label}
-              </a>
+              </button>
             ))}
           </div>
 
@@ -331,15 +351,14 @@ const Landing = () => {
             >
               <div className="px-4 py-4 flex flex-col gap-2">
                 {NAV_LINKS.map((item) => (
-                  <a
+                  <button
                     key={item.label}
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="text-sm py-2.5 px-3 rounded cursor-pointer"
+                    onClick={() => { scrollToSection(item.href.slice(1)); setMenuOpen(false); }}
+                    className="text-sm py-2.5 px-3 rounded cursor-pointer bg-transparent border-0 text-left"
                     style={{ color: 'var(--text-2)' }}
                   >
                     {item.label}
-                  </a>
+                  </button>
                 ))}
                 <div
                   className="flex flex-col gap-2 pt-3 border-t"
@@ -423,20 +442,19 @@ const Landing = () => {
                   <ArrowRight size={15} />
                 </motion.div>
               </Link>
-              <a href="#features">
-                <motion.div
-                  whileHover={{ scale: 1.03, y: -1 }}
-                  whileTap={{ scale: 0.97 }}
-                  className="flex items-center gap-2 px-7 py-3.5 rounded text-sm font-semibold border cursor-pointer"
-                  style={{
-                    color: 'var(--text-2)',
-                    borderColor: 'var(--border)',
-                    background: 'var(--bg-secondary)',
-                  }}
-                >
-                  {t('landing_ctaSeeHow')}
-                </motion.div>
-              </a>
+              <motion.button
+                whileHover={{ scale: 1.03, y: -1 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => scrollToSection('features')}
+                className="flex items-center gap-2 px-7 py-3.5 rounded text-sm font-semibold border cursor-pointer bg-transparent"
+                style={{
+                  color: 'var(--text-2)',
+                  borderColor: 'var(--border)',
+                  background: 'var(--bg-secondary)',
+                }}
+              >
+                {t('landing_ctaSeeHow')}
+              </motion.button>
             </div>
 
             <p className="text-xs" style={{ color: 'var(--text-3)' }}>
